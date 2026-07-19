@@ -10,7 +10,6 @@ RUN go mod download
 
 COPY . ./
 
-ARG VERSION=dev
 ARG TARGETOS TARGETARCH TARGETVARIANT
 
 RUN --network=none \
@@ -19,15 +18,21 @@ export GOARCH=$TARGETARCH; \
 [[ "$GOARCH" == "amd64" ]] && export GOAMD64=$TARGETVARIANT; \
 [[ "$GOARCH" == "arm" ]] && [[ "$TARGETVARIANT" == "v6" ]] && export GOARM=6; \
 [[ "$GOARCH" == "arm" ]] && [[ "$TARGETVARIANT" == "v7" ]] && export GOARM=7; \
-go build -ldflags "-s -w -X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag=${VERSION}" -o /build/bitmagnet main.go
+go build -ldflags "-s -w" -o /build/bitmagnet main.go
 
 # build runner
 FROM alpine:latest AS runner
 
-LABEL org.opencontainers.image.source="https://github.com/bitmagnet-io/bitmagnet"
-LABEL org.opencontainers.image.base.name="alpine:latest"
-
 RUN apk --no-cache add ca-certificates curl tzdata jq iproute2-ss
+
+ARG POSTGRESQL_URL
+ENV POSTGRESQL_URL=${POSTGRESQL_URL}
+
+# API and Web UI port
+EXPOSE 3333
+# BitTorrent ports
+EXPOSE 3334/tcp
+EXPOSE 3334/udp
 
 COPY --link --from=app-builder /build/bitmagnet* /usr/local/bin/
 
