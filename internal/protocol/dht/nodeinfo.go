@@ -66,13 +66,6 @@ func (CompactIPv4NodeInfo) ElemSize() int {
 	return 26
 }
 
-// func (me *CompactIPv4NodeInfo) Scrub() {
-// 	slices.FilterInPlace(me, func(ni *NodeInfo) bool {
-// 		ni.Addr.IP = ni.Addr.IP.To4()
-// 		return ni.Addr.IP != nil
-// 	})
-// }
-
 func (ni CompactIPv4NodeInfo) MarshalBinary() ([]byte, error) {
 	return marshalBinarySlice(slices.Map(func(ni NodeInfo) NodeInfo {
 		ni.Addr.IP = ni.Addr.IP.To4()
@@ -180,7 +173,7 @@ func makeInto(ptrTo interface{}, from interface{}) {
 	}
 	// Deref the pointer to slice.
 	slicePtrValue := reflect.ValueOf(ptrTo)
-	if slicePtrValue.Kind() != reflect.Ptr {
+	if slicePtrValue.Kind() != reflect.Pointer {
 		panic("destination is not a pointer")
 	}
 

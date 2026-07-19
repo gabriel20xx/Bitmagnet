@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -31,6 +32,15 @@ func NewDefaultConfig() Config {
 func (c *Config) CreateDSN() string {
 	if c.DSN != "" {
 		return c.DSN
+	}
+
+	// POSTGRESQL_URL doesn't fit the config system's POSTGRES_<FIELD> env naming
+	// convention, so it can't be bound to a struct field automatically. It's
+	// supported explicitly here as a lower-priority alias for DSN/POSTGRES_DSN,
+	// for compatibility with platforms (Railway, Coolify, etc.) that inject it
+	// for their managed Postgres add-ons.
+	if url := os.Getenv("POSTGRESQL_URL"); url != "" {
+		return url
 	}
 
 	vals := dbValues(c)

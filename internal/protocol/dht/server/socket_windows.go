@@ -23,6 +23,7 @@ func (s *socket) Open(localAddr netip.AddrPort) error {
 	if addrErr != nil {
 		return addrErr
 	}
+
 	return windows.Bind(s.fd, sAddr)
 }
 
@@ -35,6 +36,7 @@ func (s *socket) Send(remoteAddr netip.AddrPort, data []byte) error {
 	if addrErr != nil {
 		return addrErr
 	}
+
 	return windows.Sendto(s.fd, data, 0, sAddr)
 }
 
@@ -44,12 +46,15 @@ func (s *socket) Receive(data []byte) (int, netip.AddrPort, error) {
 		if ignoreReadFromError(recvErr) {
 			return 0, netip.AddrPort{}, nil
 		}
+
 		return n, netip.AddrPort{}, recvErr
 	}
+
 	addr, addrErr := sockaddrToAddrPort(sAddr)
 	if addrErr != nil {
 		return n, netip.AddrPort{}, addrErr
 	}
+
 	return n, addr, nil
 }
 
@@ -68,6 +73,7 @@ func ignoreReadFromError(err error) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -78,12 +84,14 @@ func addrPortToSockaddr(addr netip.AddrPort) (windows.Sockaddr, error) {
 			Port: int(addr.Port()),
 		}, nil
 	}
+
 	if addr.Addr().Is6() {
 		return &windows.SockaddrInet6{
 			Addr: addr.Addr().As16(),
 			Port: int(addr.Port()),
 		}, nil
 	}
+
 	return nil, errors.New("invalid address")
 }
 

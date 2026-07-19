@@ -354,6 +354,7 @@ func (n branchNode) furthestXor() (NodeID, bool) {
 }
 
 func (n branchNode) allXors() []NodeID {
+	//nolint:prealloc // computing capacity would call the recursive allXors() branches an extra time each
 	var xors []NodeID
 	xors = append(xors, n.branches[Bit0].allXors()...)
 	xors = append(xors, n.branches[Bit1].allXors()...)

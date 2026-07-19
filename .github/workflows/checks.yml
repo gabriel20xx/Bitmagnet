@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v26
+        uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install web UI
@@ -24,9 +24,9 @@ jobs:
           nix develop --ignore-environment --keep HOME . --command task lint
       # Adding golang-ci lint as a separate step as the Nix package is currently broken
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.1.6
+          version: v2.12.2
           args: --timeout=10m
 
   test:
@@ -34,8 +34,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v26
+        uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install web UI
@@ -68,8 +68,8 @@ jobs:
           - 5432:5432
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v26
+        uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install web UI, apply database migrations, generate code, extract translations and build web app

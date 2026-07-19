@@ -9,7 +9,6 @@ tasks:
       - task gen-gql
       - task gen-protoc
       - task gen-mockery
-      - task gen-classifier-schema
       - task gen-webui-graphql
 
   gen-go:
@@ -36,12 +35,13 @@ tasks:
     cmds:
       - go run github.com/vektra/mockery/v2
 
-  gen-classifier-schema:
-    cmds:
-      - go run . classifier schema --format json > ./bitmagnet.io/schemas/classifier-0.1.json
-
   gen-webui-graphql:
     dir: ./webui
+    cmds:
+      - npm run graphql:codegen
+
+  gen-webui-react-graphql:
+    dir: ./webui-react
     cmds:
       - npm run graphql:codegen
 
@@ -66,6 +66,11 @@ tasks:
     cmds:
       - npm run lint
 
+  lint-webui-react:
+    dir: ./webui-react
+    cmds:
+      - npm run lint
+
   lint-prettier:
     cmds:
       - prettier --check .
@@ -86,6 +91,11 @@ tasks:
     env:
       CHROME_BIN: chromium
 
+  test-webui-react:
+    dir: ./webui-react
+    cmds:
+      - npm test
+
   migrate:
     cmds:
       - go run ./internal/dev migrate up
@@ -99,14 +109,18 @@ tasks:
     cmds:
       - npm run build
 
-  build-docsite:
-    dir: ./bitmagnet.io
+  build-webui-react:
+    dir: ./webui-react
     cmds:
-      - bundle install
-      - bundle exec jekyll build
+      - npm run build
 
   install-webui:
     dir: ./webui
+    cmds:
+      - npm ci
+
+  install-webui-react:
+    dir: ./webui-react
     cmds:
       - npm ci
 
@@ -118,13 +132,13 @@ tasks:
       HOST: localhost
       PORT: 3334
 
-  serve-docsite:
-    dir: ./bitmagnet.io
+  serve-webui-react:
+    dir: ./webui-react
     cmds:
-      - bundle exec jekyll serve --host {{.HOST}} --port {{.PORT}} --livereload
+      - npm start -- --host {{.HOST}} --port {{.PORT}}
     vars:
       HOST: localhost
-      PORT: 3335
+      PORT: 3337
 
   export-data:
     cmds:
