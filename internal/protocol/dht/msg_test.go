@@ -11,7 +11,6 @@ import (
 
 	"github.com/anacrolix/torrent/bencode"
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
-	qt "github.com/frankban/quicktest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,17 +20,17 @@ import (
 func testMarshalUnmarshalMsg(t *testing.T, m Msg, expected string) {
 	t.Helper()
 
-	c := qt.New(t)
 	b, err := bencode.Marshal(m)
-	c.Assert(err, qt.IsNil)
-	c.Assert(string(b), qt.Equals, expected)
+	require.NoError(t, err)
+	assert.Equal(t, expected, string(b))
 
 	var _m Msg
+
 	err = bencode.Unmarshal([]byte(expected), &_m)
-	c.Assert(err, qt.IsNil)
-	c.Assert(_m, qt.ContentEquals, m)
-	c.Assert(_m.A, qt.ContentEquals, m.A)
-	c.Assert(_m.R, qt.ContentEquals, m.R)
+	require.NoError(t, err)
+	assert.Equal(t, m, _m)
+	assert.Equal(t, m.A, _m.A)
+	assert.Equal(t, m.R, _m.R)
 }
 
 func TestMarshalUnmarshalMsg(t *testing.T) {
@@ -217,12 +216,11 @@ func TestEmptyScrapeBloomFilterEstimatedCount(t *testing.T) {
 func marshalAndReturnUnmarshaledMsg(t *testing.T, m Msg, expected string) (ret Msg) {
 	t.Helper()
 
-	c := qt.New(t)
 	b, err := bencode.Marshal(m)
-	c.Assert(err, qt.IsNil)
-	c.Assert(string(b), qt.Equals, expected)
+	require.NoError(t, err)
+	assert.Equal(t, expected, string(b))
 	err = bencode.Unmarshal([]byte(expected), &ret)
-	c.Assert(err, qt.IsNil)
+	require.NoError(t, err)
 
 	return
 }
@@ -249,7 +247,6 @@ func TestBep51EmptySampleField(t *testing.T) {
 		"d1:rd2:id20:\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"+
 			"7:samples0:e1:t0:1:y0:e",
 	).R.Samples
-	c := qt.New(t)
-	c.Assert(samples, qt.Not(qt.IsNil))
-	c.Assert(*samples, qt.HasLen, 0)
+	require.NotNil(t, samples)
+	assert.Empty(t, *samples)
 }

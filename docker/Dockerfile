@@ -2,8 +2,6 @@
 FROM --platform=$BUILDPLATFORM golang:1.26.5-alpine3.23 AS app-builder
 RUN apk add --no-cache git tzdata
 
-ENV SERVICE=bitmagnet
-
 WORKDIR /src
 
 # Cache Go modules
@@ -13,24 +11,21 @@ RUN go mod download
 COPY . ./
 
 ARG VERSION=dev
-ARG REVISION=dev
-ARG BUILDTIME
 ARG TARGETOS TARGETARCH TARGETVARIANT
 
-RUN --network=none --mount=target=. \
+RUN --network=none \
 export GOOS=$TARGETOS; \
 export GOARCH=$TARGETARCH; \
 [[ "$GOARCH" == "amd64" ]] && export GOAMD64=$TARGETVARIANT; \
 [[ "$GOARCH" == "arm" ]] && [[ "$TARGETVARIANT" == "v6" ]] && export GOARM=6; \
 [[ "$GOARCH" == "arm" ]] && [[ "$TARGETVARIANT" == "v7" ]] && export GOARM=7; \
-echo $GOARCH $GOOS $GOARM$GOAMD64; \
 go build -ldflags "-s -w -X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag=${VERSION}" -o /build/bitmagnet main.go
 
 # build runner
 FROM alpine:latest AS runner
 
-LABEL org.opencontainers.image.source = "https://github.com/bitmagnet-io/bitmagnet"
-LABEL org.opencontainers.image.base.name = "alpine:latest"
+LABEL org.opencontainers.image.source="https://github.com/bitmagnet-io/bitmagnet"
+LABEL org.opencontainers.image.base.name="alpine:latest"
 
 RUN apk --no-cache add ca-certificates curl tzdata jq iproute2-ss
 

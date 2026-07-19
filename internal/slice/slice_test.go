@@ -6,116 +6,137 @@ import (
 	"testing"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/slice"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestSlice(t *testing.T) {
+func TestMap(t *testing.T) {
 	t.Parallel()
 
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Slice Suite")
+	mapFunc := func(v int) string { return strconv.Itoa(v * 2) }
+
+	t.Run("returns empty slice for an empty input", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, slice.Map([]int{}, mapFunc))
+	})
+
+	t.Run("returns a new slice with elements mapped", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, []string{"2", "4", "6", "8"}, slice.Map([]int{1, 2, 3, 4}, mapFunc))
+	})
 }
 
-var _ = Describe("Slice Utils", func() {
-	Describe("Map", func() {
-		It("returns empty slice for an empty input", func() {
-			mapFunc := func(v int) string { return strconv.Itoa(v * 2) }
-			result := slice.Map([]int{}, mapFunc)
-			Expect(result).To(BeEmpty())
-		})
+func TestMapWithArg(t *testing.T) {
+	t.Parallel()
 
-		It("returns a new slice with elements mapped", func() {
-			mapFunc := func(v int) string { return strconv.Itoa(v * 2) }
-			result := slice.Map([]int{1, 2, 3, 4}, mapFunc)
-			Expect(result).To(ConsistOf("2", "4", "6", "8"))
-		})
+	mapFunc := func(a int, v int) string { return strconv.Itoa(a + v) }
+
+	t.Run("returns empty slice for an empty input", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, slice.MapWithArg([]int{}, 10, mapFunc))
 	})
 
-	Describe("MapWithArg", func() {
-		It("returns empty slice for an empty input", func() {
-			mapFunc := func(a int, v int) string { return strconv.Itoa(a + v) }
-			result := slice.MapWithArg([]int{}, 10, mapFunc)
-			Expect(result).To(BeEmpty())
-		})
+	t.Run("returns a new slice with elements mapped", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, []string{"11", "12", "13", "14"}, slice.MapWithArg([]int{1, 2, 3, 4}, 10, mapFunc))
+	})
+}
 
-		It("returns a new slice with elements mapped", func() {
-			mapFunc := func(a int, v int) string { return strconv.Itoa(a + v) }
-			result := slice.MapWithArg([]int{1, 2, 3, 4}, 10, mapFunc)
-			Expect(result).To(ConsistOf("11", "12", "13", "14"))
-		})
+func TestGroup(t *testing.T) {
+	t.Parallel()
+
+	keyFunc := func(v int) int { return v % 2 }
+
+	t.Run("returns empty map for an empty input", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, slice.Group([]int{}, keyFunc))
 	})
 
-	Describe("Group", func() {
-		It("returns empty map for an empty input", func() {
-			keyFunc := func(v int) int { return v % 2 }
-			result := slice.Group([]int{}, keyFunc)
-			Expect(result).To(BeEmpty())
-		})
+	t.Run("groups by the result of the key function", func(t *testing.T) {
+		t.Parallel()
 
-		It("groups by the result of the key function", func() {
-			keyFunc := func(v int) int { return v % 2 }
-			result := slice.Group([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, keyFunc)
-			Expect(result).To(HaveLen(2))
-			Expect(result[0]).To(ConsistOf(2, 4, 6, 8, 10))
-			Expect(result[1]).To(ConsistOf(1, 3, 5, 7, 9, 11))
-		})
+		result := slice.Group([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, keyFunc)
+		assert.Len(t, result, 2)
+		assert.Equal(t, []int{2, 4, 6, 8, 10}, result[0])
+		assert.Equal(t, []int{1, 3, 5, 7, 9, 11}, result[1])
+	})
+}
+
+func TestToMap(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns empty map for an empty input", func(t *testing.T) {
+		t.Parallel()
+
+		transformFunc := func(v int) (int, string) { return v, strconv.Itoa(v) }
+		assert.Empty(t, slice.ToMap([]int{}, transformFunc))
 	})
 
-	Describe("ToMap", func() {
-		It("returns empty map for an empty input", func() {
-			transformFunc := func(v int) (int, string) { return v, strconv.Itoa(v) }
-			result := slice.ToMap([]int{}, transformFunc)
-			Expect(result).To(BeEmpty())
-		})
+	t.Run("returns a map with the result of the transform function", func(t *testing.T) {
+		t.Parallel()
 
-		It("returns a map with the result of the transform function", func() {
-			transformFunc := func(v int) (int, string) { return v * 2, strconv.Itoa(v * 2) }
-			result := slice.ToMap([]int{1, 2, 3, 4}, transformFunc)
-			Expect(result).To(HaveLen(4))
-			Expect(result).To(HaveKeyWithValue(2, "2"))
-			Expect(result).To(HaveKeyWithValue(4, "4"))
-			Expect(result).To(HaveKeyWithValue(6, "6"))
-			Expect(result).To(HaveKeyWithValue(8, "8"))
-		})
+		transformFunc := func(v int) (int, string) { return v * 2, strconv.Itoa(v * 2) }
+		result := slice.ToMap([]int{1, 2, 3, 4}, transformFunc)
+		assert.Len(t, result, 4)
+		assert.Equal(t, map[int]string{2: "2", 4: "4", 6: "6", 8: "8"}, result)
+	})
+}
+
+func TestUnique(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns empty slice for an empty input", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, slice.Unique([]int{}))
 	})
 
-	Describe("Unique", func() {
-		It("returns empty slice for an empty input", func() {
-			Expect(slice.Unique([]int{})).To(BeEmpty())
-		})
-
-		It("returns the unique elements", func() {
-			Expect(slice.Unique([]int{1, 2, 1, 2, 3, 2})).To(HaveExactElements(1, 2, 3))
-		})
+	t.Run("returns the unique elements", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, []int{1, 2, 3}, slice.Unique([]int{1, 2, 1, 2, 3, 2}))
 	})
+}
 
-	DescribeTable("CollectChunks",
-		func(input []int, n int, expected [][]int) {
+func TestCollectChunks(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		input    []int
+		n        int
+		expected [][]int
+	}{
+		{"returns empty slice (nil) for an empty input", []int{}, 1, nil},
+		{"returns the slice in one chunk if len < chunkSize", []int{1, 2, 3}, 10, [][]int{{1, 2, 3}}},
+		{"breaks up the slice if len > chunkSize", []int{1, 2, 3, 4, 5}, 3, [][]int{{1, 2, 3}, {4, 5}}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			var result [][]int
-			for chunks := range slice.CollectChunks(slices.Values(input), n) {
+			for chunks := range slice.CollectChunks(slices.Values(tt.input), tt.n) {
 				result = append(result, chunks)
 			}
-			Expect(result).To(Equal(expected))
-		},
-		Entry("returns empty slice (nil) for an empty input", []int{}, 1, nil),
-		Entry("returns the slice in one chunk if len < chunkSize", []int{1, 2, 3}, 10, [][]int{{1, 2, 3}}),
-		Entry("breaks up the slice if len > chunkSize", []int{1, 2, 3, 4, 5}, 3, [][]int{{1, 2, 3}, {4, 5}}),
-	)
 
-	Describe("SeqFunc", func() {
-		It("returns empty slice for an empty input", func() {
-			it := slice.SeqFunc([]int{}, func(v int) int { return v })
-
-			result := slices.Collect(it)
-			Expect(result).To(BeEmpty())
+			assert.Equal(t, tt.expected, result)
 		})
+	}
+}
 
-		It("returns a new slice with mapped elements", func() {
-			it := slice.SeqFunc([]int{1, 2, 3, 4}, func(v int) string { return strconv.Itoa(v * 2) })
+func TestSeqFunc(t *testing.T) {
+	t.Parallel()
 
-			result := slices.Collect(it)
-			Expect(result).To(ConsistOf("2", "4", "6", "8"))
-		})
+	t.Run("returns empty slice for an empty input", func(t *testing.T) {
+		t.Parallel()
+
+		it := slice.SeqFunc([]int{}, func(v int) int { return v })
+		assert.Empty(t, slices.Collect(it))
 	})
-})
+
+	t.Run("returns a new slice with mapped elements", func(t *testing.T) {
+		t.Parallel()
+
+		it := slice.SeqFunc([]int{1, 2, 3, 4}, func(v int) string { return strconv.Itoa(v * 2) })
+		assert.Equal(t, []string{"2", "4", "6", "8"}, slices.Collect(it))
+	})
+}
