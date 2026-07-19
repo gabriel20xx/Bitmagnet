@@ -1,25 +1,40 @@
-FROM golang:1.26.5-alpine3.23 AS build
+# build app
+FROM --platform=$BUILDPLATFORM golang:1.26.5-alpine3.23 AS app-builder
+RUN apk add --no-cache git tzdata
 
-RUN apk --update add \
-    gcc \
-    musl-dev \
-    git
+ENV SERVICE=bitmagnet
 
-RUN mkdir /build
+WORKDIR /src
 
-COPY . /build
+# Cache Go modules
+COPY go.mod go.sum ./
+RUN go mod download
 
-WORKDIR /build
+COPY . ./
 
-RUN go build -ldflags "-s -w -X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag=$(git describe --tags --always --dirty)"
+ARG VERSION=dev
+ARG REVISION=dev
+ARG BUILDTIME
+ARG TARGETOS TARGETARCH TARGETVARIANT
 
-FROM alpine:3.23
+RUN --network=none --mount=target=. \
+export GOOS=$TARGETOS; \
+export GOARCH=$TARGETARCH; \
+[[ "$GOARCH" == "amd64" ]] && export GOAMD64=$TARGETVARIANT; \
+[[ "$GOARCH" == "arm" ]] && [[ "$TARGETVARIANT" == "v6" ]] && export GOARM=6; \
+[[ "$GOARCH" == "arm" ]] && [[ "$TARGETVARIANT" == "v7" ]] && export GOARM=7; \
+echo $GOARCH $GOOS $GOARM$GOAMD64; \
+go build -ldflags "-s -w -X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag=${VERSION}" -o /build/bitmagnet main.go
 
-RUN apk --update add \
-    curl \
-    iproute2-ss \
-    && rm -rf /var/cache/apk/*
+# build runner
+FROM alpine:latest AS runner
 
-COPY --from=build /build/bitmagnet /usr/bin/bitmagnet
+LABEL org.opencontainers.image.source = "https://github.com/bitmagnet-io/bitmagnet"
+LABEL org.opencontainers.image.licenses = "MIT"
+LABEL org.opencontainers.image.base.name = "alpine:latest"
 
-ENTRYPOINT ["bitmagnet"]
+RUN apk --no-cache add ca-certificates curl tzdata jq iproute2-ss
+
+COPY --link --from=app-builder /build/bitmagnet* /usr/local/bin/
+
+ENTRYPOINT ["/usr/local/bin/bitmagnet"]

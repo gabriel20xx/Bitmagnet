@@ -1,8 +1,8 @@
-package webui
+package webuireact
 
 import "embed"
 
-//go:embed dist/bitmagnet/browser/*
+//go:embed dist/*
 var staticFS embed.FS
 
 func StaticFS() embed.FS {
