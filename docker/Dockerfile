@@ -42,3 +42,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
         | jq -e '.data.health.status == "UP"' > /dev/null
 
 ENTRYPOINT ["/usr/local/bin/bitmagnet"]
+CMD ["worker", "run", "--all"]
