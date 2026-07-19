@@ -43,8 +43,7 @@ services:
       - "3334:3334/udp"
     restart: unless-stopped
     environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRESQL_URL=postgres://postgres:postgres@postgres:5432/bitmagnet
       # - TMDB_API_KEY=your_api_key
     volumes:
       - ./config:/root/.config/bitmagnet
@@ -147,9 +146,8 @@ A few of the more commonly-tweaked options:
 
 | Option                                                                    | Default                                          | Description                                                                                                                   |
 | ------------------------------------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `postgres.host` / `postgres.name` / `postgres.user` / `postgres.password` | `localhost` / `bitmagnet` / `postgres` / _empty_ | Postgres connection settings.                                                                                                 |
-| `postgres.dsn`                                                            | _empty_                                          | A full Postgres DSN, as an alternative to the discrete `postgres.*` settings above.                                           |
-| `POSTGRESQL_URL` (env var only)                                           | _empty_                                          | An alias for `postgres.dsn`, for platforms (Railway, Coolify, etc.) that inject a Postgres connection string under this name. |
+| `postgres.host` / `postgres.name` / `postgres.user`                      | `localhost` / `bitmagnet` / `postgres`           | Postgres connection settings, used when `POSTGRESQL_URL` isn't set.                                                          |
+| `POSTGRESQL_URL` (env var only)                                           | _empty_                                          | A full Postgres connection string, takes priority over the discrete `postgres.*` settings above.                             |
 | `tmdb.api_key`                                                            | _empty_                                          | Your own [TMDB](https://developer.themoviedb.org/docs) API key — see below.                                                   |
 | `tmdb.enabled`                                                            | `true`                                           | Set to `false` to disable TMDB integration entirely.                                                                          |
 | `dht_crawler.save_files_threshold`                                        | `100`                                            | Maximum number of files saved per torrent (large torrents can have many thousands).                                           |

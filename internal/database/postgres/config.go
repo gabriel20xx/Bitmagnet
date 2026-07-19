@@ -7,13 +7,11 @@ import (
 )
 
 type Config struct {
-	DSN               string
 	Host              string
 	User              string
 	Port              uint
 	Name              string
 	ConnectionTimeout uint
-	Password          string
 	SSLMode           string
 	SSLCertPath       string
 	SSLKeyPath        string
@@ -30,15 +28,10 @@ func NewDefaultConfig() Config {
 }
 
 func (c *Config) CreateDSN() string {
-	if c.DSN != "" {
-		return c.DSN
-	}
-
 	// POSTGRESQL_URL doesn't fit the config system's POSTGRES_<FIELD> env naming
 	// convention, so it can't be bound to a struct field automatically. It's
-	// supported explicitly here as a lower-priority alias for DSN/POSTGRES_DSN,
-	// for compatibility with platforms (Railway, Coolify, etc.) that inject it
-	// for their managed Postgres add-ons.
+	// supported explicitly here, for compatibility with platforms (Railway,
+	// Coolify, etc.) that inject it for their managed Postgres add-ons.
 	if url := os.Getenv("POSTGRESQL_URL"); url != "" {
 		return url
 	}
@@ -74,7 +67,6 @@ func dbValues(cfg *Config) map[string]string {
 	setIfNotEmpty(p, "port", fmt.Sprintf("%d", cfg.Port))
 	setIfNotEmpty(p, "sslmode", cfg.SSLMode)
 	setIfPositive(p, "connect_timeout", cfg.ConnectionTimeout)
-	setIfNotEmpty(p, "password", cfg.Password)
 	setIfNotEmpty(p, "sslcert", cfg.SSLCertPath)
 	setIfNotEmpty(p, "sslkey", cfg.SSLKeyPath)
 	setIfNotEmpty(p, "sslrootcert", cfg.SSLRootCertPath)
