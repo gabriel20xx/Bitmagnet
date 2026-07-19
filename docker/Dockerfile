@@ -30,7 +30,6 @@ go build -ldflags "-s -w -X github.com/bitmagnet-io/bitmagnet/internal/version.G
 FROM alpine:latest AS runner
 
 LABEL org.opencontainers.image.source = "https://github.com/bitmagnet-io/bitmagnet"
-LABEL org.opencontainers.image.licenses = "MIT"
 LABEL org.opencontainers.image.base.name = "alpine:latest"
 
 RUN apk --no-cache add ca-certificates curl tzdata jq iproute2-ss

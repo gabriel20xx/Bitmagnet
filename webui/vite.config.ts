@@ -18,9 +18,7 @@ export default defineConfig({
   },
   server: {
     host: 'localhost',
-    // Distinct from :3333 (API/Angular), :3334 (Angular dev server), and :3336
-    // (this app's embedded production server) to avoid any port ambiguity.
-    port: 3337,
+    port: 3334,
   },
   test: {
     environment: 'jsdom',

@@ -31,7 +31,6 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/validation/validationfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/version/versionfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/webui"
-	"github.com/bitmagnet-io/bitmagnet/internal/webuireact/webuireactfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/worker/workerfx"
 	"go.uber.org/fx"
 )
@@ -59,7 +58,6 @@ func New() fx.Option {
 		torznabfx.New(),
 		validationfx.New(),
 		versionfx.New(),
-		webuireactfx.New(),
 		workerfx.New(),
 		fx.Provide(
 			args.New,

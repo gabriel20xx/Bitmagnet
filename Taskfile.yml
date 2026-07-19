@@ -40,16 +40,6 @@ tasks:
     cmds:
       - npm run graphql:codegen
 
-  gen-webui-react-graphql:
-    dir: ./webui-react
-    cmds:
-      - npm run graphql:codegen
-
-  i18n-extract:
-    dir: ./webui
-    cmds:
-      - npm run i18n:extract
-
   lint:
     cmds:
       # Removing golang-ci lint as the Nix package is currently broken
@@ -63,11 +53,6 @@ tasks:
 
   lint-webui:
     dir: ./webui
-    cmds:
-      - npm run lint
-
-  lint-webui-react:
-    dir: ./webui-react
     cmds:
       - npm run lint
 
@@ -88,13 +73,6 @@ tasks:
     dir: ./webui
     cmds:
       - npm test
-    env:
-      CHROME_BIN: chromium
-
-  test-webui-react:
-    dir: ./webui-react
-    cmds:
-      - npm test
 
   migrate:
     cmds:
@@ -109,18 +87,8 @@ tasks:
     cmds:
       - npm run build
 
-  build-webui-react:
-    dir: ./webui-react
-    cmds:
-      - npm run build
-
   install-webui:
     dir: ./webui
-    cmds:
-      - npm ci
-
-  install-webui-react:
-    dir: ./webui-react
     cmds:
       - npm ci
 
@@ -131,14 +99,6 @@ tasks:
     vars:
       HOST: localhost
       PORT: 3334
-
-  serve-webui-react:
-    dir: ./webui-react
-    cmds:
-      - npm start -- --host {{.HOST}} --port {{.PORT}}
-    vars:
-      HOST: localhost
-      PORT: 3337
 
   export-data:
     cmds:

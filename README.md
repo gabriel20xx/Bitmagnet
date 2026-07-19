@@ -1,8 +1,5 @@
 # bitmagnet
 
-[![Checks](https://github.com/bitmagnet-io/bitmagnet/actions/workflows/checks.yml/badge.svg)](https://github.com/bitmagnet-io/bitmagnet/actions/workflows/checks.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 **A self-hosted BitTorrent indexer, DHT crawler, content classifier and torrent search engine, with a web UI, GraphQL API, and Servarr stack integration.**
 
 > [!WARNING]
@@ -25,7 +22,7 @@ This means bitmagnet isn't reliant on any external tracker or torrent indexer �
 - A highly customizable content classifier that identifies content type, language, resolution, source (BluRay, WEBRip, etc.), and enriches results with data from TMDB
 - A torrent search engine with faceted search (source, tags, file type, language, genre, resolution, ...)
 - A GraphQL API, with an embedded GraphQL Playground at `/graphql`
-- A responsive, multilingual web UI, with an in-progress React-based rewrite previewable alongside the existing one (see [Web UI](#web-ui) below)
+- A responsive, multilingual web UI built with React and Tailwind CSS
 - A Torznab-compatible endpoint for integration with the [Servarr stack](https://wiki.servarr.com/) (Prowlarr, Sonarr, Radarr, etc.)
 - A dashboard for monitoring queues, ingestion throughput, and system health
 
@@ -170,21 +167,18 @@ bitmagnet's HTTP server exposes a Torznab-compatible endpoint at `/torznab`, for
 
 ## Web UI
 
-bitmagnet ships with a responsive, multilingual (14 languages) web UI covering torrent search with faceted filtering, tag management, a monitoring dashboard, and queue administration.
-
-A ground-up rewrite of the web UI (React + Tailwind, replacing the original Angular app) is currently in progress in [`webui-react/`](webui-react). It runs alongside the existing UI on its own port (`webui_react_server.local_address`, default `:3336`) so both can be compared side by side against the same backend. Once it reaches parity, it will replace the Angular UI in [`webui/`](webui).
+bitmagnet ships with a responsive, multilingual (14 languages) web UI, built with React and Tailwind CSS, covering torrent search with faceted filtering, tag management, a monitoring dashboard, and queue administration. It lives in [`webui/`](webui) and is embedded into the Go binary, served at `/webui`.
 
 ## Development
 
 Requires Go 1.26+, Node.js 24+, and Postgres. A [Nix](https://nixos.org/download/) dev shell is provided (`nix develop`) with all required tooling. Common tasks are run via [go-task](https://taskfile.dev/):
 
 ```sh
-task build          # build the bitmagnet binary
-task test           # run Go and web UI tests
-task lint           # run linters
-task migrate        # apply database migrations
-task serve-webui        # run the Angular UI in dev mode
-task serve-webui-react  # run the React UI in dev mode
+task build        # build the bitmagnet binary
+task test         # run Go and web UI tests
+task lint         # run linters
+task migrate      # apply database migrations
+task serve-webui  # run the web UI in dev mode
 ```
 
 See `Taskfile.yml` for the full list of tasks, and `.github/workflows/` for how they're wired into CI.
@@ -208,15 +202,11 @@ Give it up to ~10 minutes (the search cache TTL); the refresh button in the torr
 
 ## Contributing
 
-Contributions are welcome — please review the [code of conduct](CODE_OF_CONDUCT.md) and open an issue or pull request. Are you an experienced developer with knowledge of Go, Postgres, TypeScript/React, and/or the BitTorrent protocol? This project is too big for one person, so if you're interested in contributing please review the open issues and feel free to open a PR.
+Contributions are welcome — please open an issue or pull request. Are you an experienced developer with knowledge of Go, Postgres, TypeScript/React, and/or the BitTorrent protocol? This project is too big for one person, so if you're interested in contributing please review the open issues and feel free to open a PR.
 
 ## Tech stack
 
 - [Go](https://go.dev/) backend with [gin](https://gin-gonic.com/), [gorm](https://gorm.io/), [gqlgen](https://gqlgen.com/), [fx](https://uber-go.github.io/fx/) for dependency injection, and [zap](https://github.com/uber-go/zap) for logging
 - [Postgres](https://www.postgresql.org/) for storage
-- [React](https://react.dev/) + [Tailwind CSS](https://tailwindcss.com/) web UI (with an existing Angular UI still in place during the transition), embedded in the Go binary and served via gin
+- [React](https://react.dev/) + [Tailwind CSS](https://tailwindcss.com/) web UI, embedded in the Go binary and served via gin
 - A [Nix](https://nixos.org/download/) dev shell for a reproducible development environment (`nix develop`, ideally paired with [nix-direnv](https://github.com/nix-community/nix-direnv))
-
-## License
-
-[MIT](LICENSE)

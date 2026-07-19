@@ -24,9 +24,7 @@
             nodePackages.prettier
             protobuf
             protoc-gen-go
-          ] ++ (if stdenv.isLinux then [
-            chromium
-          ] else []);
+          ];
         };
       };
     });

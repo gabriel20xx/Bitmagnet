@@ -1,4 +1,4 @@
-package webuireact
+package webui
 
 import "embed"
 

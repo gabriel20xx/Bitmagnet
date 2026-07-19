@@ -41,7 +41,7 @@ func (*builder) Key() string {
 func (b *builder) Apply(e *gin.Engine) error {
 	webuiFS := webui.StaticFS()
 
-	appRoot, appRootErr := fs.Sub(webuiFS, "dist/bitmagnet/browser")
+	appRoot, appRootErr := fs.Sub(webuiFS, "dist")
 	if appRootErr != nil {
 		b.logger.Errorf(
 			"the webui app root directory is missing; run `npm run build` within the `webui` folder: %v",
