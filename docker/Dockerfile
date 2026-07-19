@@ -34,6 +34,11 @@ EXPOSE 3333
 EXPOSE 3334/tcp
 EXPOSE 3334/udp
 
-COPY --link --from=app-builder /build/bitmagnet* /usr/local/bin/
+COPY --link --from=app-builder /build/bitmagnet /usr/local/bin/bitmagnet
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD curl -sf -X POST -H 'Content-Type: application/json' \
+        -d '{"query":"{health{status}}"}' http://localhost:3333/graphql \
+        | jq -e '.data.health.status == "UP"' > /dev/null
 
 ENTRYPOINT ["/usr/local/bin/bitmagnet"]
