@@ -31,6 +31,7 @@ type Content struct {
 	CreatedAt        time.Time           `gorm:"column:created_at;not null;<-:create" json:"createdAt"`
 	UpdatedAt        time.Time           `gorm:"column:updated_at;not null" json:"updatedAt"`
 	Tsv              fts.Tsvector        `gorm:"column:tsv" json:"tsv"`
+	SearchString     string              `gorm:"column:search_string;not null" json:"searchString"`
 	Collections      []ContentCollection `gorm:"many2many:content_collections_content" json:"collections"`
 	Attributes       []ContentAttribute  `json:"attributes"`
 	MetadataSource   MetadataSource      `gorm:"foreignKey:Source" json:"metadata_source"`

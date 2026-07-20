@@ -1,6 +1,8 @@
 package model
 
 import (
+	"strings"
+
 	"github.com/bitmagnet-io/bitmagnet/internal/database/fts"
 )
 
@@ -82,27 +84,34 @@ func getExternalLinkURL(contentType ContentType, source, id string) NullString {
 
 func (c *Content) UpdateTsv() {
 	tsv := fts.Tsvector{}
-	tsv.AddText(c.Title, fts.TsvectorWeightA)
+	searchParts := make([]string, 0, 8)
+	addText := func(text string, weight fts.TsvectorWeight) {
+		tsv.AddText(text, weight)
+		searchParts = append(searchParts, text)
+	}
+
+	addText(c.Title, fts.TsvectorWeightA)
 
 	if c.OriginalTitle.Valid && c.Title != c.OriginalTitle.String {
-		tsv.AddText(c.OriginalTitle.String, fts.TsvectorWeightA)
+		addText(c.OriginalTitle.String, fts.TsvectorWeightA)
 	}
 
 	if !c.ReleaseYear.IsNil() {
-		tsv.AddText(c.ReleaseYear.String(), fts.TsvectorWeightB)
+		addText(c.ReleaseYear.String(), fts.TsvectorWeightB)
 	}
 
 	for _, c := range c.Collections {
 		if c.Type == "genre" {
-			tsv.AddText(c.Name, fts.TsvectorWeightD)
+			addText(c.Name, fts.TsvectorWeightD)
 		}
 	}
 
 	for _, a := range c.Attributes {
 		if a.Key == "id" {
-			tsv.AddText(a.Value, fts.TsvectorWeightD)
+			addText(a.Value, fts.TsvectorWeightD)
 		}
 	}
 
 	c.Tsv = tsv
+	c.SearchString = strings.Join(searchParts, " ")
 }

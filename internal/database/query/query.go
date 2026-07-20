@@ -402,6 +402,7 @@ type optionBuilder struct {
 	//revive:disable-next-line:nested-structs
 	requiredJoins     maps.InsertMap[string, struct{}]
 	tsquery           string
+	similarityQuery   string
 	scopes            []Scope
 	selections        []clause.Expr
 	groupBy           []clause.Column
@@ -475,6 +476,7 @@ func (b optionBuilder) RequireJoin(names ...string) OptionBuilder {
 
 func (b optionBuilder) QueryString(str string) OptionBuilder {
 	b.tsquery = fts.AppQueryToTsquery(str)
+	b.similarityQuery = fts.AppQueryToPlainWords(str)
 	return b
 }
 
@@ -614,9 +616,17 @@ func (b optionBuilder) applySelect(db *gorm.DB, withOrderSelect bool) error {
 				rankFragment := "0"
 				args := make([]interface{}, 0)
 
-				if b.tsquery != "" {
+				switch {
+				case b.tsquery != "" && b.similarityQuery != "":
+					rankFragment = "GREATEST(ts_rank_cd(" + b.tableName + ".tsv, ?::tsquery), " +
+						"similarity(lower(" + b.tableName + ".search_string), lower(?)))"
+					args = append(args, b.tsquery, b.similarityQuery)
+				case b.tsquery != "":
 					rankFragment = "ts_rank_cd(" + b.tableName + ".tsv, ?::tsquery)"
 					args = append(args, b.tsquery)
+				case b.similarityQuery != "":
+					rankFragment = "similarity(lower(" + b.tableName + ".search_string), lower(?))"
+					args = append(args, b.similarityQuery)
 				}
 
 				selectQueryParts = append(selectQueryParts, rankFragment+" AS "+alias)
@@ -643,8 +653,23 @@ func (b optionBuilder) applyPre(sq SubQuery, withOrderJoins bool) error {
 		}
 	}
 
-	if b.tsquery != "" {
-		sq.UnderlyingDB().Where(b.tableName+".tsv @@ ?::tsquery", b.tsquery)
+	if b.tsquery != "" || b.similarityQuery != "" {
+		conditions := make([]string, 0, 2)
+		args := make([]interface{}, 0, 2)
+
+		if b.tsquery != "" {
+			conditions = append(conditions, b.tableName+".tsv @@ ?::tsquery")
+			args = append(args, b.tsquery)
+		}
+
+		if b.similarityQuery != "" {
+			// pg_trgm's "%" operator: true when similarity() clears pg_trgm.similarity_threshold
+			// (0.3 by default), giving typo-tolerant fuzzy matching alongside the exact tsquery match above.
+			conditions = append(conditions, "lower("+b.tableName+".search_string) % lower(?)")
+			args = append(args, b.similarityQuery)
+		}
+
+		sq.UnderlyingDB().Where(strings.Join(conditions, " OR "), args...)
 	}
 
 	requiredJoins := b.requiredJoins.Copy()
@@ -820,7 +845,7 @@ func (b optionBuilder) shouldTryCteStrategy() bool {
 		}
 	}
 
-	return b.tsquery != "" && (len(b.orderBy) != 1 ||
+	return (b.tsquery != "" || b.similarityQuery != "") && (len(b.orderBy) != 1 ||
 		b.orderBy[0].Column.Name != QueryStringRankField ||
 		!b.orderBy[0].Desc)
 }

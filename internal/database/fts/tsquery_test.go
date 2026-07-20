@@ -42,3 +42,28 @@ func TestAppQueryToTsquery(t *testing.T) {
 		})
 	}
 }
+
+func TestAppQueryToPlainWords(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"empty", "", ""},
+		{"1 word", "foo", "foo"},
+		{"typo", "intersteller", "intersteller"},
+		{"2 words", "foo Bar", "foo bar"},
+		{
+			"quotes, operators, parens, wildcards", "\"make me a \" . (sandwich | panini) !cheese mayo*",
+			"make me a sandwich panini cheese mayo",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, fts.AppQueryToPlainWords(tt.input))
+		})
+	}
+}

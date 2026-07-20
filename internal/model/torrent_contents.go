@@ -65,42 +65,52 @@ func (tc TorrentContent) ContentRef() Maybe[ContentRef] {
 
 func (tc *TorrentContent) UpdateTsv() {
 	var tsv fts.Tsvector
-	if !tc.ContentID.Valid {
-		tsv = fts.Tsvector{}
-	} else {
+	searchParts := make([]string, 0, 8)
+	if tc.ContentID.Valid {
 		tsv = tc.Content.Tsv.Copy()
+		if tc.Content.SearchString != "" {
+			searchParts = append(searchParts, tc.Content.SearchString)
+		}
+	} else {
+		tsv = fts.Tsvector{}
+	}
+
+	addText := func(text string, weight fts.TsvectorWeight) {
+		tsv.AddText(text, weight)
+		searchParts = append(searchParts, text)
 	}
 
 	if tc.VideoResolution.Valid {
-		tsv.AddText(tc.VideoResolution.VideoResolution.Label(), fts.TsvectorWeightC)
+		addText(tc.VideoResolution.VideoResolution.Label(), fts.TsvectorWeightC)
 	}
 
 	if tc.VideoSource.Valid {
-		tsv.AddText(tc.VideoSource.VideoSource.String(), fts.TsvectorWeightC)
+		addText(tc.VideoSource.VideoSource.String(), fts.TsvectorWeightC)
 	}
 
 	if tc.VideoCodec.Valid {
-		tsv.AddText(tc.VideoCodec.VideoCodec.String(), fts.TsvectorWeightC)
+		addText(tc.VideoCodec.VideoCodec.String(), fts.TsvectorWeightC)
 	}
 
 	if tc.Video3D.Valid {
-		tsv.AddText("3D", fts.TsvectorWeightC)
+		addText("3D", fts.TsvectorWeightC)
 	}
 
 	if tc.VideoModifier.Valid {
-		tsv.AddText(tc.VideoModifier.VideoModifier.String(), fts.TsvectorWeightC)
+		addText(tc.VideoModifier.VideoModifier.String(), fts.TsvectorWeightC)
 	}
 
 	if tc.ReleaseGroup.Valid {
-		tsv.AddText(tc.ReleaseGroup.String, fts.TsvectorWeightC)
+		addText(tc.ReleaseGroup.String, fts.TsvectorWeightC)
 	}
 
-	tsv.AddText(tc.InfoHash.String(), fts.TsvectorWeightA)
-	tsv.AddText(tc.Torrent.Name, fts.TsvectorWeightA)
+	addText(tc.InfoHash.String(), fts.TsvectorWeightA)
+	addText(tc.Torrent.Name, fts.TsvectorWeightA)
 
 	for _, str := range tc.Torrent.fileSearchStrings() {
-		tsv.AddText(str, fts.TsvectorWeightD)
+		addText(str, fts.TsvectorWeightD)
 	}
 
 	tc.Tsv = tsv
+	tc.SearchString = strings.Join(searchParts, " ")
 }

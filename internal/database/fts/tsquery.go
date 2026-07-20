@@ -23,6 +23,33 @@ func AppQueryToTsquery(str string) string {
 	return appQueryTokensToTsquery(tokens...)
 }
 
+// AppQueryToPlainWords extracts the literal words/phrases from an app query string,
+// discarding operators, negation, parens and wildcards. Trigram similarity matching
+// (used for typo-tolerant fuzzy search) needs plain text to compare against, not the
+// boolean tsquery expression produced by AppQueryToTsquery.
+func AppQueryToPlainWords(str string) string {
+	l := queryLexer{newLexer(str)}
+
+	var words []string
+
+	for {
+		token, ok := l.readQueryToken()
+		if !ok {
+			break
+		}
+
+		switch token.Token {
+		case TokenPhrase, TokenQuoted:
+			// TokenizeFlat both splits on internal whitespace (quoted phrases carry it
+			// verbatim, e.g. `"make me a "`) and lowercases, matching how tsquery lexemes
+			// are normalized elsewhere in this package.
+			words = append(words, TokenizeFlat(token.Value)...)
+		}
+	}
+
+	return strings.Join(words, " ")
+}
+
 type queryLexer struct {
 	ftsLexer
 }
