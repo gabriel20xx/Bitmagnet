@@ -1,4 +1,15 @@
-import { BookOpen, Clapperboard, Gamepad2, HelpCircle, Mic, Monitor, Music, Tv, type LucideIcon } from 'lucide-react'
+import {
+  BookOpen,
+  Clapperboard,
+  Flame,
+  Gamepad2,
+  HelpCircle,
+  Mic,
+  Monitor,
+  Music,
+  Tv,
+  type LucideIcon,
+} from 'lucide-react'
 import type { ContentType } from '@/lib/graphql/generated'
 
 interface ContentTypeInfo {
@@ -14,7 +25,7 @@ export const contentTypeMap: Record<ContentType | 'null', ContentTypeInfo> = {
   audiobook: { icon: Mic },
   software: { icon: Monitor },
   game: { icon: Gamepad2 },
-  xxx: { icon: HelpCircle },
+  xxx: { icon: Flame },
   null: { icon: HelpCircle },
 }
 

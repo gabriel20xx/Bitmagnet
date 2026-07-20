@@ -28,6 +28,10 @@ func (torrentContentAttributeFacet[T]) Values(query.FacetContext) (map[string]st
 }
 
 func (f torrentContentAttributeFacet[T]) Criteria(filter query.FacetFilter) []query.Criteria {
+	if len(filter) == 0 {
+		return []query.Criteria{}
+	}
+
 	return []query.Criteria{
 		query.GenCriteria(func(ctx query.DBContext) (query.Criteria, error) {
 			fld := f.field(ctx.Query())

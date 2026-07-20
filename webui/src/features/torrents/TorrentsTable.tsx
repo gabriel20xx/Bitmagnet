@@ -54,7 +54,7 @@ export function TorrentsTable({
         <thead>
           <tr className="text-muted-fg">
             {displayedColumns.includes('select') && (
-              <th className="w-8 py-2">
+              <th className="w-8 py-2 text-center">
                 <SimpleTooltip label={isAllSelected ? t('torrents.deselect_all') : t('torrents.select_all')}>
                   <Checkbox checked={isAllSelected} indeterminate={isIndeterminate} onCheckedChange={onToggleAll} />
                 </SimpleTooltip>
@@ -91,7 +91,7 @@ export function TorrentsTable({
                   }
                 >
                   {displayedColumns.includes('select') && (
-                    <td className="py-2" onClick={(e) => e.stopPropagation()}>
+                    <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         checked={selected.has(item.infoHash)}
                         onCheckedChange={() => onToggleSelected(item.infoHash)}

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { defaultDarkTheme, defaultLightTheme, isThemeKey, themeList, type ThemeKey } from './registry'
+import { darkTheme, lightTheme, type ThemeKey } from './registry'
 
 const STORAGE_KEY = 'bitmagnet-theme'
 
@@ -10,58 +10,45 @@ function prefersDarkMediaQuery(): MediaQueryList | undefined {
     : undefined
 }
 
-function getAutoTheme(): ThemeKey {
-  return prefersDarkMediaQuery()?.matches ? defaultDarkTheme : defaultLightTheme
-}
-
-function getStoredTheme(): ThemeKey | undefined {
+function getStoredIsDark(): boolean | undefined {
   const value = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null
-  return value && isThemeKey(value) ? value : undefined
+  return value === darkTheme ? true : value === lightTheme ? false : undefined
 }
 
 interface ThemeContextValue {
   theme: ThemeKey
-  /** undefined when following "auto" (system preference) */
-  selectedTheme: ThemeKey | undefined
-  themes: typeof themeList
-  setTheme: (theme: ThemeKey | 'auto') => void
+  isDark: boolean
+  toggleTheme: () => void
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [selectedTheme, setSelectedTheme] = useState<ThemeKey | undefined>(() => getStoredTheme())
-  const [autoTheme, setAutoTheme] = useState<ThemeKey>(() => getAutoTheme())
+  const [isDark, setIsDark] = useState<boolean>(() => getStoredIsDark() ?? prefersDarkMediaQuery()?.matches ?? false)
 
   useEffect(() => {
     const mql = prefersDarkMediaQuery()
-    if (!mql) return
-    const onChange = () => setAutoTheme(getAutoTheme())
+    if (!mql || getStoredIsDark() !== undefined) return
+    const onChange = () => setIsDark(mql.matches)
     mql.addEventListener('change', onChange)
     return () => mql.removeEventListener('change', onChange)
   }, [])
 
-  const theme = selectedTheme ?? autoTheme
+  const theme = isDark ? darkTheme : lightTheme
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
 
-  const setTheme = useCallback((next: ThemeKey | 'auto') => {
-    if (next === 'auto') {
-      window.localStorage.removeItem(STORAGE_KEY)
-      setSelectedTheme(undefined)
-      setAutoTheme(getAutoTheme())
-    } else {
-      window.localStorage.setItem(STORAGE_KEY, next)
-      setSelectedTheme(next)
-    }
+  const toggleTheme = useCallback(() => {
+    setIsDark((prev) => {
+      const next = !prev
+      window.localStorage.setItem(STORAGE_KEY, next ? darkTheme : lightTheme)
+      return next
+    })
   }, [])
 
-  const value = useMemo<ThemeContextValue>(
-    () => ({ theme, selectedTheme, themes: themeList, setTheme }),
-    [theme, selectedTheme, setTheme],
-  )
+  const value = useMemo<ThemeContextValue>(() => ({ theme, isDark, toggleTheme }), [theme, isDark, toggleTheme])
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

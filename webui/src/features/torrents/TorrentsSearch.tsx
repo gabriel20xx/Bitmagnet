@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RefreshCw, X, ArrowDown, ArrowUp, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -53,9 +53,21 @@ export function TorrentsSearch() {
   const commitQuery = (value: string) =>
     updateControls((c) => ({ ...c, queryString: value || undefined, page: value === c.queryString ? c.page : 1 }))
 
+  // Auto-search shortly after the user stops typing; Enter (below) still commits immediately.
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      updateControls((c) => ({
+        ...c,
+        queryString: queryInput || undefined,
+        page: queryInput === (c.queryString ?? '') ? c.page : 1,
+      }))
+    }, 300)
+    return () => clearTimeout(handle)
+  }, [queryInput, updateControls])
+
   return (
     <div className="flex">
-      {(isDesktop || drawerOpen) && <FacetsSidebar controls={controls} result={result} onUpdate={updateControls} />}
+      {drawerOpen && <FacetsSidebar controls={controls} result={result} onUpdate={updateControls} />}
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <SimpleTooltip label={t('torrents.toggle_drawer')}>

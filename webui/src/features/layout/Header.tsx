@@ -1,15 +1,12 @@
 import { NavLink, Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Magnet, LayoutDashboard, Heart } from 'lucide-react'
+import { Magnet, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
-import { Button } from '@/components/ui/button'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
-import { Version } from '@/features/version/Version'
 import { HealthWidget } from '@/features/health/HealthWidget'
-import { ThemeMenu } from './ThemeMenu'
+import { ThemeToggle } from './ThemeToggle'
 import { LanguageMenu } from './LanguageMenu'
-import { ExternalLinksMenu } from './ExternalLinksMenu'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -27,8 +24,9 @@ export function Header() {
         <>
           <Link to="/torrents" className="flex items-center gap-2 pr-2 font-semibold">
             <Magnet className="size-5 text-primary" />
-            <span>bitmagnet</span>
-            <Version />
+            <span>
+              <span className="text-lg">B</span>itmagnet
+            </span>
           </Link>
           <nav className="flex items-center gap-1">
             <NavLink to="/torrents" className={navLinkClass}>
@@ -57,18 +55,8 @@ export function Header() {
       <span className="flex-1" />
 
       <HealthWidget />
-      <ThemeMenu />
+      <ThemeToggle />
       <LanguageMenu />
-      <ExternalLinksMenu />
-
-      <SimpleTooltip label={isDesktop ? t('layout.support_bitmagnet') : t('layout.sponsor')}>
-        <Button variant="ghost" size={isDesktop ? 'default' : 'icon'} asChild>
-          <a href="https://opencollective.com/bitmagnet" target="_blank" rel="noreferrer">
-            <Heart className="size-4 text-secondary" />
-            {isDesktop && t('layout.sponsor')}
-          </a>
-        </Button>
-      </SimpleTooltip>
     </header>
   )
 }

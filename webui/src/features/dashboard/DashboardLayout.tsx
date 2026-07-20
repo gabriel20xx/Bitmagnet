@@ -18,7 +18,7 @@ export function DashboardLayout() {
   const isDesktop = useIsDesktop()
   const [open, setOpen] = useState(true)
 
-  const showDrawer = isDesktop || open
+  const showDrawer = open
 
   return (
     <div className="flex min-h-[calc(100svh-3.5rem)]">

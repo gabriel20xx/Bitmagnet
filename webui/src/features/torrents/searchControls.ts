@@ -200,10 +200,17 @@ function matchesContentType(selection: ContentTypeSelection, cts?: ContentType[]
   return !cts || !!(selection && cts.includes(selection as ContentType))
 }
 
+// Appends the tsquery prefix-match operator (already supported server-side, see
+// internal/database/fts/tsquery.go) to the last word, so an in-progress word matches
+// anything starting with it instead of requiring an exact/whole-word match.
+function withPrefixMatch(str: string): string {
+  return /\w$/.test(str) ? `${str}*` : str
+}
+
 export function controlsToQueryVariables(ctrl: TorrentSearchControls): TorrentContentSearchQueryVariables {
   return {
     input: {
-      queryString: ctrl.queryString,
+      queryString: ctrl.queryString ? withPrefixMatch(ctrl.queryString) : ctrl.queryString,
       limit: ctrl.limit,
       page: ctrl.page,
       totalCount: true,
