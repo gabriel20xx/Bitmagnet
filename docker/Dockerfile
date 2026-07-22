@@ -1,3 +1,14 @@
+# build web ui
+FROM --platform=$BUILDPLATFORM node:24-alpine AS webui-builder
+WORKDIR /src/webui
+
+# Cache npm dependencies
+COPY webui/package.json webui/package-lock.json ./
+RUN npm ci
+
+COPY webui/ ./
+RUN npm run build
+
 # build app
 FROM --platform=$BUILDPLATFORM golang:1.26.5-alpine3.23 AS app-builder
 RUN apk add --no-cache git tzdata
@@ -9,6 +20,11 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . ./
+
+# Overwrite the committed webui/dist (kept in git only so a plain `go build` works
+# without Node) with a fresh build from current source, so editing webui/src alone
+# is enough for changes to ship in this image.
+COPY --from=webui-builder /src/webui/dist ./webui/dist
 
 ARG TARGETOS TARGETARCH TARGETVARIANT
 

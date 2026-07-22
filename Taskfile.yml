@@ -80,6 +80,8 @@ tasks:
 
   build:
     cmds:
+      - task: install-webui
+      - task: build-webui
       - go build -ldflags "-X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag=$(git describe --tags --always --dirty)"
 
   build-webui:

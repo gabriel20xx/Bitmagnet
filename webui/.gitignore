@@ -8,8 +8,10 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-# dist is intentionally committed: internal/webuireact embeds it at compile
-# time via //go:embed, so it must exist in a fresh checkout for `go build`.
+# dist is built by `task build-webui` (chained into `task build`) and by the
+# goreleaser/Docker build hooks before any Go build that embeds it via
+# //go:embed, so it no longer needs to be committed.
+dist
 dist-ssr
 *.local
 
