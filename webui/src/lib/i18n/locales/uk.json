@@ -245,6 +245,8 @@
     "delete_action_cannot_be_undone": "Цю дію не можна скасувати",
     "delete_are_you_sure": "Ви впевнені, що хочете видалити цей торрент?",
     "deselect_all": "Зняти виділення",
+    "download": "Завантажити",
+    "download_torrent_file": "Завантажити файл .torrent",
     "edit_tags": "Редагувати теги",
     "episodes": "Епізоди",
     "external_links": "Зовнішні посилання",

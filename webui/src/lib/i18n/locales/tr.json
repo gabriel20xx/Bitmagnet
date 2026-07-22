@@ -245,6 +245,8 @@
     "delete_action_cannot_be_undone": "Bu işlem geri alınamaz",
     "delete_are_you_sure": "Bu torrent'i silmek istediğinizden emin misiniz?",
     "deselect_all": "Tüm Seçimleri Kaldır",
+    "download": "İndir",
+    "download_torrent_file": ".torrent dosyasını indir",
     "edit_tags": "Etiketleri Düzenle",
     "episodes": "Bölümler",
     "external_links": "Dış Bağlantılar",

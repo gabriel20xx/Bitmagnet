@@ -38,7 +38,7 @@ export function QueueJobsTable({
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="text-muted-fg">
-            {displayedColumns.includes('id') && <th className="py-2 font-medium">ID</th>}
+            {displayedColumns.includes('id') && <th className="py-2 pl-3 font-medium">ID</th>}
             {displayedColumns.includes('queue') && <th className="py-2 font-medium">{t('dashboard.queues.queue')}</th>}
             {displayedColumns.includes('priority') && (
               <th className="py-2 font-medium">{t('dashboard.queues.priority')}</th>
@@ -66,7 +66,7 @@ export function QueueJobsTable({
                   }
                 >
                   {displayedColumns.includes('id') && (
-                    <td className="max-w-40 truncate py-2 font-mono text-xs">{item.id}</td>
+                    <td className="max-w-40 truncate py-2 pl-3 font-mono text-xs">{item.id}</td>
                   )}
                   {displayedColumns.includes('queue') && <td className="py-2">{item.queue}</td>}
                   {displayedColumns.includes('priority') && (

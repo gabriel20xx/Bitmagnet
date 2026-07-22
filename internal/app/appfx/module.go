@@ -27,6 +27,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/queue/queuefx"
 	"github.com/bitmagnet-io/bitmagnet/internal/telemetry/telemetryfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/tmdb/tmdbfx"
+	"github.com/bitmagnet-io/bitmagnet/internal/torrentfile/torrentfilefx"
 	"github.com/bitmagnet-io/bitmagnet/internal/torznab/torznabfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/validation/validationfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/version/versionfx"
@@ -55,6 +56,7 @@ func New() fx.Option {
 		queuefx.New(),
 		telemetryfx.New(),
 		tmdbfx.New(),
+		torrentfilefx.New(),
 		torznabfx.New(),
 		validationfx.New(),
 		versionfx.New(),

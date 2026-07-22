@@ -225,6 +225,8 @@
     "delete_action_cannot_be_undone": "Aquesta acció no es pot desfer",
     "delete_are_you_sure": "Estàs segur que vols esborrar aquest torrent?",
     "deselect_all": "Desselecciona-ho tot",
+    "download": "Descarrega",
+    "download_torrent_file": "Descarrega el fitxer .torrent",
     "edit_tags": "Edita l'etiqueta",
     "episodes": "Episodis",
     "external_links": "Enllaços externs",

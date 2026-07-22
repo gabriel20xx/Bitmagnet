@@ -28,7 +28,7 @@ export function useTorrentSearch(controls: TorrentSearchControls) {
     return { input: { ...v.input, cached: true } }
   }, [controls])
 
-  const { data, loading, error, refetch } = useQuery(TorrentContentSearchDocument, {
+  const { data, previousData, loading, error, refetch } = useQuery(TorrentContentSearchDocument, {
     variables,
     fetchPolicy: 'no-cache',
   })
@@ -37,7 +37,10 @@ export function useTorrentSearch(controls: TorrentSearchControls) {
     if (error) addError(`Error loading item results: ${error.message}`)
   }, [error])
 
-  const result = data?.torrentContent.search ?? emptyResult
+  // With fetchPolicy 'no-cache', `data` goes undefined while a new variables set (e.g. toggling
+  // a facet accordion, which flips that facet's `aggregate` flag) is in flight. Falling back to
+  // previousData keeps the table/sidebar showing the last results instead of flickering empty.
+  const result = data?.torrentContent.search ?? previousData?.torrentContent.search ?? emptyResult
 
   const refresh = () => {
     void refetch({ input: { ...variables.input, cached: false } })

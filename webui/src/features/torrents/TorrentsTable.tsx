@@ -1,10 +1,11 @@
 import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Magnet, HelpCircle } from 'lucide-react'
+import { Magnet, Download, HelpCircle } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { formatTimeAgo } from '@/lib/dates/format'
+import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { contentTypeInfo } from './contentTypes'
 import { TorrentChips } from './TorrentChips'
@@ -78,7 +79,7 @@ export function TorrentsTable({
               </th>
             )}
             {displayedColumns.includes('magnet') && (
-              <th className="py-2 text-center font-medium">{t('torrents.magnet')}</th>
+              <th className="py-2 text-center font-medium">{t('torrents.download')}</th>
             )}
           </tr>
         </thead>
@@ -139,9 +140,14 @@ export function TorrentsTable({
                   )}
                   {displayedColumns.includes('magnet') && (
                     <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
-                      <a href={item.torrent.magnetUri} title={t('torrents.magnet')}>
-                        <Magnet className="mx-auto size-4 text-primary" />
-                      </a>
+                      <div className="flex items-center justify-center gap-2">
+                        <a href={item.torrent.magnetUri} title={t('torrents.magnet')}>
+                          <Magnet className="size-4 text-primary" />
+                        </a>
+                        <a href={resolveTorrentDownloadUrl(item.infoHash)} title={t('torrents.download_torrent_file')}>
+                          <Download className="size-4 text-primary" />
+                        </a>
+                      </div>
                     </td>
                   )}
                 </tr>
