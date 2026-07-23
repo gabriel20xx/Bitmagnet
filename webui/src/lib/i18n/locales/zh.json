@@ -278,6 +278,8 @@
     "original_release_date": "原始发布日期",
     "permalink": "永久链接",
     "poster": "海报",
+    "preview_failed": "无法播放此文件",
+    "preview_file": "预览文件",
     "published": "已发布",
     "rating": "评分",
     "refresh": "刷新结果",

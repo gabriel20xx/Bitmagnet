@@ -278,6 +278,8 @@
     "original_release_date": "تاريخ الإصدار الأصلي",
     "permalink": "رابط دائم",
     "poster": "ملصق",
+    "preview_failed": "تعذر تشغيل هذا الملف",
+    "preview_file": "معاينة الملف",
     "published": "منشور",
     "rating": "التقييم",
     "refresh": "تحديث النتائج",

@@ -278,6 +278,8 @@
     "original_release_date": "Date de sortie originale",
     "permalink": "Permalien",
     "poster": "Affiche",
+    "preview_failed": "Ce fichier n'a pas pu être lu",
+    "preview_file": "Aperçu du fichier",
     "published": "Publié",
     "rating": "Évaluation",
     "refresh": "Rafraîchir les résultats",

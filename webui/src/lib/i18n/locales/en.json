@@ -275,6 +275,8 @@
     "original_release_date": "Original release date",
     "permalink": "Permalink",
     "poster": "Poster",
+    "preview_failed": "This file couldn't be played",
+    "preview_file": "Preview file",
     "published": "Published",
     "rating": "Rating",
     "refresh": "Refresh results",

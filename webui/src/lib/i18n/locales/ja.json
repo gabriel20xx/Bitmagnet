@@ -278,6 +278,8 @@
     "original_release_date": "オリジナルの発売日",
     "permalink": "パーマリンク",
     "poster": "ポスター",
+    "preview_failed": "このファイルは再生できませんでした",
+    "preview_file": "ファイルをプレビュー",
     "published": "公開済み",
     "rating": "評価",
     "refresh": "結果を更新",

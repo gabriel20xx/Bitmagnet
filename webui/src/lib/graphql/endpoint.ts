@@ -13,3 +13,7 @@ export function resolveGraphqlEndpoint(): string {
 export function resolveTorrentDownloadUrl(infoHash: string): string {
   return `${resolveApiOrigin()}/torrents/${infoHash}/download`
 }
+
+export function resolveTorrentFileStreamUrl(infoHash: string, index: number): string {
+  return `${resolveApiOrigin()}/torrents/${infoHash}/files/${index}/stream`
+}

@@ -256,6 +256,8 @@
     "original_release_date": "Data de llançament original",
     "permalink": "Enllaç permanent",
     "poster": "Pòster",
+    "preview_failed": "No s'ha pogut reproduir aquest fitxer",
+    "preview_file": "Previsualitza el fitxer",
     "published": "Publicat",
     "rating": "Valoració",
     "refresh": "Actualitza els resultats",

@@ -20,6 +20,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/httpserver/httpserverfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/importer/importerfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/logging/loggingfx"
+	"github.com/bitmagnet-io/bitmagnet/internal/mediastream/mediastreamfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/metricsfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/processor/processorfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/dhtfx"
@@ -50,6 +51,7 @@ func New() fx.Option {
 		httpserverfx.New(),
 		importerfx.New(),
 		loggingfx.New(),
+		mediastreamfx.New(),
 		metainfofx.New(),
 		metricsfx.New(),
 		processorfx.New(),

@@ -9,7 +9,7 @@ require (
 	github.com/adrg/xdg v0.5.3
 	github.com/agnivade/levenshtein v1.2.1
 	github.com/anacrolix/dht/v2 v2.24.0
-	github.com/anacrolix/missinggo/v2 v2.11.0
+	github.com/anacrolix/missinggo/v2 v2.10.0
 	github.com/anacrolix/torrent v1.61.0
 	github.com/bits-and-blooms/bloom/v3 v3.7.1
 	github.com/facette/natsort v0.0.0-20181210072756-2cd4dd1e2dcb
@@ -53,19 +53,67 @@ require (
 )
 
 require (
+	github.com/RoaringBitmap/roaring v1.2.3 // indirect
+	github.com/anacrolix/btree v0.0.0-20251201064447-d86c3fa41bd8 // indirect
 	github.com/anacrolix/envpprof v1.5.0 // indirect
+	github.com/anacrolix/go-libutp v1.3.2 // indirect
+	github.com/anacrolix/mmsg v1.0.1 // indirect
+	github.com/anacrolix/upnp v0.1.4 // indirect
+	github.com/anacrolix/utp v0.1.0 // indirect
+	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
+	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/coder/websocket v1.8.15 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/felixge/fgprof v0.9.5 // indirect
+	github.com/go-llsqlite/adapter v0.0.0-20230927005056-7f5ce7f0c916 // indirect
+	github.com/go-llsqlite/crawshaw v0.5.6-0.20250312230104-194977a03421 // indirect
+	github.com/go-logr/logr v1.4.3 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
+	github.com/google/btree v1.1.2 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20260709232956-b9395ee17fa0 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/mschoch/smat v0.2.0 // indirect
+	github.com/ncruces/go-strftime v1.0.0 // indirect
+	github.com/pion/datachannel v1.5.9 // indirect
+	github.com/pion/dtls/v3 v3.0.3 // indirect
+	github.com/pion/ice/v4 v4.0.2 // indirect
+	github.com/pion/interceptor v0.1.40 // indirect
+	github.com/pion/logging v0.2.3 // indirect
+	github.com/pion/mdns/v2 v2.0.7 // indirect
+	github.com/pion/randutil v0.1.0 // indirect
+	github.com/pion/rtcp v1.2.15 // indirect
+	github.com/pion/rtp v1.8.18 // indirect
+	github.com/pion/sctp v1.8.33 // indirect
+	github.com/pion/sdp/v3 v3.0.9 // indirect
+	github.com/pion/srtp/v3 v3.0.4 // indirect
+	github.com/pion/stun/v3 v3.0.0 // indirect
+	github.com/pion/transport/v3 v3.0.7 // indirect
+	github.com/pion/turn/v4 v4.0.0 // indirect
+	github.com/pion/webrtc/v4 v4.0.0 // indirect
+	github.com/protolambda/ctxlock v0.1.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.60.0 // indirect
+	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	github.com/tidwall/btree v1.8.1 // indirect
 	github.com/urfave/cli/v3 v3.10.1 // indirect
+	github.com/wlynxg/anet v0.0.3 // indirect
+	go.etcd.io/bbolt v1.3.6 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.8.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
+	go.opentelemetry.io/otel v1.43.0 // indirect
+	go.opentelemetry.io/otel/metric v1.43.0 // indirect
+	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/telemetry v0.0.0-20260717140457-bdb89881bb75 // indirect
+	modernc.org/libc v1.73.4 // indirect
+	modernc.org/mathutil v1.7.1 // indirect
+	modernc.org/memory v1.11.0 // indirect
+	modernc.org/sqlite v1.53.0 // indirect
+	zombiezen.com/go/sqlite v0.13.1 // indirect
 )
 
 require (

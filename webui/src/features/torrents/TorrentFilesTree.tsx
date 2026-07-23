@@ -1,15 +1,23 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@apollo/client/react'
-import { ChevronRight, ChevronDown, Folder, FolderOpen, File as FileIcon } from 'lucide-react'
+import { ChevronRight, ChevronDown, Folder, FolderOpen, File as FileIcon, Play } from 'lucide-react'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { addError } from '@/lib/toast/store'
 import { TorrentFilesDocument, type FileType, type TorrentFragment } from '@/lib/graphql/generated'
+import { MediaPreviewModal } from './MediaPreviewModal'
+
+const PREVIEWABLE_FILE_TYPES: readonly FileType[] = ['image', 'audio', 'video']
+
+function isPreviewable(fileType: FileType | null): boolean {
+  return fileType != null && PREVIEWABLE_FILE_TYPES.includes(fileType)
+}
 
 interface FileNode {
   kind: 'file'
   name: string
   path: string
+  index: number
   size: number
   fileType: FileType | null
 }
@@ -25,7 +33,9 @@ interface FolderNode {
 
 type TreeNode = FileNode | FolderNode
 
-function buildTree(files: readonly { path: string; size: number; fileType: FileType | null }[]): FolderNode {
+function buildTree(
+  files: readonly { path: string; size: number; fileType: FileType | null; index: number }[],
+): FolderNode {
   const root: FolderNode = { kind: 'folder', name: '', path: '', size: 0, fileCount: 0, children: [] }
   const folders = new Map<string, FolderNode>([['', root]])
 
@@ -45,7 +55,14 @@ function buildTree(files: readonly { path: string; size: number; fileType: FileT
       parent = folder
       parentPath = currentPath
     }
-    parent.children.push({ kind: 'file', name: fileName, path: file.path, size: file.size, fileType: file.fileType })
+    parent.children.push({
+      kind: 'file',
+      name: fileName,
+      path: file.path,
+      index: file.index,
+      size: file.size,
+      fileType: file.fileType,
+    })
   }
 
   const aggregate = (folder: FolderNode): void => {
@@ -77,11 +94,16 @@ function isNodeExpanded(path: string, depth: number, toggled: Set<string>): bool
   return toggled.has(path) ? !defaultExpanded : defaultExpanded
 }
 
-function FileRow({ node, depth }: { node: FileNode; depth: number }) {
+function FileRow({ node, depth, onPreview }: { node: FileNode; depth: number; onPreview: (node: FileNode) => void }) {
   const { t, i18n } = useTranslation()
-  return (
-    <div className="flex items-center gap-2 py-1 text-sm" style={{ paddingLeft: depth * 20 + 4 }}>
-      <FileIcon className="size-4 shrink-0 text-muted-fg" />
+  const previewable = isPreviewable(node.fileType)
+  const content = (
+    <>
+      {previewable ? (
+        <Play className="size-4 shrink-0 text-primary" />
+      ) : (
+        <FileIcon className="size-4 shrink-0 text-muted-fg" />
+      )}
       <span className="flex-1 truncate">{node.name}</span>
       <span className="w-20 shrink-0 text-xs text-muted-fg">{t(`file_types.${node.fileType ?? 'unknown'}`)}</span>
       <span
@@ -90,6 +112,26 @@ function FileRow({ node, depth }: { node: FileNode; depth: number }) {
       >
         {formatFilesize(node.size, i18n.language)}
       </span>
+    </>
+  )
+
+  if (previewable) {
+    return (
+      <button
+        type="button"
+        onClick={() => onPreview(node)}
+        className="flex w-full items-center gap-2 rounded py-1 text-left text-sm hover:bg-surface-hover"
+        style={{ paddingLeft: depth * 20 + 4 }}
+        title={t('torrents.preview_file')}
+      >
+        {content}
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-2 py-1 text-sm" style={{ paddingLeft: depth * 20 + 4 }}>
+      {content}
     </div>
   )
 }
@@ -99,11 +141,13 @@ function FolderRow({
   depth,
   toggled,
   onToggle,
+  onPreview,
 }: {
   node: FolderNode
   depth: number
   toggled: Set<string>
   onToggle: (path: string) => void
+  onPreview: (node: FileNode) => void
 }) {
   const { t, i18n } = useTranslation()
   const isExpanded = isNodeExpanded(node.path, depth, toggled)
@@ -140,9 +184,16 @@ function FolderRow({
       {isExpanded &&
         node.children.map((child) =>
           child.kind === 'folder' ? (
-            <FolderRow key={child.path} node={child} depth={depth + 1} toggled={toggled} onToggle={onToggle} />
+            <FolderRow
+              key={child.path}
+              node={child}
+              depth={depth + 1}
+              toggled={toggled}
+              onToggle={onToggle}
+              onPreview={onPreview}
+            />
           ) : (
-            <FileRow key={child.path} node={child} depth={depth + 1} />
+            <FileRow key={child.path} node={child} depth={depth + 1} onPreview={onPreview} />
           ),
         )}
     </div>
@@ -175,11 +226,14 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
   const totalCount = isSingle ? 1 : (data?.torrent?.files?.totalCount ?? 0)
 
   const tree = useMemo(() => {
-    const files = isSingle ? [{ path: torrent.name, size: torrent.size, fileType: torrent.fileType }] : (items ?? [])
+    const files = isSingle
+      ? [{ path: torrent.name, size: torrent.size, fileType: torrent.fileType, index: 0 }]
+      : (items ?? [])
     return buildTree(files)
   }, [isSingle, torrent.name, torrent.size, torrent.fileType, items])
 
   const [toggled, setToggled] = useState<Set<string>>(new Set())
+  const [previewNode, setPreviewNode] = useState<FileNode | null>(null)
 
   const toggle = (path: string) => {
     setToggled((prev) => {
@@ -204,12 +258,26 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
       <div>
         {tree.children.map((child) =>
           child.kind === 'folder' ? (
-            <FolderRow key={child.path} node={child} depth={0} toggled={toggled} onToggle={toggle} />
+            <FolderRow
+              key={child.path}
+              node={child}
+              depth={0}
+              toggled={toggled}
+              onToggle={toggle}
+              onPreview={setPreviewNode}
+            />
           ) : (
-            <FileRow key={child.path} node={child} depth={0} />
+            <FileRow key={child.path} node={child} depth={0} onPreview={setPreviewNode} />
           ),
         )}
       </div>
+      <MediaPreviewModal
+        infoHash={torrent.infoHash}
+        node={previewNode}
+        onOpenChange={(open) => {
+          if (!open) setPreviewNode(null)
+        }}
+      />
     </div>
   )
 }
