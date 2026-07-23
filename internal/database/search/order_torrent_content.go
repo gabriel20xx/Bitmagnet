@@ -29,7 +29,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "published_at",
+					Name:  string(TorrentContentOrderByPublishedAt),
 				},
 				Desc: desc,
 			},
@@ -37,7 +37,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "info_hash",
+					Name:  string(TorrentContentOrderByInfoHash),
 				},
 				Desc: desc,
 			},
@@ -55,7 +55,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "info_hash",
+					Name:  string(TorrentContentOrderByInfoHash),
 				},
 				Desc: desc,
 			},
@@ -65,7 +65,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "size",
+					Name:  string(TorrentContentOrderBySize),
 				},
 				Desc: desc,
 			},
@@ -73,7 +73,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "info_hash",
+					Name:  string(TorrentContentOrderByInfoHash),
 				},
 				Desc: desc,
 			},
@@ -91,7 +91,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "info_hash",
+					Name:  string(TorrentContentOrderByInfoHash),
 				},
 				Desc: desc,
 			},
@@ -109,7 +109,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "info_hash",
+					Name:  string(TorrentContentOrderByInfoHash),
 				},
 				Desc: desc,
 			},
@@ -127,7 +127,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "info_hash",
+					Name:  string(TorrentContentOrderByInfoHash),
 				},
 				Desc: desc,
 			},
@@ -137,7 +137,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrent,
-					Name:  "name",
+					Name:  string(TorrentContentOrderByName),
 				},
 				Desc: desc,
 			},
@@ -148,7 +148,7 @@ func (ob TorrentContentOrderBy) Clauses(direction OrderDirection) []query.OrderB
 			OrderByColumn: clause.OrderByColumn{
 				Column: clause.Column{
 					Table: model.TableNameTorrentContent,
-					Name:  "info_hash",
+					Name:  string(TorrentContentOrderByInfoHash),
 				},
 				Desc: desc,
 			},

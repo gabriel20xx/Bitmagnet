@@ -10,11 +10,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	testCheckName1 = "check1"
+	testCheckName2 = "check2"
+)
+
 func TestStatusUnknownBeforeStatusUp(t *testing.T) {
 	t.Parallel()
 
 	// Arrange
-	testData := map[string]CheckState{"check1": {Status: StatusUp}, "check2": {Status: StatusUnknown}}
+	testData := map[string]CheckState{testCheckName1: {Status: StatusUp}, testCheckName2: {Status: StatusUnknown}}
 
 	// Act
 	result := aggregateStatus(testData)
@@ -27,7 +32,7 @@ func TestStatusDownBeforeStatusUnknown(t *testing.T) {
 	t.Parallel()
 
 	// Arrange
-	testData := map[string]CheckState{"check1": {Status: StatusDown}, "check2": {Status: StatusUnknown}}
+	testData := map[string]CheckState{testCheckName1: {Status: StatusDown}, testCheckName2: {Status: StatusUnknown}}
 
 	// Act
 	result := aggregateStatus(testData)
@@ -141,13 +146,13 @@ func doTestCheckerCheckFunc(t *testing.T, updateInterval time.Duration, err erro
 	ckr := NewChecker(
 		WithTimeout(10*time.Second),
 		WithCheck(Check{
-			Name: "check1",
+			Name: testCheckName1,
 			Check: func(context.Context) error {
 				return nil
 			},
 		}),
 		WithPeriodicCheck(updateInterval, 0, Check{
-			Name: "check2",
+			Name: testCheckName2,
 			Check: func(context.Context) error {
 				return err
 			},
@@ -161,7 +166,7 @@ func doTestCheckerCheckFunc(t *testing.T, updateInterval time.Duration, err erro
 	require.NotNil(t, res.Details)
 	assert.Equal(t, expectedStatus, res.Status)
 
-	for _, checkName := range []string{"check1", "check2"} {
+	for _, checkName := range []string{testCheckName1, testCheckName2} {
 		_, checkResultExists := res.Details[checkName]
 		assert.True(t, checkResultExists)
 	}

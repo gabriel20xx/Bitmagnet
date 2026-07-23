@@ -477,6 +477,7 @@ func (b optionBuilder) RequireJoin(names ...string) OptionBuilder {
 func (b optionBuilder) QueryString(str string) OptionBuilder {
 	b.tsquery = fts.AppQueryToTsquery(str)
 	b.similarityQuery = fts.AppQueryToPlainWords(str)
+
 	return b
 }
 
@@ -620,6 +621,7 @@ func (b optionBuilder) applySelect(db *gorm.DB, withOrderSelect bool) error {
 				case b.tsquery != "" && b.similarityQuery != "":
 					rankFragment = "GREATEST(ts_rank_cd(" + b.tableName + ".tsv, ?::tsquery), " +
 						"similarity(lower(" + b.tableName + ".search_string), lower(?)))"
+
 					args = append(args, b.tsquery, b.similarityQuery)
 				case b.tsquery != "":
 					rankFragment = "ts_rank_cd(" + b.tableName + ".tsv, ?::tsquery)"
@@ -664,7 +666,8 @@ func (b optionBuilder) applyPre(sq SubQuery, withOrderJoins bool) error {
 
 		if b.similarityQuery != "" {
 			// pg_trgm's "%" operator: true when similarity() clears pg_trgm.similarity_threshold
-			// (0.3 by default), giving typo-tolerant fuzzy matching alongside the exact tsquery match above.
+			// (0.3 by default), giving typo-tolerant fuzzy matching alongside the exact tsquery
+			// match above.
 			conditions = append(conditions, "lower("+b.tableName+".search_string) % lower(?)")
 			args = append(args, b.similarityQuery)
 		}

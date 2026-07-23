@@ -44,6 +44,8 @@ type Result struct {
 	PersistedTotal prometheus.Collector `group:"prometheus_collectors"`
 }
 
+const entityLabel = "entity"
+
 func New(params Params) Result {
 	active := &concurrency.AtomicValue[bool]{}
 
@@ -54,7 +56,7 @@ func New(params Params) Result {
 		Subsystem: "dht_crawler",
 		Name:      "persisted_total",
 		Help:      "A counter of persisted database entities.",
-	}, []string{"entity"})
+	}, []string{entityLabel})
 
 	return Result{
 		Worker: worker.NewWorker(

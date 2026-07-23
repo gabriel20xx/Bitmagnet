@@ -11,6 +11,11 @@ type Profile struct {
 	Tags                    []string
 }
 
+const (
+	capsAvailableYes = "yes"
+	capsAvailableNo  = "no"
+)
+
 var ProfileDefault = Profile{
 	ID:           "default",
 	Title:        "bitmagnet",
@@ -49,7 +54,7 @@ func (p Profile) Caps() Caps {
 		},
 		Searching: CapsSearching{
 			Search: CapsSearch{
-				Available: "yes",
+				Available: capsAvailableYes,
 				SupportedParams: strings.Join([]string{
 					ParamQuery,
 					ParamIMDBID,
@@ -57,7 +62,7 @@ func (p Profile) Caps() Caps {
 				}, ","),
 			},
 			TvSearch: CapsSearch{
-				Available: "yes",
+				Available: capsAvailableYes,
 				SupportedParams: strings.Join([]string{
 					ParamQuery,
 					ParamIMDBID,
@@ -67,7 +72,7 @@ func (p Profile) Caps() Caps {
 				}, ","),
 			},
 			MovieSearch: CapsSearch{
-				Available: "yes",
+				Available: capsAvailableYes,
 				SupportedParams: strings.Join([]string{
 					ParamQuery,
 					ParamIMDBID,
@@ -75,14 +80,14 @@ func (p Profile) Caps() Caps {
 				}, ","),
 			},
 			MusicSearch: CapsSearch{
-				Available:       "yes",
+				Available:       capsAvailableYes,
 				SupportedParams: ParamQuery,
 			},
 			AudioSearch: CapsSearch{
-				Available: "no",
+				Available: capsAvailableNo,
 			},
 			BookSearch: CapsSearch{
-				Available:       "yes",
+				Available:       capsAvailableYes,
 				SupportedParams: ParamQuery,
 			},
 		},

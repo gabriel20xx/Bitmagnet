@@ -47,7 +47,7 @@ func (s payloadUnion[T]) JSONSchema() JSONSchema {
 	}
 
 	return map[string]any{
-		"oneOf": schemas,
+		jsonSchemaKeyOneOf: schemas,
 	}
 }
 
@@ -133,8 +133,8 @@ type payloadList[T any] struct {
 
 func (s payloadList[T]) JSONSchema() JSONSchema {
 	schema := map[string]any{
-		"type":  "array",
-		"items": s.itemSpec.JSONSchema(),
+		jsonSchemaKeyType:  jsonSchemaTypeArray,
+		jsonSchemaKeyItems: s.itemSpec.JSONSchema(),
 	}
 	if s.description != "" {
 		schema["description"] = s.description
@@ -175,12 +175,12 @@ type payloadSingleKeyValue[T any] struct {
 
 func (s payloadSingleKeyValue[T]) JSONSchema() JSONSchema {
 	schema := map[string]any{
-		"type": "object",
-		"properties": map[string]any{
+		jsonSchemaKeyType: jsonSchemaTypeObject,
+		jsonSchemaKeyProperties: map[string]any{
 			s.key: s.valueSpec.JSONSchema(),
 		},
-		"required":             []string{s.key},
-		"additionalProperties": false,
+		"required":                        []string{s.key},
+		jsonSchemaKeyAdditionalProperties: false,
 	}
 	if s.description != "" {
 		schema["description"] = s.description
@@ -218,8 +218,8 @@ type payloadEnum[T string] struct {
 
 func (s payloadEnum[T]) JSONSchema() JSONSchema {
 	return map[string]any{
-		"type": "string",
-		"enum": s.values,
+		jsonSchemaKeyType: jsonSchemaTypeString,
+		"enum":            s.values,
 	}
 }
 

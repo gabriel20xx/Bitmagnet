@@ -12,14 +12,14 @@ type Intersect struct {
 
 // Name intersect clause name
 func (Intersect) Name() string {
-	return "INTERSECT"
+	return clauseNameIntersect
 }
 
 // Build build intersect clause
 func (intersect Intersect) Build(builder clause.Builder) {
 	for index, statement := range intersect.Statements {
 		if index != 0 {
-			if _, err := builder.WriteString(" INTERSECT "); err != nil {
+			if _, err := builder.WriteString(" " + clauseNameIntersect + " "); err != nil {
 				panic(err)
 			}
 		}

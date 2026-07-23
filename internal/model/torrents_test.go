@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"testing"
 	"unicode/utf8"
 )
@@ -102,4 +103,55 @@ func TestAlignToRuneBoundary(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestTruncateSearchStringStaysUnderIndexLimit guards against a real production incident: an
+// unbounded SearchString (e.g. built from one search term per file in a many-file torrent) blew
+// past Postgres' ~8KB GIST index row limit ("index row requires N bytes, maximum size is 8191"),
+// causing every write to that torrent's content to fail.
+func TestTruncateSearchStringStaysUnderIndexLimit(t *testing.T) {
+	t.Parallel()
+
+	t.Run("short strings pass through unchanged", func(t *testing.T) {
+		t.Parallel()
+
+		if got := truncateSearchString("a normal title"); got != "a normal title" {
+			t.Errorf("truncateSearchString() = %q, want unchanged input", got)
+		}
+	})
+
+	t.Run("long strings are capped at maxSearchStringBytes", func(t *testing.T) {
+		t.Parallel()
+
+		parts := make([]string, 2000)
+		for i := range parts {
+			parts[i] = "file-search-term"
+		}
+
+		long := strings.Join(parts, " ")
+
+		got := truncateSearchString(long)
+		if len(got) > maxSearchStringBytes {
+			t.Errorf("truncateSearchString() returned %d bytes, want <= %d", len(got), maxSearchStringBytes)
+		}
+
+		if !utf8.ValidString(got) {
+			t.Errorf("truncateSearchString() returned invalid UTF-8: %q", got)
+		}
+	})
+
+	t.Run("truncation doesn't split a multi-byte rune", func(t *testing.T) {
+		t.Parallel()
+
+		long := strings.Repeat("日本語ファイル ", 1000) //nolint:gosmopolitan // intentional non-Latin test fixture
+
+		got := truncateSearchString(long)
+		if len(got) > maxSearchStringBytes {
+			t.Errorf("truncateSearchString() returned %d bytes, want <= %d", len(got), maxSearchStringBytes)
+		}
+
+		if !utf8.ValidString(got) {
+			t.Errorf("truncateSearchString() returned invalid UTF-8: %q", got)
+		}
+	})
 }

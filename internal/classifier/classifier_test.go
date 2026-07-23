@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const testTMDBMovieTitle = "The Regular TMDB Movie"
+
 func TestClassifier(t *testing.T) {
 	t.Parallel()
 
@@ -118,7 +120,7 @@ func TestClassifier(t *testing.T) {
 					"ContentBySearch",
 					matchContext,
 					model.ContentTypeMovie,
-					"The Regular TMDB Movie",
+					testTMDBMovieTitle,
 					model.Year(2000),
 				).
 					Return(model.Content{}, classification.ErrUnmatched)
@@ -126,7 +128,7 @@ func TestClassifier(t *testing.T) {
 					"SearchMovie",
 					matchContext,
 					tmdb.SearchMovieRequest{
-						Query:        "The Regular TMDB Movie",
+						Query:        testTMDBMovieTitle,
 						Year:         2000,
 						IncludeAdult: true,
 					},
@@ -135,7 +137,7 @@ func TestClassifier(t *testing.T) {
 						Results: []tmdb.SearchMovieResult{
 							{
 								ID:          123,
-								Title:       "The Regular TMDB Movie",
+								Title:       testTMDBMovieTitle,
 								ReleaseDate: "2000-01-01",
 							},
 						},
@@ -149,7 +151,7 @@ func TestClassifier(t *testing.T) {
 				).
 					Return(tmdb.MovieDetailsResponse{
 						ID:            123,
-						Title:         "The Regular TMDB Movie",
+						Title:         testTMDBMovieTitle,
 						OriginalTitle: "The Regular TMDB Movie Original",
 						ReleaseDate:   "2000-01-01",
 					}, nil)
@@ -157,7 +159,7 @@ func TestClassifier(t *testing.T) {
 			expected: classification.Result{
 				ContentAttributes: classification.ContentAttributes{
 					ContentType: model.NewNullContentType(model.ContentTypeMovie),
-					BaseTitle:   model.NewNullString("The Regular TMDB Movie"),
+					BaseTitle:   model.NewNullString(testTMDBMovieTitle),
 					Date: model.Date{
 						Year: 2000,
 					},
@@ -166,7 +168,7 @@ func TestClassifier(t *testing.T) {
 					Type:   model.ContentTypeMovie,
 					Source: "tmdb",
 					ID:     "123",
-					Title:  "The Regular TMDB Movie",
+					Title:  testTMDBMovieTitle,
 					ReleaseDate: model.Date{
 						Year:  2000,
 						Month: 1,

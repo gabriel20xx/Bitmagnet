@@ -81,6 +81,8 @@ nextInfoHash:
 	}, nil
 }
 
+const tagNameAlias = "name"
+
 type SuggestTagsQuery struct {
 	Prefix     string
 	Exclusions []string
@@ -127,7 +129,7 @@ func (s search) TorrentSuggestTags(
 		query.Options(append([]query.Option{
 			query.Select(
 				clause.Expr{
-					SQL: "torrent_tags.name AS name",
+					SQL: "torrent_tags.name AS " + tagNameAlias,
 				},
 				clause.Expr{
 					SQL: "count(torrent_tags.*) AS total_count",
@@ -150,7 +152,7 @@ func (s search) TorrentSuggestTags(
 				query.OrderByColumn{
 					OrderByColumn: clause.OrderByColumn{
 						Column: clause.Column{
-							Alias: "name",
+							Alias: tagNameAlias,
 						},
 					},
 				},

@@ -11,6 +11,8 @@ import (
 	"go.uber.org/fx"
 )
 
+const configResolversGroup = "config_resolvers"
+
 func New() fx.Option {
 	osEnv := ReadOsEnv()
 
@@ -25,7 +27,7 @@ func New() fx.Option {
 		options = append(options,
 			fx.Provide(
 				fx.Annotated{
-					Group: "config_resolvers",
+					Group: configResolversGroup,
 					Target: func(val *validator.Validate) (configresolver.Resolver, error) {
 						return configresolver.NewFromYamlFile(
 							file,
@@ -41,7 +43,7 @@ func New() fx.Option {
 	options = append(options,
 		fx.Provide(config.New),
 		fx.Provide(fx.Annotated{
-			Group: "config_resolvers",
+			Group: configResolversGroup,
 			Target: func() (configresolver.Resolver, error) {
 				return configresolver.NewEnv(
 					osEnv,
@@ -51,7 +53,7 @@ func New() fx.Option {
 		}),
 		fx.Provide(
 			fx.Annotated{
-				Group: "config_resolvers",
+				Group: configResolversGroup,
 				Target: func(val *validator.Validate) (configresolver.Resolver, error) {
 					return configresolver.NewFromYamlFile(
 						"./config.yml",
@@ -67,7 +69,7 @@ func New() fx.Option {
 		options = append(options,
 			fx.Provide(
 				fx.Annotated{
-					Group: "config_resolvers",
+					Group: configResolversGroup,
 					Target: func(val *validator.Validate) (configresolver.Resolver, error) {
 						return configresolver.NewFromYamlFile(
 							configFilePath,

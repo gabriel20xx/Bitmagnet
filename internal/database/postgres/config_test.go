@@ -2,6 +2,10 @@ package postgres
 
 import "testing"
 
+// TestCreateDSN itself can't call t.Parallel(): its first subtest uses t.Setenv, which panics
+// if the test (or an ancestor) runs in parallel.
+//
+//nolint:tparallel
 func TestCreateDSN(t *testing.T) {
 	t.Run("POSTGRESQL_URL is used when set", func(t *testing.T) {
 		t.Setenv("POSTGRESQL_URL", "postgres://from-env-url")
@@ -14,6 +18,8 @@ func TestCreateDSN(t *testing.T) {
 	})
 
 	t.Run("falls back to discrete fields when unset", func(t *testing.T) {
+		t.Parallel()
+
 		cfg := Config{Host: "localhost", User: "postgres", Port: 5432, Name: "bitmagnet"}
 
 		got := cfg.CreateDSN()

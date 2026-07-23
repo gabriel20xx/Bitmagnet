@@ -10,6 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	gormTagForeignKey = "foreignKey"
+	gormTagReferences = "references"
+)
+
 func BuildGenerator(db *gorm.DB) *gen.Generator {
 	_, filename, _, _ := runtime.Caller(0)
 	internal := path.Dir(path.Dir(path.Dir(filename)))
@@ -38,6 +43,9 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 	infoHashType := gen.FieldType("info_hash", "protocol.ID")
 	infoHashReadOnly := readAndCreateField("info_hash")
 	createdAtReadOnly := readAndCreateField("created_at")
+
+	foreignKeyInfoHash := []string{"InfoHash"}
+	foreignKeySource := []string{"Source"}
 
 	g.WithJSONTagNameStrategy(strcase.ToLowerCamel)
 
@@ -89,7 +97,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			torrentSources,
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
-					"foreignKey": []string{"Source"},
+					gormTagForeignKey: foreignKeySource,
 				},
 			},
 		),
@@ -117,7 +125,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			),
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
-					"foreignKey": []string{"InfoHash"},
+					gormTagForeignKey: foreignKeyInfoHash,
 				},
 			},
 		),
@@ -130,7 +138,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			),
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
-					"foreignKey": []string{"InfoHash"},
+					gormTagForeignKey: foreignKeyInfoHash,
 				},
 			},
 		),
@@ -141,7 +149,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			&field.RelateConfig{
 				RelateSlice: true,
 				GORMTag: field.GormTag{
-					"foreignKey": []string{"InfoHash"},
+					gormTagForeignKey: foreignKeyInfoHash,
 				},
 			},
 		),
@@ -152,7 +160,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			&field.RelateConfig{
 				RelateSlice: true,
 				GORMTag: field.GormTag{
-					"foreignKey": []string{"InfoHash"},
+					gormTagForeignKey: foreignKeyInfoHash,
 				},
 			},
 		),
@@ -162,7 +170,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			torrentPieces,
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
-					"foreignKey": []string{"InfoHash"},
+					gormTagForeignKey: foreignKeyInfoHash,
 				},
 				JSONTag: "-",
 			},
@@ -174,7 +182,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			&field.RelateConfig{
 				RelateSlice: true,
 				GORMTag: field.GormTag{
-					"foreignKey": []string{"InfoHash"},
+					gormTagForeignKey: foreignKeyInfoHash,
 				},
 			},
 		),
@@ -209,7 +217,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			metadataSources,
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
-					"foreignKey": {"Source"},
+					gormTagForeignKey: foreignKeySource,
 				},
 			},
 		),
@@ -228,7 +236,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			metadataSources,
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
-					"foreignKey": {"Source"},
+					gormTagForeignKey: foreignKeySource,
 				},
 			},
 		),
@@ -262,7 +270,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			metadataSources,
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
-					"foreignKey": {"Source"},
+					gormTagForeignKey: foreignKeySource,
 				},
 			},
 		),
@@ -299,10 +307,10 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 			contentCollections,
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
-					"foreignKey": {
+					gormTagForeignKey: {
 						"ContentCollectionType,ContentCollectionSource,ContentCollectionID",
 					},
-					"references": {"Type,Source,ID"},
+					gormTagReferences: {"Type,Source,ID"},
 				},
 			},
 		),
@@ -348,8 +356,8 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 					torrents,
 					&field.RelateConfig{
 						GORMTag: field.GormTag{
-							"foreignKey": {"InfoHash"},
-							"references": {"InfoHash"},
+							gormTagForeignKey: foreignKeyInfoHash,
+							gormTagReferences: foreignKeyInfoHash,
 						},
 					},
 				),
@@ -359,8 +367,10 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 					content,
 					&field.RelateConfig{
 						GORMTag: field.GormTag{
-							"foreignKey": []string{"ContentType,ContentSource,ContentID"},
-							"references": []string{"Type,Source,ID"},
+							gormTagForeignKey: []string{
+								"ContentType,ContentSource,ContentID",
+							},
+							gormTagReferences: []string{"Type,Source,ID"},
 						},
 					},
 				),

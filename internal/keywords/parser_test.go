@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testWordFoo = "foo"
+
 func TestParser(t *testing.T) {
 	t.Parallel()
 
@@ -18,18 +20,18 @@ func TestParser(t *testing.T) {
 		err     error
 	}{
 		{
-			input:   []string{"foo", "bar*"},
-			match:   []string{"foo", "bar", "barfoo", "x foo.x", "foo/bar"},
+			input:   []string{testWordFoo, "bar*"},
+			match:   []string{testWordFoo, "bar", "barfoo", "x foo.x", "foo/bar"},
 			nomatch: []string{"bat", "foobar"},
 		},
 		{
 			input:   []string{"foo?"},
-			match:   []string{"foo", "fo"},
+			match:   []string{testWordFoo, "fo"},
 			nomatch: []string{"f", "fooo"},
 		},
 		{
 			input: []string{"foo(bar|bat)?", "qux"},
-			match: []string{"foo", "foobar", "foobat", "qux"},
+			match: []string{testWordFoo, "foobar", "foobat", "qux"},
 		},
 		{
 			input: []string{"foo(bar"},

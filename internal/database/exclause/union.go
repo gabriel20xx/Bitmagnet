@@ -12,14 +12,14 @@ type Union struct {
 
 // Name union clause name
 func (Union) Name() string {
-	return "UNION"
+	return clauseNameUnion
 }
 
 // Build build union clause
 func (union Union) Build(builder clause.Builder) {
 	for index, statement := range union.Statements {
 		if index != 0 {
-			if _, err := builder.WriteString(" UNION "); err != nil {
+			if _, err := builder.WriteString(" " + clauseNameUnion + " "); err != nil {
 				panic(err)
 			}
 		}

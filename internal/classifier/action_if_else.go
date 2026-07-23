@@ -20,20 +20,20 @@ var ifElsePayloadSpec = payloadSingleKeyValue[ifElsePayload]{
 	key: ifElseName,
 	valueSpec: payloadMustSucceed[ifElsePayload]{payloadStruct[ifElsePayload]{
 		jsonSchema: map[string]any{
-			"type": "object",
-			"properties": map[string]any{
-				"condition": map[string]any{
-					"$ref": "#/definitions/condition",
+			jsonSchemaKeyType: jsonSchemaTypeObject,
+			jsonSchemaKeyProperties: map[string]any{
+				jsonSchemaKeyCondition: map[string]any{
+					jsonSchemaKeyRef: refCondition,
 				},
 				"if_action": map[string]any{
-					"$ref": "#/definitions/action",
+					jsonSchemaKeyRef: refAction,
 				},
 				"else_action": map[string]any{
-					"$ref": "#/definitions/action",
+					jsonSchemaKeyRef: refAction,
 				},
 			},
-			"required":             []string{"condition"},
-			"additionalProperties": false,
+			"required":                        []string{jsonSchemaKeyCondition},
+			jsonSchemaKeyAdditionalProperties: false,
 		},
 	}},
 	description: "Execute an action based on a condition",

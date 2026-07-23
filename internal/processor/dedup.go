@@ -173,14 +173,18 @@ func findCanonicalByFingerprint(
 func findCanonicalByContentQuality(
 	ctx context.Context, tx *dao.Query, tc *model.TorrentContent,
 ) (protocol.ID, bool, error) {
+	// Filters on md5(content_id), not content_id itself, so this matches the index defined in
+	// migration 00023 (content_id has no length bound, so indexing it directly can exceed
+	// Postgres' ~8KB index row limit). content_id = ? is kept alongside it to rule out the
+	// vanishingly unlikely case of an md5 collision.
 	row := tx.TorrentContent.WithContext(ctx).UnderlyingDB().
 		Where(
-			"content_type = ? AND content_source = ? AND content_id = ? "+
+			"content_type = ? AND content_source = ? AND md5(content_id) = md5(?) AND content_id = ? "+
 				"AND info_hash != ? AND duplicate_of_info_hash IS NULL "+
 				"AND video_resolution IS NOT DISTINCT FROM ? "+
 				"AND video_source IS NOT DISTINCT FROM ? "+
 				"AND video_codec IS NOT DISTINCT FROM ?",
-			tc.ContentType, tc.ContentSource, tc.ContentID, tc.InfoHash,
+			tc.ContentType, tc.ContentSource, tc.ContentID, tc.ContentID, tc.InfoHash,
 			tc.VideoResolution, tc.VideoSource, tc.VideoCodec,
 		).
 		Order("seeders DESC NULLS LAST, created_at ASC").

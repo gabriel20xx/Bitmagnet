@@ -26,31 +26,31 @@ func TestWith_Query(t *testing.T) {
 			operation: func(db *gorm.DB) *gorm.DB {
 				return db.Clauses(With{
 					CTEs: []CTE{{
-						Name: "cte",
+						Name: testCTEName,
 						Subquery: clause.Expr{
-							SQL:  "SELECT * FROM `users` WHERE `name` = ?",
-							Vars: []interface{}{"WinterYukky"},
+							SQL:  testSQLSelectFromUsersWhere,
+							Vars: []interface{}{testNameValue},
 						},
 					}},
-				}).Table("cte").Scan(nil)
+				}).Table(testCTEName).Scan(nil)
 			},
 			want:     "WITH `cte` AS (SELECT * FROM `users` WHERE `name` = ?) SELECT * FROM `cte`",
-			wantArgs: []driver.Value{"WinterYukky"},
+			wantArgs: []driver.Value{testNameValue},
 		},
 		{
 			name: "When Subquery is exclause.Subquery, then should be used as subquery",
 			operation: func(db *gorm.DB) *gorm.DB {
 				return db.Clauses(With{
 					CTEs: []CTE{{
-						Name: "cte",
+						Name: testCTEName,
 						Subquery: Subquery{
-							DB: db.Table("users").Where("`name` = ?", "WinterYukky"),
+							DB: db.Table("users").Where("`name` = ?", testNameValue),
 						},
 					}},
-				}).Table("cte").Scan(nil)
+				}).Table(testCTEName).Scan(nil)
 			},
 			want:     "WITH `cte` AS (SELECT * FROM `users` WHERE `name` = ?) SELECT * FROM `cte`",
-			wantArgs: []driver.Value{"WinterYukky"},
+			wantArgs: []driver.Value{testNameValue},
 		},
 		{
 			name: "When has specific fields, then should be used with columns specified",
@@ -58,12 +58,12 @@ func TestWith_Query(t *testing.T) {
 				return db.Clauses(With{
 					CTEs: []CTE{
 						{
-							Name:     "cte",
+							Name:     testCTEName,
 							Columns:  []string{"id", "name"},
 							Subquery: Subquery{DB: db.Table("users")},
 						},
 					},
-				}).Table("cte").Scan(nil)
+				}).Table(testCTEName).Scan(nil)
 			},
 			want:     "WITH `cte` (`id`,`name`) AS (SELECT * FROM `users`) SELECT * FROM `cte`",
 			wantArgs: []driver.Value{},
@@ -86,7 +86,7 @@ func TestWith_Query(t *testing.T) {
 							Subquery: Subquery{DB: db.Table("users")},
 						}},
 					}).
-					Table("cte").Scan(nil)
+					Table(testCTEName).Scan(nil)
 			},
 			want: "WITH RECURSIVE `cte1` AS (SELECT * FROM `users`)," +
 				"`cte2` AS (SELECT * FROM `users`) SELECT * FROM `cte`",
@@ -98,16 +98,16 @@ func TestWith_Query(t *testing.T) {
 				return db.Clauses(With{
 					Materialized: true,
 					CTEs: []CTE{{
-						Name: "cte",
+						Name: testCTEName,
 						Subquery: clause.Expr{
-							SQL:  "SELECT * FROM `users` WHERE `name` = ?",
-							Vars: []interface{}{"WinterYukky"},
+							SQL:  testSQLSelectFromUsersWhere,
+							Vars: []interface{}{testNameValue},
 						},
 					}},
-				}).Table("cte").Scan(nil)
+				}).Table(testCTEName).Scan(nil)
 			},
 			want:     "WITH `cte` AS MATERIALIZED (SELECT * FROM `users` WHERE `name` = ?) SELECT * FROM `cte`",
-			wantArgs: []driver.Value{"WinterYukky"},
+			wantArgs: []driver.Value{testNameValue},
 		},
 	}
 	for _, tt := range tests {
@@ -179,14 +179,14 @@ func TestNewWith(t *testing.T) {
 		{
 			name: "When subquery is *gorm.DB, then CTE's Subquery is exclause.Subquery",
 			args: args{
-				name:     "cte",
+				name:     testCTEName,
 				subquery: db,
 			},
 			want: With{
 				Recursive: false,
 				CTEs: []CTE{
 					{
-						Name:     "cte",
+						Name:     testCTEName,
 						Subquery: Subquery{DB: db},
 					},
 				},
@@ -195,18 +195,18 @@ func TestNewWith(t *testing.T) {
 		{
 			name: "When subquery is string, then CTE's Subquery is clause.Expr",
 			args: args{
-				name:     "cte",
-				subquery: "SELECT * FROM `users` WHERE `name` = ?",
-				args:     []interface{}{"WinterYukky"},
+				name:     testCTEName,
+				subquery: testSQLSelectFromUsersWhere,
+				args:     []interface{}{testNameValue},
 			},
 			want: With{
 				Recursive: false,
 				CTEs: []CTE{
 					{
-						Name: "cte",
+						Name: testCTEName,
 						Subquery: clause.Expr{
-							SQL:  "SELECT * FROM `users` WHERE `name` = ?",
-							Vars: []interface{}{"WinterYukky"},
+							SQL:  testSQLSelectFromUsersWhere,
+							Vars: []interface{}{testNameValue},
 						},
 					},
 				},
@@ -215,7 +215,7 @@ func TestNewWith(t *testing.T) {
 		{
 			name: "When subquery is else, then CTE's Subquery is empty With",
 			args: args{
-				name:     "cte",
+				name:     testCTEName,
 				subquery: 0,
 			},
 			want: With{},

@@ -11,11 +11,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testCheckName = "test"
+
 func TestWithPeriodicCheckConfig(t *testing.T) {
 	t.Parallel()
 
 	// Arrange
-	expectedName := "test"
+	expectedName := testCheckName
 	cfg := checkerConfig{checks: map[string]*Check{}}
 	interval := 5 * time.Second
 	initialDelay := 1 * time.Minute
@@ -33,9 +35,9 @@ func TestWithCheckConfig(t *testing.T) {
 	t.Parallel()
 
 	// Arrange
-	expectedName := "test"
+	expectedName := testCheckName
 	cfg := checkerConfig{checks: map[string]*Check{}}
-	check := Check{Name: "test"}
+	check := Check{Name: testCheckName}
 
 	// Act
 	WithCheck(check)(&cfg)

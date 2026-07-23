@@ -44,7 +44,7 @@ func TestConfig(t *testing.T) {
 		NewConfigModule[TestConfig]("test", defaultConfig),
 		fx.Provide(
 			fx.Annotated{
-				Group: "config_resolvers",
+				Group: configResolversGroup,
 				Target: func() (configresolver.Resolver, error) {
 					return configresolver.NewEnv(map[string]string{
 						"TEST_DURATION":                   "2s",
@@ -56,7 +56,7 @@ func TestConfig(t *testing.T) {
 		),
 		fx.Provide(
 			fx.Annotated{
-				Group: "config_resolvers",
+				Group: configResolversGroup,
 				Target: func(val *validator.Validate) (configresolver.Resolver, error) {
 					return configresolver.NewFromYamlFile("./test_config.yaml", false, val)
 				},
@@ -64,7 +64,7 @@ func TestConfig(t *testing.T) {
 		),
 		fx.Provide(
 			fx.Annotated{
-				Group: "config_resolvers",
+				Group: configResolversGroup,
 				Target: func(val *validator.Validate) (configresolver.Resolver, error) {
 					return configresolver.NewFromYamlFile("./missing.yaml", true, val)
 				},

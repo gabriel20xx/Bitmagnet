@@ -16,7 +16,7 @@ func (addTagAction) name() string {
 var tagPayloadSpec = payloadTransformer[string, string]{
 	spec: payloadGeneric[string]{
 		jsonSchema: JSONSchema{
-			"type": "string",
+			jsonSchemaKeyType: jsonSchemaTypeString,
 		},
 	},
 	transform: func(str string, _ compilerContext) (string, error) {

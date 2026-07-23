@@ -23,13 +23,13 @@ func TestExcept_Query(t *testing.T) {
 		wantArgs  []driver.Value
 	}{
 		{
-			name: "When statement is clause.Expr, then should be used as statement",
+			name: testNameStatementIsExpr,
 			operation: func(db *gorm.DB) *gorm.DB {
 				return db.Table("general_users").
 					Clauses(Except{
 						Statements: []clause.Expression{
 							clause.Expr{
-								SQL:  "ALL ?",
+								SQL:  testSQLAllPlaceholder,
 								Vars: []interface{}{db.Table("admin_users")},
 							},
 						},
@@ -39,7 +39,7 @@ func TestExcept_Query(t *testing.T) {
 			wantArgs: []driver.Value{},
 		},
 		{
-			name: "When statement is exclause.Subquery, then should be used as statement",
+			name: testNameStatementIsSubquery,
 			operation: func(db *gorm.DB) *gorm.DB {
 				return db.Table("general_users").
 					Clauses(Except{
@@ -139,7 +139,7 @@ func TestNewExcept(t *testing.T) {
 		want Except
 	}{
 		{
-			name: "When subquery is *gorm.DB, then statement is exclause.Subquery",
+			name: testNameSubqueryIsDB,
 			args: args{
 				subquery: db,
 			},
@@ -152,14 +152,14 @@ func TestNewExcept(t *testing.T) {
 			},
 		},
 		{
-			name: "When subquery is string, then statement is clause.Expr",
+			name: testNameSubqueryIsString,
 			args: args{
-				subquery: "SELECT * FROM users",
+				subquery: testSQLSelectFromUsers,
 			},
 			want: Except{
 				Statements: []clause.Expression{
 					clause.Expr{
-						SQL: "SELECT * FROM users",
+						SQL: testSQLSelectFromUsers,
 					},
 				},
 			},

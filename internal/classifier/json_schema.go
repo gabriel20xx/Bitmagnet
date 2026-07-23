@@ -14,85 +14,85 @@ const schemaID = "https://bitmagnet.io/schemas/classifier-0.1.json"
 
 func (f features) JSONSchema() JSONSchema {
 	return map[string]any{
-		"$schema": "http://json-schema.org/draft-07/schema#",
-		"$id":     schemaID,
-		"type":    "object",
-		"properties": map[string]any{
+		"$schema":         "http://json-schema.org/draft-07/schema#",
+		"$id":             schemaID,
+		jsonSchemaKeyType: jsonSchemaTypeObject,
+		jsonSchemaKeyProperties: map[string]any{
 			"$schema": map[string]any{
 				"const": schemaID,
 			},
 			"workflows": map[string]any{
-				"type": "object",
-				"additionalProperties": map[string]any{
-					"$ref": "#/definitions/action",
+				jsonSchemaKeyType: jsonSchemaTypeObject,
+				jsonSchemaKeyAdditionalProperties: map[string]any{
+					jsonSchemaKeyRef: refAction,
 				},
 			},
 			"flag_definitions": map[string]any{
-				"type": "object",
-				"additionalProperties": map[string]any{
-					"type": "string",
-					"enum": FlagTypeValues(),
+				jsonSchemaKeyType: jsonSchemaTypeObject,
+				jsonSchemaKeyAdditionalProperties: map[string]any{
+					jsonSchemaKeyType: jsonSchemaTypeString,
+					"enum":            FlagTypeValues(),
 				},
 			},
 			"flags": map[string]any{
-				"type":                 "object",
-				"additionalProperties": true,
+				jsonSchemaKeyType:                 jsonSchemaTypeObject,
+				jsonSchemaKeyAdditionalProperties: true,
 			},
 			"keywords": map[string]any{
-				"type": "object",
-				"additionalProperties": map[string]any{
-					"type": "array",
-					"items": map[string]any{
-						"type": "string",
+				jsonSchemaKeyType: jsonSchemaTypeObject,
+				jsonSchemaKeyAdditionalProperties: map[string]any{
+					jsonSchemaKeyType: jsonSchemaTypeArray,
+					jsonSchemaKeyItems: map[string]any{
+						jsonSchemaKeyType: jsonSchemaTypeString,
 					},
 				},
 			},
 			"extensions": map[string]any{
-				"type": "object",
-				"additionalProperties": map[string]any{
-					"type": "array",
-					"items": map[string]any{
-						"type": "string",
+				jsonSchemaKeyType: jsonSchemaTypeObject,
+				jsonSchemaKeyAdditionalProperties: map[string]any{
+					jsonSchemaKeyType: jsonSchemaTypeArray,
+					jsonSchemaKeyItems: map[string]any{
+						jsonSchemaKeyType: jsonSchemaTypeString,
 					},
 				},
 			},
 		},
-		"additionalProperties": false,
+		jsonSchemaKeyAdditionalProperties: false,
 		"definitions": func() map[string]any {
 			defs := map[string]any{
 				"action": map[string]any{
-					"oneOf": []map[string]any{
+					jsonSchemaKeyOneOf: []map[string]any{
 						{
-							"$ref": "#/definitions/action_single",
+							jsonSchemaKeyRef: refActionSingle,
 						},
 						{
-							"$ref": "#/definitions/action_multi",
+							jsonSchemaKeyRef: "#/definitions/action_multi",
 						},
 					},
 				},
 				"action_multi": map[string]any{
-					"type": "array",
-					"items": map[string]any{
-						"$ref": "#/definitions/action_single",
+					jsonSchemaKeyType: jsonSchemaTypeArray,
+					jsonSchemaKeyItems: map[string]any{
+						jsonSchemaKeyRef: refActionSingle,
 					},
 				},
 				"action_single": map[string]any{
-					"oneOf": func() []map[string]any {
+					jsonSchemaKeyOneOf: func() []map[string]any {
 						result := make([]map[string]any, 0, len(f.actions))
 						for _, def := range f.actions {
 							result = append(result, map[string]any{
-								"$ref": "#/definitions/action__" + def.name(),
+								jsonSchemaKeyRef: "#/definitions/action__" + def.name(),
 							})
 						}
 						return result
 					}(),
 				},
-				"condition": map[string]any{
-					"oneOf": func() []map[string]any {
+				jsonSchemaKeyCondition: map[string]any{
+					jsonSchemaKeyOneOf: func() []map[string]any {
 						result := make([]map[string]any, 0, len(f.conditions))
 						for _, def := range f.conditions {
 							result = append(result, map[string]any{
-								"$ref": "#/definitions/condition__" + def.name(),
+								jsonSchemaKeyRef: "#/definitions/condition__" + def.name(),
 							})
 						}
 						return result

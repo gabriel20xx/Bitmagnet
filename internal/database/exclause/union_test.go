@@ -22,13 +22,13 @@ func TestUnion_Query(t *testing.T) {
 		wantArgs  []driver.Value
 	}{
 		{
-			name: "When statement is clause.Expr, then should be used as statement",
+			name: testNameStatementIsExpr,
 			operation: func(db *gorm.DB) *gorm.DB {
 				return db.Table("general_users").
 					Clauses(Union{
 						Statements: []clause.Expression{
 							clause.Expr{
-								SQL:  "ALL ?",
+								SQL:  testSQLAllPlaceholder,
 								Vars: []interface{}{db.Table("admin_users")},
 							},
 						},
@@ -38,7 +38,7 @@ func TestUnion_Query(t *testing.T) {
 			wantArgs: []driver.Value{},
 		},
 		{
-			name: "When statement is exclause.Subquery, then should be used as statement",
+			name: testNameStatementIsSubquery,
 			operation: func(db *gorm.DB) *gorm.DB {
 				return db.Table("general_users").
 					Clauses(Union{
@@ -141,7 +141,7 @@ func TestNewUnion(t *testing.T) {
 		want Union
 	}{
 		{
-			name: "When subquery is *gorm.DB, then statement is exclause.Subquery",
+			name: testNameSubqueryIsDB,
 			args: args{
 				subquery: db,
 			},
@@ -154,15 +154,15 @@ func TestNewUnion(t *testing.T) {
 			},
 		},
 		{
-			name: "When subquery is string, then statement is clause.Expr",
+			name: testNameSubqueryIsString,
 			args: args{
-				subquery: "ALL ?",
+				subquery: testSQLAllPlaceholder,
 				args:     []interface{}{db.Table("users")},
 			},
 			want: Union{
 				Statements: []clause.Expression{
 					clause.Expr{
-						SQL:  "ALL ?",
+						SQL:  testSQLAllPlaceholder,
 						Vars: []interface{}{db.Table("users")},
 					},
 				},

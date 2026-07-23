@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testWordFoo = "foo"
+
 //nolint:gosmopolitan
 func TestAppQueryToTsquery(t *testing.T) {
 	t.Parallel()
@@ -17,7 +19,7 @@ func TestAppQueryToTsquery(t *testing.T) {
 		want  string
 	}{
 		{"empty", "", ""},
-		{"1 word", "foo", "foo"},
+		{"1 word", testWordFoo, testWordFoo},
 		{"2 words", "foo Bar", "foo & bar"},
 		{"3 words", "foo bar baz", "foo & bar & baz"},
 		{
@@ -52,7 +54,7 @@ func TestAppQueryToPlainWords(t *testing.T) {
 		want  string
 	}{
 		{"empty", "", ""},
-		{"1 word", "foo", "foo"},
+		{"1 word", testWordFoo, testWordFoo},
 		{"typo", "intersteller", "intersteller"},
 		{"2 words", "foo Bar", "foo bar"},
 		{

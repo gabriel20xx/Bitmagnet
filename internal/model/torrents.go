@@ -280,3 +280,20 @@ func ComputeFileFingerprint(fileSizes []uint64) []byte {
 
 	return h.Sum(nil)
 }
+
+// maxSearchStringBytes bounds SearchString (content.go, torrent_contents.go), which is
+// concatenated from an unbounded number of parts (e.g. one per file in a torrent) and is indexed
+// with a GIST pg_trgm index. Postgres rejects an index row over ~8KB; this cap keeps comfortable
+// headroom below that regardless of how many files a torrent has, at the cost of only indexing
+// the first ~2000 bytes of search terms for pathological cases.
+const maxSearchStringBytes = 2000
+
+// truncateSearchString caps s to maxSearchStringBytes, cutting on a UTF-8 rune boundary so the
+// result is never invalid UTF-8 (see alignToRuneBoundary).
+func truncateSearchString(s string) string {
+	if len(s) <= maxSearchStringBytes {
+		return s
+	}
+
+	return s[:alignToRuneBoundary(s, maxSearchStringBytes)]
+}

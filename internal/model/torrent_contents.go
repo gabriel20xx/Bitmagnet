@@ -116,5 +116,5 @@ func (tc *TorrentContent) UpdateTsv() {
 	}
 
 	tc.Tsv = tsv
-	tc.SearchString = strings.Join(searchParts, " ")
+	tc.SearchString = truncateSearchString(strings.Join(searchParts, " "))
 }

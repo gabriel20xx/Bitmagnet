@@ -181,7 +181,7 @@ func TestResponder_get_peers__values(t *testing.T) {
 	msg := dht.RecvMsg{
 		From: mocks.sender.Addr.ToAddrPort(),
 		Msg: dht.Msg{
-			Q: "get_peers",
+			Q: dht.QGetPeers,
 			A: &dht.MsgArgs{
 				ID:       mocks.sender.ID,
 				InfoHash: infoHash,
@@ -221,7 +221,7 @@ func TestResponder_get_peers__nodes(t *testing.T) {
 	msg := dht.RecvMsg{
 		From: mocks.sender.Addr.ToAddrPort(),
 		Msg: dht.Msg{
-			Q: "get_peers",
+			Q: dht.QGetPeers,
 			A: &dht.MsgArgs{
 				ID:       mocks.sender.ID,
 				InfoHash: infoHash,
@@ -260,7 +260,7 @@ func TestResponder_get_peers__missing_info_hash(t *testing.T) {
 	msg := dht.RecvMsg{
 		From: mocks.sender.Addr.ToAddrPort(),
 		Msg: dht.Msg{
-			Q: "get_peers",
+			Q: dht.QGetPeers,
 			A: &dht.MsgArgs{
 				ID: mocks.sender.ID,
 			},

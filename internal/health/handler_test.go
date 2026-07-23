@@ -88,8 +88,8 @@ func TestHandlerIfCheckFailThenRespondWithNotAvailable(t *testing.T) {
 	status := CheckerResult{
 		Status: StatusUnknown,
 		Details: map[string]CheckResult{
-			"check1": {Status: StatusDown, Timestamp: time.Now(), Error: fmt.Errorf("hello")},
-			"check2": {Status: StatusUp, Timestamp: time.Now(), Error: nil},
+			testCheckName1: {Status: StatusDown, Timestamp: time.Now(), Error: fmt.Errorf("hello")},
+			testCheckName2: {Status: StatusUp, Timestamp: time.Now(), Error: nil},
 		},
 	}
 
@@ -102,7 +102,7 @@ func TestHandlerIfCheckSucceedsThenRespondWithAvailable(t *testing.T) {
 	status := CheckerResult{
 		Status: StatusUp,
 		Details: map[string]CheckResult{
-			"check1": {Status: StatusUp, Timestamp: time.Now(), Error: nil},
+			testCheckName1: {Status: StatusUp, Timestamp: time.Now(), Error: nil},
 		},
 	}
 
@@ -115,7 +115,9 @@ func TestHandlerIfAuthFailsThenReturnNoDetails(t *testing.T) {
 	status := CheckerResult{
 		Status: StatusDown,
 		Details: map[string]CheckResult{
-			"check1": {Status: StatusDown, Timestamp: time.Now(), Error: fmt.Errorf("an error message")},
+			testCheckName1: {
+				Status: StatusDown, Timestamp: time.Now(), Error: fmt.Errorf("an error message"),
+			},
 		},
 	}
 	doTestHandler(t, http.StatusNoContent, http.StatusTeapot, status, http.StatusTeapot)

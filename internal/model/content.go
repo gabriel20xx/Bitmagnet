@@ -114,5 +114,5 @@ func (c *Content) UpdateTsv() {
 	}
 
 	c.Tsv = tsv
-	c.SearchString = strings.Join(searchParts, " ")
+	c.SearchString = truncateSearchString(strings.Join(searchParts, " "))
 }

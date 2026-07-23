@@ -12,14 +12,14 @@ type Except struct {
 
 // Name except clause name
 func (Except) Name() string {
-	return "EXCEPT"
+	return clauseNameExcept
 }
 
 // Build build except clause
 func (except Except) Build(builder clause.Builder) {
 	for index, statement := range except.Statements {
 		if index != 0 {
-			if _, err := builder.WriteString(" EXCEPT "); err != nil {
+			if _, err := builder.WriteString(" " + clauseNameExcept + " "); err != nil {
 				panic(err)
 			}
 		}
