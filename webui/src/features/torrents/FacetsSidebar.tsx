@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CircleSlash } from 'lucide-react'
+import { CircleSlash, HardDrive } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Checkbox } from '@/components/ui/checkbox'
 import { formatIntEstimate } from '@/lib/utils/intEstimate'
@@ -80,63 +80,69 @@ export function FacetsSidebar({
 
   return (
     <div className="w-64 shrink-0 space-y-1 border-r border-border p-3">
-      <Accordion type="single" collapsible defaultValue="content_type">
-        <AccordionItem value="content_type">
-          <AccordionTrigger>{t('facets.content_type')}</AccordionTrigger>
-          <AccordionContent>
-            <ul className="space-y-0.5">
-              <li>
-                <button
-                  onClick={() => onUpdate((c) => selectContentType(c, null))}
-                  className={
-                    'flex w-full items-center justify-between rounded px-2 py-1 text-left text-sm hover:bg-surface-hover ' +
-                    (controls.contentType === null ? 'bg-surface-hover font-medium text-primary' : '')
-                  }
-                >
-                  <span className="flex items-center gap-2">
-                    <CircleSlash className="size-4" />
-                    {t('content_types.plural.all')}
-                  </span>
-                  <small className="text-muted-fg">
-                    {formatIntEstimate(overallTotalCount.count, i18n.language, overallTotalCount.isEstimate)}
-                  </small>
-                </button>
-              </li>
-              {contentTypeList.map(
-                (ct) =>
-                  (ct.key === 'null' || availableContentTypes.has(ct.key)) && (
-                    <li key={ct.key}>
-                      <button
-                        onClick={() => onUpdate((c) => selectContentType(c, ct.key))}
-                        className={
-                          'flex w-full items-center justify-between rounded px-2 py-1 text-left text-sm hover:bg-surface-hover ' +
-                          (controls.contentType === ct.key ? 'bg-surface-hover font-medium text-primary' : '')
-                        }
-                      >
-                        <span className="flex items-center gap-2">
-                          <ct.icon className="size-4" />
-                          {t(`content_types.plural.${ct.key}`)}
-                        </span>
-                        <small className="text-muted-fg">
-                          {contentTypeCounts[ct.key]
-                            ? formatIntEstimate(
-                                contentTypeCounts[ct.key].count,
-                                i18n.language,
-                                contentTypeCounts[ct.key].isEstimate,
-                              )
-                            : '0'}
-                        </small>
-                      </button>
-                    </li>
-                  ),
-              )}
-            </ul>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+      <div className="border-b border-border">
+        <div className="flex items-center justify-between gap-2 py-3 text-sm font-medium">
+          {t('facets.content_type')}
+        </div>
+        <div className="pb-3">
+          <ul className="space-y-0.5">
+            <li>
+              <button
+                onClick={() => onUpdate((c) => selectContentType(c, null))}
+                className={
+                  'flex w-full items-center justify-between rounded px-2 py-1 text-left text-sm hover:bg-surface-hover ' +
+                  (controls.contentType === null ? 'bg-surface-hover font-medium text-primary' : '')
+                }
+              >
+                <span className="flex items-center gap-2">
+                  <CircleSlash className="size-4" />
+                  {t('content_types.plural.all')}
+                </span>
+                <small className="text-muted-fg">
+                  {formatIntEstimate(overallTotalCount.count, i18n.language, overallTotalCount.isEstimate)}
+                </small>
+              </button>
+            </li>
+            {contentTypeList.map(
+              (ct) =>
+                (ct.key === 'null' || availableContentTypes.has(ct.key)) && (
+                  <li key={ct.key}>
+                    <button
+                      onClick={() => onUpdate((c) => selectContentType(c, ct.key))}
+                      className={
+                        'flex w-full items-center justify-between rounded px-2 py-1 text-left text-sm hover:bg-surface-hover ' +
+                        (controls.contentType === ct.key ? 'bg-surface-hover font-medium text-primary' : '')
+                      }
+                    >
+                      <span className="flex items-center gap-2">
+                        <ct.icon className="size-4" />
+                        {t(`content_types.plural.${ct.key}`)}
+                      </span>
+                      <small className="text-muted-fg">
+                        {contentTypeCounts[ct.key]
+                          ? formatIntEstimate(
+                              contentTypeCounts[ct.key].count,
+                              i18n.language,
+                              contentTypeCounts[ct.key].isEstimate,
+                            )
+                          : '0'}
+                      </small>
+                    </button>
+                  </li>
+                ),
+            )}
+          </ul>
+        </div>
+      </div>
 
-      <div className="rounded-lg border border-border bg-bg">
-        <SizeFilter controls={controls} onUpdate={onUpdate} />
+      <div className="border-b border-border">
+        <div className="flex items-center gap-2 py-3 text-sm font-medium">
+          <HardDrive className="size-4" />
+          {t('torrents.size')}
+        </div>
+        <div className="pb-3">
+          <SizeFilter controls={controls} onUpdate={onUpdate} />
+        </div>
       </div>
 
       <Accordion
