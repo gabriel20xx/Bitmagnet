@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@apollo/client/react'
+import { CircleSlash } from 'lucide-react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -139,6 +140,7 @@ export function EnqueueReprocessBatchDialog({
                     checked={contentTypes.includes('all')}
                     onCheckedChange={(checked) => checked && setContentTypes(['all'])}
                   />
+                  <CircleSlash className="size-4 shrink-0 text-muted-fg" />
                   {t('general.all')}
                 </label>
                 {contentTypeList.map((ct) => (
@@ -147,6 +149,7 @@ export function EnqueueReprocessBatchDialog({
                       checked={contentTypes.includes(ct.key)}
                       onCheckedChange={(checked) => toggleContentType(ct.key, !!checked)}
                     />
+                    <ct.icon className="size-4 shrink-0 text-muted-fg" />
                     {t(`content_types.plural.${ct.key}`)}
                   </label>
                 ))}

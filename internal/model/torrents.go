@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/lexer"
 	"github.com/facette/natsort"
@@ -181,6 +182,18 @@ func (t Torrent) TagNames() []string {
 	return tagNames
 }
 
+// alignToRuneBoundary walks a byte offset backward, if necessary, until it no longer splits
+// a UTF-8 encoded rune. Cutting a Go string at an arbitrary byte offset (as the heuristics
+// below do, to find word/prefix/suffix boundaries) can otherwise land inside a multi-byte
+// character, producing a string with invalid UTF-8 that Postgres will refuse to store.
+func alignToRuneBoundary(s string, i int) int {
+	for i > 0 && i < len(s) && !utf8.RuneStart(s[i]) {
+		i--
+	}
+
+	return i
+}
+
 // fileSearchStrings returns a list of strings extracted from file paths, for inclusion in the text search vector.
 // To reduce duplication, common prefixes and suffixes are deduplicated.
 func (t Torrent) fileSearchStrings() []string {
@@ -202,6 +215,7 @@ outer:
 		for i != 0 && lexer.IsWordChar(rune(f.Path[i])) {
 			i--
 		}
+		i = alignToRuneBoundary(f.Path, i)
 		firstPass = append(firstPass, f.Path[i:])
 		prevPath = f.Path
 	}
@@ -230,7 +244,9 @@ outer:
 			longestSuffixLength--
 		}
 
-		str := strings.TrimSpace(firstPass[i][:len(firstPass[i])-longestSuffixLength])
+		cut := alignToRuneBoundary(firstPass[i], len(firstPass[i])-longestSuffixLength)
+
+		str := strings.TrimSpace(firstPass[i][:cut])
 		if str != "" {
 			searchStrings = append(searchStrings, str)
 		}

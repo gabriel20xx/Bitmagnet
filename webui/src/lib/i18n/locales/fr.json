@@ -109,7 +109,7 @@
   },
   "general": {
     "all": "Tous",
-    "clear": "Clear",
+    "clear": "Effacer",
     "dismiss": "Fermer",
     "error": "Erreur",
     "none": "Aucun",
@@ -262,6 +262,7 @@
     "leechers": "Leechers",
     "magnet": "Magnet",
     "magnet_links": "Liens Magnet",
+    "no_limit": "Aucune limite",
     "order_by": "Trier par",
     "order_direction_toggle": "Inverser le sens",
     "ordering": {
@@ -278,8 +279,11 @@
     "original_release_date": "Date de sortie originale",
     "permalink": "Permalien",
     "poster": "Affiche",
+    "preview_data_unavailable": "Les données des fragments ne sont pas disponibles pour ce torrent, il ne peut donc pas être prévisualisé",
     "preview_failed": "Ce fichier n'a pas pu être lu",
     "preview_file": "Aperçu du fichier",
+    "preview_loading": "Chargement de l'aperçu…",
+    "preview_too_many_streams": "Trop d'aperçus sont en cours en ce moment — réessayez dans un instant",
     "published": "Publié",
     "rating": "Évaluation",
     "refresh": "Rafraîchir les résultats",

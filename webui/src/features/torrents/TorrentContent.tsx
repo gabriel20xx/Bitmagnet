@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { FileText } from 'lucide-react'
+import { FileText, Fingerprint } from 'lucide-react'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { formatFilesize } from '@/lib/utils/filesize'
@@ -80,7 +80,8 @@ export function TorrentContent({
               <strong>{t('torrents.s_l')}:</strong> {torrentContent.seeders ?? '?'} / {torrentContent.leechers ?? '?'}
             </p>
           )}
-          <p>
+          <p className="flex items-center gap-1.5">
+            <Fingerprint className="size-4 shrink-0 text-muted-fg" />
             <strong>{t('torrents.info_hash')}:</strong>{' '}
             <SimpleTooltip label={t('torrents.copy_to_clipboard')}>
               <button

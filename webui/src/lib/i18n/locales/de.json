@@ -109,7 +109,7 @@
   },
   "general": {
     "all": "Alle",
-    "clear": "Clear",
+    "clear": "Zurücksetzen",
     "dismiss": "Verwerfen",
     "error": "Fehler",
     "none": "Keine",
@@ -262,6 +262,7 @@
     "leechers": "Leechers",
     "magnet": "Magnet",
     "magnet_links": "Magnet-Links",
+    "no_limit": "Kein Limit",
     "order_by": "Sortieren nach",
     "order_direction_toggle": "Richtung umschalten",
     "ordering": {
@@ -278,8 +279,11 @@
     "original_release_date": "Originales Veröffentlichungsdatum",
     "permalink": "Permalink",
     "poster": "Poster",
+    "preview_data_unavailable": "Für diesen Torrent sind keine Piece-Daten verfügbar, daher kann er nicht als Vorschau angezeigt werden",
     "preview_failed": "Diese Datei konnte nicht abgespielt werden",
     "preview_file": "Datei-Vorschau",
+    "preview_loading": "Vorschau wird geladen…",
+    "preview_too_many_streams": "Gerade laufen zu viele Vorschauen – bitte versuchen Sie es in Kürze erneut",
     "published": "Veröffentlicht",
     "rating": "Bewertung",
     "refresh": "Ergebnisse aktualisieren",

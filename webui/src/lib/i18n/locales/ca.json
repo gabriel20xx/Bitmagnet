@@ -93,7 +93,7 @@
   },
   "general": {
     "all": "Tot",
-    "clear": "Clear",
+    "clear": "Esborra",
     "dismiss": "Descarta",
     "error": "Error",
     "none": "Cap",
@@ -240,6 +240,7 @@
     "leechers": "Sangoneres",
     "magnet": "Magnet",
     "magnet_links": "Enllaços magnet",
+    "no_limit": "Sense límit",
     "order_by": "Ordenar per",
     "order_direction_toggle": "Commuta la direcció",
     "ordering": {
@@ -256,8 +257,11 @@
     "original_release_date": "Data de llançament original",
     "permalink": "Enllaç permanent",
     "poster": "Pòster",
+    "preview_data_unavailable": "Les dades dels fragments no estan disponibles per a aquest torrent, així que no es pot previsualitzar",
     "preview_failed": "No s'ha pogut reproduir aquest fitxer",
     "preview_file": "Previsualitza el fitxer",
+    "preview_loading": "Carregant la previsualització…",
+    "preview_too_many_streams": "S'estan executant massa previsualitzacions ara mateix; torna-ho a provar d'aquí a poc",
     "published": "Publicat",
     "rating": "Valoració",
     "refresh": "Actualitza els resultats",

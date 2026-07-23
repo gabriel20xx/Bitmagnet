@@ -69,13 +69,14 @@ func (tc *TorrentContent) UpdateTsv() {
 	if tc.ContentID.Valid {
 		tsv = tc.Content.Tsv.Copy()
 		if tc.Content.SearchString != "" {
-			searchParts = append(searchParts, tc.Content.SearchString)
+			searchParts = append(searchParts, strings.ToValidUTF8(tc.Content.SearchString, ""))
 		}
 	} else {
 		tsv = fts.Tsvector{}
 	}
 
 	addText := func(text string, weight fts.TsvectorWeight) {
+		text = strings.ToValidUTF8(text, "")
 		tsv.AddText(text, weight)
 		searchParts = append(searchParts, text)
 	}

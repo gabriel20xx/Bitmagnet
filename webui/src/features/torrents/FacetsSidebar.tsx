@@ -10,9 +10,11 @@ import { SizeFilter } from './SizeFilter'
 import {
   activateFacet,
   activateFilter,
+  clearSizeFilter,
   deactivateFacet,
   deactivateFilter,
   facets,
+  hasSizeFilter,
   selectContentType,
   type TorrentSearchControls,
 } from './searchControls'
@@ -136,9 +138,19 @@ export function FacetsSidebar({
       </div>
 
       <div className="border-b border-border">
-        <div className="flex items-center gap-2 py-3 text-sm font-medium">
-          <HardDrive className="size-4" />
-          {t('torrents.size')}
+        <div className="flex items-center justify-between gap-2 py-3 text-sm font-medium">
+          <span className="flex items-center gap-2">
+            <HardDrive className="size-4" />
+            {t('torrents.size')}
+          </span>
+          {hasSizeFilter(controls) && (
+            <button
+              onClick={() => onUpdate(clearSizeFilter)}
+              className="text-xs font-normal text-muted-fg hover:text-fg"
+            >
+              {t('general.clear')}
+            </button>
+          )}
         </div>
         <div className="pb-3">
           <SizeFilter controls={controls} onUpdate={onUpdate} />

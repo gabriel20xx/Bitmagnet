@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Download } from 'lucide-react'
+import { Download, Fingerprint, Magnet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
@@ -36,6 +36,7 @@ export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentC
             copyToClipboard(selectedItems.map((i) => i.torrent.magnetUri).join('\n')).catch(() => {})
           }}
         >
+          <Magnet className="size-4" />
           {t('torrents.magnet_links')}
         </Button>
       </SimpleTooltip>
@@ -48,6 +49,7 @@ export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentC
             copyToClipboard(infoHashes.join('\n')).catch(() => {})
           }}
         >
+          <Fingerprint className="size-4" />
           {t('torrents.info_hashes')}
         </Button>
       </SimpleTooltip>

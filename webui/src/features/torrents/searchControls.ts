@@ -228,6 +228,14 @@ export function controlsToQueryVariables(ctrl: TorrentSearchControls): TorrentCo
   }
 }
 
+export function hasSizeFilter(ctrl: TorrentSearchControls): boolean {
+  return ctrl.sizeMin != null || ctrl.sizeMax != null
+}
+
+export function clearSizeFilter(ctrl: TorrentSearchControls): TorrentSearchControls {
+  return { ...ctrl, sizeMin: undefined, sizeMax: undefined, page: 1 }
+}
+
 export function selectContentType(ctrl: TorrentSearchControls, ct: ContentTypeSelection): TorrentSearchControls {
   return {
     ...ctrl,

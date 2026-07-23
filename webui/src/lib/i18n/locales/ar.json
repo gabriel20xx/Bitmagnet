@@ -109,7 +109,7 @@
   },
   "general": {
     "all": "الكل",
-    "clear": "Clear",
+    "clear": "مسح",
     "dismiss": "رفض",
     "error": "خطأ",
     "none": "لا شيء",
@@ -262,6 +262,7 @@
     "leechers": "المستفيدون",
     "magnet": "مغناطيس",
     "magnet_links": "روابط مغناطيسية",
+    "no_limit": "بلا حدود",
     "order_by": "ترتيب حسب",
     "order_direction_toggle": "تبديل الاتجاه",
     "ordering": {
@@ -278,8 +279,11 @@
     "original_release_date": "تاريخ الإصدار الأصلي",
     "permalink": "رابط دائم",
     "poster": "ملصق",
+    "preview_data_unavailable": "بيانات القطع غير متوفرة لهذا التورنت، لذا لا يمكن معاينته",
     "preview_failed": "تعذر تشغيل هذا الملف",
     "preview_file": "معاينة الملف",
+    "preview_loading": "جارٍ تحميل المعاينة…",
+    "preview_too_many_streams": "هناك معاينات كثيرة قيد التشغيل حاليًا — حاول مرة أخرى بعد قليل",
     "published": "منشور",
     "rating": "التقييم",
     "refresh": "تحديث النتائج",

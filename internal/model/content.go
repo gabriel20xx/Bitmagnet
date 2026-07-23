@@ -86,6 +86,7 @@ func (c *Content) UpdateTsv() {
 	tsv := fts.Tsvector{}
 	searchParts := make([]string, 0, 8)
 	addText := func(text string, weight fts.TsvectorWeight) {
+		text = strings.ToValidUTF8(text, "")
 		tsv.AddText(text, weight)
 		searchParts = append(searchParts, text)
 	}

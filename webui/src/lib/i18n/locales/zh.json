@@ -109,7 +109,7 @@
   },
   "general": {
     "all": "全部",
-    "clear": "Clear",
+    "clear": "清除",
     "dismiss": "忽略",
     "error": "错误",
     "none": "无",
@@ -262,6 +262,7 @@
     "leechers": "下载者",
     "magnet": "磁力链接",
     "magnet_links": "磁力链接",
+    "no_limit": "无限制",
     "order_by": "排序依据",
     "order_direction_toggle": "切换方向",
     "ordering": {
@@ -278,8 +279,11 @@
     "original_release_date": "原始发布日期",
     "permalink": "永久链接",
     "poster": "海报",
+    "preview_data_unavailable": "该种子的分片数据不可用，因此无法预览",
     "preview_failed": "无法播放此文件",
     "preview_file": "预览文件",
+    "preview_loading": "正在加载预览…",
+    "preview_too_many_streams": "当前预览数量过多，请稍后重试",
     "published": "已发布",
     "rating": "评分",
     "refresh": "刷新结果",
