@@ -234,17 +234,13 @@
     "visualize": "Visualize"
   },
   "torrents": {
-    "classification": "Classification",
     "clear_search": "Clear Search",
     "copy": "Copy",
     "copy_to_clipboard": "Copy to clipboard",
-    "delete": "Delete",
-    "delete_action_cannot_be_undone": "This action cannot be undone",
-    "delete_are_you_sure": "Are you sure you want to delete this torrent?",
     "deselect_all": "Deselect All",
     "download": "Download",
     "download_torrent_file": "Download .torrent file",
-    "edit_tags": "Edit tags",
+    "download_torrents": "Download torrents",
     "episodes": "Episodes",
     "external_links": "External links",
     "file_index": "File index",
@@ -262,7 +258,6 @@
     "leechers": "Leechers",
     "magnet": "Magnet",
     "magnet_links": "Magnet links",
-    "new_tag": "New tag",
     "order_by": "Order by",
     "order_direction_toggle": "Toggle direction",
     "ordering": {
@@ -282,12 +277,6 @@
     "published": "Published",
     "rating": "Rating",
     "refresh": "Refresh results",
-    "reprocess": {
-      "force_rematch": "Force rematch of already matched content",
-      "match_content_by_external_api_search": "Match content by external API search",
-      "match_content_by_local_search": "Match content by local search",
-      "reprocess": "Reprocess"
-    },
     "s_l": "S / L",
     "search": "Search",
     "seeders": "Seeders",
@@ -296,15 +285,6 @@
     "size": "Size",
     "source": "Torrent Source",
     "summary": "Summary",
-    "tags": {
-      "delete": "Delete tags",
-      "delete_tip": "Remove tags from the selected torrents",
-      "placeholder": "Tag...",
-      "put": "Put tags",
-      "put_tip": "Add tags to the selected torrents",
-      "set": "Set tags",
-      "set_tip": "Replace tags of the selected torrents"
-    },
     "title": "Title",
     "toggle_drawer": "Toggle Drawer",
     "votes_count_n": "{{count}} votes"

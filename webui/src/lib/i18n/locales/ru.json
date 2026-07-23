@@ -237,17 +237,13 @@
     "visualize": "Визуализация"
   },
   "torrents": {
-    "classification": "Классификация",
     "clear_search": "Очистить поиск",
     "copy": "Копировать",
     "copy_to_clipboard": "Копировать в буфер обмена",
-    "delete": "Удалить",
-    "delete_action_cannot_be_undone": "Это действие нельзя отменить",
-    "delete_are_you_sure": "Вы уверены, что хотите удалить этот торрент?",
     "deselect_all": "Снять выделение",
     "download": "Скачать",
     "download_torrent_file": "Скачать файл .torrent",
-    "edit_tags": "Редактировать теги",
+    "download_torrents": "Скачать торренты",
     "episodes": "Эпизоды",
     "external_links": "Внешние ссылки",
     "file_index": "Индекс файла",
@@ -265,7 +261,6 @@
     "leechers": "Личеры",
     "magnet": "Магнет",
     "magnet_links": "Магнет ссылки",
-    "new_tag": "Новый тег",
     "order_by": "Сортировать по",
     "order_direction_toggle": "Переключить направление",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "Опубликовано",
     "rating": "Рейтинг",
     "refresh": "Обновить результаты",
-    "reprocess": {
-      "force_rematch": "Принудительное повторное сопоставление уже сопоставленного контента",
-      "match_content_by_external_api_search": "Сопоставить контент через внешний API",
-      "match_content_by_local_search": "Сопоставить контент через локальный поиск",
-      "reprocess": "Переработать"
-    },
     "s_l": "S / L",
     "search": "Поиск",
     "seeders": "Сидеры",
@@ -299,15 +288,6 @@
     "size": "Размер",
     "source": "Источник торрента",
     "summary": "Сводка",
-    "tags": {
-      "delete": "Удалить теги",
-      "delete_tip": "Удалить теги из выбранных торрентов",
-      "placeholder": "Тег...",
-      "put": "Поместить теги",
-      "put_tip": "Добавить теги к выбранным торрентам",
-      "set": "Установить теги",
-      "set_tip": "Заменить теги выбранных торрентов"
-    },
     "title": "Название",
     "toggle_drawer": "Переключить панель",
     "votes_count_n": "{{count}} голосов"

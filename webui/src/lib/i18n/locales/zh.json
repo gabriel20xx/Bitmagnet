@@ -237,17 +237,13 @@
     "visualize": "可视化"
   },
   "torrents": {
-    "classification": "分类",
     "clear_search": "清除搜索",
     "copy": "复制",
     "copy_to_clipboard": "复制到剪贴板",
-    "delete": "删除",
-    "delete_action_cannot_be_undone": "此操作无法撤销",
-    "delete_are_you_sure": "您确定要删除此种子吗？",
     "deselect_all": "取消全选",
     "download": "下载",
     "download_torrent_file": "下载 .torrent 文件",
-    "edit_tags": "编辑标签",
+    "download_torrents": "下载 torrent 文件",
     "episodes": "剧集",
     "external_links": "外部链接",
     "file_index": "文件索引",
@@ -265,7 +261,6 @@
     "leechers": "下载者",
     "magnet": "磁力链接",
     "magnet_links": "磁力链接",
-    "new_tag": "新标签",
     "order_by": "排序依据",
     "order_direction_toggle": "切换方向",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "已发布",
     "rating": "评分",
     "refresh": "刷新结果",
-    "reprocess": {
-      "force_rematch": "强制重新匹配已匹配的内容",
-      "match_content_by_external_api_search": "通过外部API搜索匹配内容",
-      "match_content_by_local_search": "通过本地搜索匹配内容",
-      "reprocess": "重新处理"
-    },
     "s_l": "S / L",
     "search": "搜索",
     "seeders": "上传者",
@@ -299,15 +288,6 @@
     "size": "大小",
     "source": "种子来源",
     "summary": "摘要",
-    "tags": {
-      "delete": "删除标签",
-      "delete_tip": "从选定的种子中删除标签",
-      "placeholder": "标签...",
-      "put": "添加标签",
-      "put_tip": "为选定的种子添加标签",
-      "set": "设置标签",
-      "set_tip": "替换选定种子的标签"
-    },
     "title": "标题",
     "toggle_drawer": "切换抽屉",
     "votes_count_n": "{{count}}票"

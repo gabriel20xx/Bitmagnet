@@ -145,7 +145,7 @@ export function TorrentsSearch() {
         </div>
 
         <div className="mb-3 rounded-lg border border-border bg-bg p-2">
-          <TorrentsBulkActions selectedItems={selectedItems} onUpdated={refresh} />
+          <TorrentsBulkActions selectedItems={selectedItems} />
         </div>
 
         <div className="rounded-lg border border-border bg-bg">
@@ -170,7 +170,6 @@ export function TorrentsSearch() {
               })
             }
             onSelectControls={updateControls}
-            onUpdated={refresh}
           />
         </div>
 

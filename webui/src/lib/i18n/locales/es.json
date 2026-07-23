@@ -237,17 +237,13 @@
     "visualize": "Visualizar"
   },
   "torrents": {
-    "classification": "Clasificación",
     "clear_search": "Borrar búsqueda",
     "copy": "Copiar",
     "copy_to_clipboard": "Copiar al portapapeles",
-    "delete": "Eliminar",
-    "delete_action_cannot_be_undone": "Esta acción no se puede deshacer",
-    "delete_are_you_sure": "¿Está seguro de que desea eliminar este torrent?",
     "deselect_all": "Deseleccionar todo",
     "download": "Descargar",
     "download_torrent_file": "Descargar archivo .torrent",
-    "edit_tags": "Editar etiquetas",
+    "download_torrents": "Descargar torrents",
     "episodes": "Episodios",
     "external_links": "Enlaces externos",
     "file_index": "Índice de archivos",
@@ -265,7 +261,6 @@
     "leechers": "Leechers",
     "magnet": "Magnet",
     "magnet_links": "Enlaces Magnet",
-    "new_tag": "Nueva etiqueta",
     "order_by": "Ordenar por",
     "order_direction_toggle": "Alternar dirección",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "Publicado",
     "rating": "Calificación",
     "refresh": "Actualizar resultados",
-    "reprocess": {
-      "force_rematch": "Forzar nueva coincidencia de contenido ya coincidente",
-      "match_content_by_external_api_search": "Coincidir contenido por búsqueda de API externa",
-      "match_content_by_local_search": "Coincidir contenido por búsqueda local",
-      "reprocess": "Volver a procesar"
-    },
     "s_l": "S / L",
     "search": "Buscar",
     "seeders": "Seeders",
@@ -299,15 +288,6 @@
     "size": "Tamaño",
     "source": "Fuente del torrent",
     "summary": "Resumen",
-    "tags": {
-      "delete": "Eliminar etiquetas",
-      "delete_tip": "Eliminar etiquetas de los torrents seleccionados",
-      "placeholder": "Etiqueta...",
-      "put": "Poner etiquetas",
-      "put_tip": "Añadir etiquetas a los torrents seleccionados",
-      "set": "Establecer etiquetas",
-      "set_tip": "Reemplazar etiquetas de los torrents seleccionados"
-    },
     "title": "Título",
     "toggle_drawer": "Alternar cajón",
     "votes_count_n": "{{count}} votos"

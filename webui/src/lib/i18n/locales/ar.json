@@ -237,17 +237,13 @@
     "visualize": "تصور"
   },
   "torrents": {
-    "classification": "التصنيف",
     "clear_search": "مسح البحث",
     "copy": "نسخ",
     "copy_to_clipboard": "نسخ إلى الحافظة",
-    "delete": "حذف",
-    "delete_action_cannot_be_undone": "لا يمكن التراجع عن هذا الإجراء",
-    "delete_are_you_sure": "هل أنت متأكد أنك تريد حذف هذا التورنت؟",
     "deselect_all": "إلغاء تحديد الكل",
     "download": "تنزيل",
     "download_torrent_file": "تنزيل ملف .torrent",
-    "edit_tags": "تحرير العلامات",
+    "download_torrents": "تنزيل التورنتات",
     "episodes": "الحلقات",
     "external_links": "روابط خارجية",
     "file_index": "فهرس الملفات",
@@ -265,7 +261,6 @@
     "leechers": "المستفيدون",
     "magnet": "مغناطيس",
     "magnet_links": "روابط مغناطيسية",
-    "new_tag": "علامة جديدة",
     "order_by": "ترتيب حسب",
     "order_direction_toggle": "تبديل الاتجاه",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "منشور",
     "rating": "التقييم",
     "refresh": "تحديث النتائج",
-    "reprocess": {
-      "force_rematch": "فرض إعادة المطابقة للمحتوى المطابق بالفعل",
-      "match_content_by_external_api_search": "مطابقة المحتوى من خلال البحث في API الخارجية",
-      "match_content_by_local_search": "مطابقة المحتوى من خلال البحث المحلي",
-      "reprocess": "إعادة المعالجة"
-    },
     "s_l": "S / L",
     "search": "بحث",
     "seeders": "الباذرون",
@@ -299,15 +288,6 @@
     "size": "الحجم",
     "source": "مصدر التورنت",
     "summary": "الملخص",
-    "tags": {
-      "delete": "حذف العلامات",
-      "delete_tip": "إزالة العلامات من ملفات التورنت المحددة",
-      "placeholder": "العلامة...",
-      "put": "وضع العلامات",
-      "put_tip": "إضافة العلامات إلى ملفات التورنت المحددة",
-      "set": "تعيين العلامات",
-      "set_tip": "استبدال العلامات في ملفات التورنت المحددة"
-    },
     "title": "العنوان",
     "toggle_drawer": "تبديل الدرج",
     "votes_count_n": "{{count}} أصوات"

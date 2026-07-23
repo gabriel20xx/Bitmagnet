@@ -237,17 +237,13 @@
     "visualize": "Visualiseren"
   },
   "torrents": {
-    "classification": "Classificatie",
     "clear_search": "Zoekopdracht wissen",
     "copy": "Kopiëren",
     "copy_to_clipboard": "Kopiëren naar klembord",
-    "delete": "Verwijderen",
-    "delete_action_cannot_be_undone": "Deze actie kan niet ongedaan worden gemaakt",
-    "delete_are_you_sure": "Weet u zeker dat u deze torrent wilt verwijderen?",
     "deselect_all": "Deselecteer alles",
     "download": "Downloaden",
     "download_torrent_file": "Torrentbestand downloaden",
-    "edit_tags": "Tags bewerken",
+    "download_torrents": "Torrents downloaden",
     "episodes": "Afleveringen",
     "external_links": "Externe links",
     "file_index": "Bestandsindex",
@@ -265,7 +261,6 @@
     "leechers": "Leechers",
     "magnet": "Magnet",
     "magnet_links": "Magnet-links",
-    "new_tag": "Nieuwe tag",
     "order_by": "Sorteren op",
     "order_direction_toggle": "Richting omkeren",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "Gepubliceerd",
     "rating": "Beoordeling",
     "refresh": "Vernieuw resultaten",
-    "reprocess": {
-      "force_rematch": "Forceer nieuwe match van al gematchte inhoud",
-      "match_content_by_external_api_search": "Match inhoud via externe API-zoekopdracht",
-      "match_content_by_local_search": "Match inhoud via lokale zoekopdracht",
-      "reprocess": "Opnieuw verwerken"
-    },
     "s_l": "S / L",
     "search": "Zoeken",
     "seeders": "Seeders",
@@ -299,15 +288,6 @@
     "size": "Grootte",
     "source": "Torrentbron",
     "summary": "Samenvatting",
-    "tags": {
-      "delete": "Tags verwijderen",
-      "delete_tip": "Tags verwijderen van de geselecteerde torrents",
-      "placeholder": "Tag...",
-      "put": "Tags plaatsen",
-      "put_tip": "Tags toevoegen aan de geselecteerde torrents",
-      "set": "Tags instellen",
-      "set_tip": "Tags van de geselecteerde torrents vervangen"
-    },
     "title": "Titel",
     "toggle_drawer": "Zijpaneel in-/uitschakelen",
     "votes_count_n": "{{count}} stemmen"

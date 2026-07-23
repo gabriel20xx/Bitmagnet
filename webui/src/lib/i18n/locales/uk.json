@@ -237,17 +237,13 @@
     "visualize": "Візуалізувати"
   },
   "torrents": {
-    "classification": "Класифікація",
     "clear_search": "Очистити пошук",
     "copy": "Копіювати",
     "copy_to_clipboard": "Копіювати в буфер обміну",
-    "delete": "Видалити",
-    "delete_action_cannot_be_undone": "Цю дію не можна скасувати",
-    "delete_are_you_sure": "Ви впевнені, що хочете видалити цей торрент?",
     "deselect_all": "Зняти виділення",
     "download": "Завантажити",
     "download_torrent_file": "Завантажити файл .torrent",
-    "edit_tags": "Редагувати теги",
+    "download_torrents": "Завантажити торренти",
     "episodes": "Епізоди",
     "external_links": "Зовнішні посилання",
     "file_index": "Індекс файлу",
@@ -265,7 +261,6 @@
     "leechers": "Лічери",
     "magnet": "Магнет",
     "magnet_links": "Магнет-посилання",
-    "new_tag": "Новий тег",
     "order_by": "Сортувати за",
     "order_direction_toggle": "Змінити напрямок",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "Опубліковано",
     "rating": "Рейтинг",
     "refresh": "Оновити результати",
-    "reprocess": {
-      "force_rematch": "Примусово повторно зіставити вже зіставлений контент",
-      "match_content_by_external_api_search": "Зіставити контент через зовнішній API",
-      "match_content_by_local_search": "Зіставити контент через локальний пошук",
-      "reprocess": "Переробити"
-    },
     "s_l": "S / L",
     "search": "Пошук",
     "seeders": "Сідери",
@@ -299,15 +288,6 @@
     "size": "Розмір",
     "source": "Джерело торрента",
     "summary": "Зведення",
-    "tags": {
-      "delete": "Видалити теги",
-      "delete_tip": "Видаліть теги з вибраних торрентів",
-      "placeholder": "Теги...",
-      "put": "Ставте теги",
-      "put_tip": "Додайте теги до вибраних торрентів",
-      "set": "Встановити теги",
-      "set_tip": "Замінити теги вибраних торрентів"
-    },
     "title": "Назва",
     "toggle_drawer": "Перемкнути панель",
     "votes_count_n": "{{count}} голосів"

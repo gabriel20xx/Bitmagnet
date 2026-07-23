@@ -9,7 +9,7 @@ import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { contentTypeInfo } from './contentTypes'
 import { TorrentChips } from './TorrentChips'
-import { TorrentContent } from './TorrentContent'
+import { TorrentFilesTree } from './TorrentFilesTree'
 import type { TorrentSearchControls } from './searchControls'
 
 export const allColumns = ['select', 'summary', 'size', 'publishedAt', 'peers', 'magnet'] as const
@@ -25,7 +25,6 @@ export function TorrentsTable({
   onToggleSelected,
   onToggleAll,
   onSelectControls,
-  onUpdated,
 }: {
   items: TorrentContentFragment[]
   loading: boolean
@@ -35,7 +34,6 @@ export function TorrentsTable({
   onToggleSelected: (infoHash: string) => void
   onToggleAll: () => void
   onSelectControls: (fn: (c: TorrentSearchControls) => TorrentSearchControls) => void
-  onUpdated: () => void
 }) {
   const { t, i18n } = useTranslation()
   const isAllSelected = items.length > 0 && items.every((i) => selected.has(i.infoHash))
@@ -44,7 +42,7 @@ export function TorrentsTable({
   const toggleSelectedTorrent = (infoHash: string) => {
     onSelectControls((c) => ({
       ...c,
-      selectedTorrent: c.selectedTorrent?.infoHash === infoHash ? undefined : { infoHash, tab: c.selectedTorrent?.tab },
+      selectedTorrent: c.selectedTorrent?.infoHash === infoHash ? undefined : { infoHash },
     }))
   }
 
@@ -154,18 +152,7 @@ export function TorrentsTable({
                 {expanded && (
                   <tr className="border-t border-border bg-surface/50">
                     <td colSpan={displayedColumns.length} className="p-4">
-                      <TorrentContent
-                        torrentContent={item}
-                        size={false}
-                        selectedTab={controls.selectedTorrent?.tab}
-                        onTabSelected={(tab) =>
-                          onSelectControls((c) => ({
-                            ...c,
-                            selectedTorrent: { infoHash: item.infoHash, tab },
-                          }))
-                        }
-                        onUpdated={onUpdated}
-                      />
+                      <TorrentFilesTree torrent={item.torrent} />
                     </td>
                   </tr>
                 )}

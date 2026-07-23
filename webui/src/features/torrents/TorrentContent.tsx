@@ -1,18 +1,11 @@
 import { useTranslation } from 'react-i18next'
-import { useMutation } from '@apollo/client/react'
-import { FileText, Tag, LayoutGrid, Trash2 } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
+import { FileText } from 'lucide-react'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { formatTimeAgo } from '@/lib/dates/format'
-import { addError } from '@/lib/toast/store'
-import { TorrentDeleteDocument, type TorrentContentFragment } from '@/lib/graphql/generated'
-import type { TorrentTabSelection } from './searchControls'
-import { TorrentFilesTable } from './TorrentFilesTable'
-import { TorrentEditTags } from './TorrentEditTags'
-import { TorrentReprocess } from './TorrentReprocess'
+import type { TorrentContentFragment } from '@/lib/graphql/generated'
+import { TorrentFilesTree } from './TorrentFilesTree'
 
 function getAttribute(tc: TorrentContentFragment, key: string, source?: string): string | undefined {
   return tc.content?.attributes?.find((a) => a.key === key && (source === undefined || a.source === source))?.value
@@ -34,27 +27,19 @@ export function TorrentContent({
   size = true,
   peers = true,
   published = true,
-  selectedTab,
-  onTabSelected,
-  onUpdated,
 }: {
   torrentContent: TorrentContentFragment
   heading?: boolean
   size?: boolean
   peers?: boolean
   published?: boolean
-  selectedTab: TorrentTabSelection
-  onTabSelected: (tab: TorrentTabSelection) => void
-  onUpdated: () => void
 }) {
   const { t, i18n } = useTranslation()
   const isDesktop = useIsDesktop()
-  const [deleteTorrent] = useMutation(TorrentDeleteDocument)
 
   const posterPath = getAttribute(torrentContent, 'poster_path', 'tmdb')
   const genres = getCollections(torrentContent, 'genre')
   const fCount = filesCount(torrentContent)
-  const tab = selectedTab ?? 'files'
 
   return (
     <div className="grid gap-4 md:grid-cols-[auto_1fr]">
@@ -160,62 +145,17 @@ export function TorrentContent({
           )}
         </div>
 
-        <Tabs value={tab} onValueChange={(v) => onTabSelected(v as TorrentTabSelection)} className="mt-4">
-          <TabsList>
-            <TabsTrigger value="files">
-              <FileText className="size-4" />
-              {isDesktop && t('torrents.files')}
-              {fCount != null && (
-                <span className="text-xs text-muted-fg">({fCount.toLocaleString(i18n.language)})</span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="tags">
-              <Tag className="size-4" />
-              {isDesktop && t('torrents.edit_tags')}
-            </TabsTrigger>
-            <TabsTrigger value="reprocess">
-              <LayoutGrid className="size-4" />
-              {isDesktop && t('torrents.classification')}
-            </TabsTrigger>
-            <TabsTrigger value="delete">
-              <Trash2 className="size-4" />
-              {isDesktop && t('torrents.delete')}
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="files">
-            {torrentContent.torrent.filesStatus === 'no_info' && (
-              <p className="mb-2 text-sm text-muted-fg">{t('torrents.files_no_info')}</p>
-            )}
-            <TorrentFilesTable torrent={torrentContent.torrent} />
-          </TabsContent>
-          <TabsContent value="tags">
-            <TorrentEditTags torrentContent={torrentContent} onUpdated={onUpdated} />
-          </TabsContent>
-          <TabsContent value="reprocess">
-            <TorrentReprocess infoHashes={[torrentContent.infoHash]} onUpdated={onUpdated} />
-          </TabsContent>
-          <TabsContent value="delete">
-            <div className="rounded-lg border border-danger/40 bg-surface p-4">
-              <p className="text-sm">
-                <strong>{t('torrents.delete_are_you_sure')}</strong>
-                <br />
-                {t('torrents.delete_action_cannot_be_undone')}
-              </p>
-              <Button
-                variant="danger"
-                className="mt-3"
-                onClick={() =>
-                  void deleteTorrent({ variables: { infoHashes: [torrentContent.infoHash] } })
-                    .then(() => onUpdated())
-                    .catch((err: Error) => addError(`Error deleting torrent: ${err.message}`))
-                }
-              >
-                <Trash2 className="size-4" />
-                {t('torrents.delete')}
-              </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
+        <div className="mt-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+            <FileText className="size-4" />
+            {t('torrents.files')}
+            {fCount != null && <span className="text-xs text-muted-fg">({fCount.toLocaleString(i18n.language)})</span>}
+          </div>
+          {torrentContent.torrent.filesStatus === 'no_info' && (
+            <p className="mb-2 text-sm text-muted-fg">{t('torrents.files_no_info')}</p>
+          )}
+          <TorrentFilesTree torrent={torrentContent.torrent} />
+        </div>
       </div>
     </div>
   )

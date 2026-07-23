@@ -174,7 +174,12 @@ export function FacetsSidebar({
                               onUpdate((c) =>
                                 isChecked
                                   ? activateFilter(c, facet.def, agg.value)
-                                  : deactivateFilter(c, facet.def, agg.value),
+                                  : deactivateFilter(
+                                      c,
+                                      facet.def,
+                                      agg.value,
+                                      facet.aggregations.map((a) => a.value),
+                                    ),
                               )
                             }
                           />

@@ -32,12 +32,7 @@ export function TorrentPermalink() {
 
   return (
     <div className="rounded-lg border border-border bg-bg p-4">
-      <TorrentContent
-        torrentContent={torrentContent}
-        selectedTab={undefined}
-        onTabSelected={() => {}}
-        onUpdated={() => {}}
-      />
+      <TorrentContent torrentContent={torrentContent} />
     </div>
   )
 }

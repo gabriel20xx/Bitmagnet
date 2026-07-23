@@ -217,17 +217,13 @@
     "visualize": "Visualitza"
   },
   "torrents": {
-    "classification": "Classificació",
     "clear_search": "Esborrar la cerca",
     "copy": "Copiar",
     "copy_to_clipboard": "Copia al porta-retalls",
-    "delete": "Esborrar",
-    "delete_action_cannot_be_undone": "Aquesta acció no es pot desfer",
-    "delete_are_you_sure": "Estàs segur que vols esborrar aquest torrent?",
     "deselect_all": "Desselecciona-ho tot",
     "download": "Descarrega",
     "download_torrent_file": "Descarrega el fitxer .torrent",
-    "edit_tags": "Edita l'etiqueta",
+    "download_torrents": "Descarrega torrents",
     "episodes": "Episodis",
     "external_links": "Enllaços externs",
     "file_index": "Índex del fitxer",
@@ -243,7 +239,6 @@
     "leechers": "Sangoneres",
     "magnet": "Magnet",
     "magnet_links": "Enllaços magnet",
-    "new_tag": "Etiqueta nova",
     "order_by": "Ordenar per",
     "order_direction_toggle": "Commuta la direcció",
     "ordering": {
@@ -263,12 +258,6 @@
     "published": "Publicat",
     "rating": "Valoració",
     "refresh": "Actualitza els resultats",
-    "reprocess": {
-      "force_rematch": "Forçar nova coincidència del contingut ja coincident",
-      "match_content_by_external_api_search": "Fes coincidir el contingut a través d'una cerca d'API externa",
-      "match_content_by_local_search": "Fes conicidir a través d'una cerca local",
-      "reprocess": "Tornar a processar"
-    },
     "s_l": "S / S",
     "search": "Cerca",
     "seeders": "Sembradors",
@@ -277,15 +266,6 @@
     "size": "Mida",
     "source": "Origen del torrent",
     "summary": "Resum",
-    "tags": {
-      "delete": "Esborrar etiquetes",
-      "delete_tip": "Esborrar etiquetes dels torrents seleccionats",
-      "placeholder": "Etiqueta...",
-      "put": "Afegeix etiquetes",
-      "put_tip": "Afegeix etiquetes als torrents seleccionats",
-      "set": "Reemplaça etiquetes",
-      "set_tip": "Reemplaça les etiquetes dels torrents seleccionats"
-    },
     "title": "Títol",
     "toggle_drawer": "Mostra o oculta el calaix",
     "votes_count_n": "{{count}} vots"

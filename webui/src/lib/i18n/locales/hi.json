@@ -237,17 +237,13 @@
     "visualize": "दृश्य करें"
   },
   "torrents": {
-    "classification": "वर्गीकरण",
     "clear_search": "खोज साफ़ करें",
     "copy": "कॉपी करें",
     "copy_to_clipboard": "क्लिपबोर्ड में कॉपी करें",
-    "delete": "हटाएं",
-    "delete_action_cannot_be_undone": "यह क्रिया पूर्ववत नहीं की जा सकती",
-    "delete_are_you_sure": "क्या आप वाकई इस टोरेंट को हटाना चाहते हैं?",
     "deselect_all": "सभी को अचयनित करें",
     "download": "डाउनलोड",
     "download_torrent_file": "टॉरेंट फ़ाइल डाउनलोड करें",
-    "edit_tags": "टैग संपादित करें",
+    "download_torrents": "टॉरेंट डाउनलोड करें",
     "episodes": "एपिसोड्स",
     "external_links": "बाहरी लिंक",
     "file_index": "फ़ाइल सूचकांक",
@@ -265,7 +261,6 @@
     "leechers": "लीचर्स",
     "magnet": "मैग्नेट",
     "magnet_links": "मैग्नेट लिंक",
-    "new_tag": "नया टैग",
     "order_by": "क्रमबद्ध करें",
     "order_direction_toggle": "दिशा बदलें",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "प्रकाशित",
     "rating": "रेटिंग",
     "refresh": "परिणाम ताज़ा करें",
-    "reprocess": {
-      "force_rematch": "पहले से मेल खाई सामग्री को फिर से मिलाएं",
-      "match_content_by_external_api_search": "बाहरी API खोज से सामग्री का मिलान करें",
-      "match_content_by_local_search": "स्थानीय खोज से सामग्री का मिलान करें",
-      "reprocess": "पुनः प्रक्रिया करें"
-    },
     "s_l": "S / L",
     "search": "खोज",
     "seeders": "सीडर्स",
@@ -299,15 +288,6 @@
     "size": "आकार",
     "source": "टोरेंट स्रोत",
     "summary": "सारांश",
-    "tags": {
-      "delete": "टैग हटाएं",
-      "delete_tip": "चयनित टोरेंट से टैग हटाएं",
-      "placeholder": "टैग...",
-      "put": "टैग डालें",
-      "put_tip": "चयनित टोरेंट में टैग जोड़ें",
-      "set": "टैग सेट करें",
-      "set_tip": "चयनित टोरेंट के टैग बदलें"
-    },
     "title": "शीर्षक",
     "toggle_drawer": "ड्रॉअर बदलें",
     "votes_count_n": "{{count}} वोट"

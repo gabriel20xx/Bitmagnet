@@ -14,13 +14,8 @@ import { stringListParam, stringParam, intParam } from '@/lib/utils/queryString'
 
 export type ContentTypeSelection = ContentType | 'null' | null
 
-export const torrentTabNames = ['files', 'tags', 'reprocess', 'delete'] as const
-export type TorrentTab = (typeof torrentTabNames)[number]
-export type TorrentTabSelection = TorrentTab | undefined
-
 export interface TorrentSelection {
   infoHash: string
-  tab: TorrentTabSelection
 }
 
 export interface FacetInput<TValue = unknown> {
@@ -296,9 +291,11 @@ export function deactivateFilter(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   def: FacetDefinition<any, any>,
   filter: unknown,
+  allValues: unknown[],
 ): TorrentSearchControls {
   const input = def.extractInput(ctrl.facets)
-  const nextFilter = (input.filter as unknown[] | undefined)?.filter((value) => value !== filter)
+  const currentFilter = (input.filter as unknown[] | undefined) ?? allValues
+  const nextFilter = currentFilter.filter((value) => value !== filter)
   return {
     ...ctrl,
     page: 1,
@@ -331,23 +328,6 @@ export function selectOrderBy(ctrl: TorrentSearchControls, field: TorrentContent
 
 export function toggleOrderByDirection(ctrl: TorrentSearchControls): TorrentSearchControls {
   return { ...ctrl, orderBy: { ...ctrl.orderBy, descending: !ctrl.orderBy.descending }, page: 1 }
-}
-
-export function selectTorrent(
-  ctrl: TorrentSearchControls,
-  infoHash: string,
-  tab?: TorrentTabSelection | null,
-): TorrentSearchControls {
-  const resolvedTab = tab === undefined ? ctrl.selectedTorrent?.tab : tab === null ? undefined : tab
-  return { ...ctrl, selectedTorrent: { infoHash, tab: resolvedTab } }
-}
-
-export function toggleSelectedTorrent(ctrl: TorrentSearchControls, infoHash: string): TorrentSearchControls {
-  return {
-    ...ctrl,
-    selectedTorrent:
-      ctrl.selectedTorrent?.infoHash === infoHash ? undefined : { infoHash, tab: ctrl.selectedTorrent?.tab },
-  }
 }
 
 const contentTypeValues = new Set<string>([
@@ -387,9 +367,7 @@ export function paramsToControls(params: URLSearchParams): TorrentSearchControls
   let selectedTorrent: TorrentSelection | undefined
   const selectedTorrentParam = stringParam(params, 'torrent')
   if (selectedTorrentParam) {
-    const strTab = stringParam(params, 'tab')
-    const tab = torrentTabNames.includes(strTab as TorrentTab) ? (strTab as TorrentTab) : undefined
-    selectedTorrent = { infoHash: selectedTorrentParam, tab }
+    selectedTorrent = { infoHash: selectedTorrentParam }
   }
   return {
     queryString,
@@ -438,7 +416,6 @@ export function controlsToParams(ctrl: TorrentSearchControls): URLSearchParams {
   set('desc', orderBy ? (orderBy.descending ? '1' : '0') : undefined)
   if (ctrl.selectedTorrent) {
     set('torrent', ctrl.selectedTorrent.infoHash)
-    set('tab', ctrl.selectedTorrent.tab)
   }
   const flat = flattenFacets(ctrl.facets)
   for (const [key, value] of Object.entries(flat)) {

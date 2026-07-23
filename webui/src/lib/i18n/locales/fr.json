@@ -237,17 +237,13 @@
     "visualize": "Visualiser"
   },
   "torrents": {
-    "classification": "Classification",
     "clear_search": "Effacer la recherche",
     "copy": "Copier",
     "copy_to_clipboard": "Copier dans le presse-papiers",
-    "delete": "Supprimer",
-    "delete_action_cannot_be_undone": "Cette action ne peut pas être annulée",
-    "delete_are_you_sure": "Êtes-vous sûr de vouloir supprimer ce torrent?",
     "deselect_all": "Tout désélectionner",
     "download": "Télécharger",
     "download_torrent_file": "Télécharger le fichier .torrent",
-    "edit_tags": "Modifier les tags",
+    "download_torrents": "Télécharger les torrents",
     "episodes": "Épisodes",
     "external_links": "Liens externes",
     "file_index": "Index de fichier",
@@ -265,7 +261,6 @@
     "leechers": "Leechers",
     "magnet": "Magnet",
     "magnet_links": "Liens Magnet",
-    "new_tag": "Nouveau tag",
     "order_by": "Trier par",
     "order_direction_toggle": "Inverser le sens",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "Publié",
     "rating": "Évaluation",
     "refresh": "Rafraîchir les résultats",
-    "reprocess": {
-      "force_rematch": "Forcer le rematch du contenu déjà apparié",
-      "match_content_by_external_api_search": "Apparier le contenu par recherche API externe",
-      "match_content_by_local_search": "Apparier le contenu par recherche locale",
-      "reprocess": "Retraitement"
-    },
     "s_l": "S / L",
     "search": "Rechercher",
     "seeders": "Seeders",
@@ -299,15 +288,6 @@
     "size": "Taille",
     "source": "Source du torrent",
     "summary": "Résumé",
-    "tags": {
-      "delete": "Supprimer les tags",
-      "delete_tip": "Supprimer les tags des torrents sélectionnés",
-      "placeholder": "Tag...",
-      "put": "Mettre des tags",
-      "put_tip": "Ajouter des tags aux torrents sélectionnés",
-      "set": "Définir des tags",
-      "set_tip": "Remplacer les tags des torrents sélectionnés"
-    },
     "title": "Titre",
     "toggle_drawer": "Basculer le tiroir",
     "votes_count_n": "{{count}} votes"

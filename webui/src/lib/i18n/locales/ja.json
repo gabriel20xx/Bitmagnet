@@ -237,17 +237,13 @@
     "visualize": "可視化"
   },
   "torrents": {
-    "classification": "分類",
     "clear_search": "検索をクリア",
     "copy": "コピー",
     "copy_to_clipboard": "クリップボードにコピー",
-    "delete": "削除",
-    "delete_action_cannot_be_undone": "この操作は元に戻せません",
-    "delete_are_you_sure": "このトレントを削除してもよろしいですか？",
     "deselect_all": "すべての選択を解除",
     "download": "ダウンロード",
     "download_torrent_file": ".torrentファイルをダウンロード",
-    "edit_tags": "タグを編集",
+    "download_torrents": "トレントをダウンロード",
     "episodes": "エピソード",
     "external_links": "外部リンク",
     "file_index": "ファイルインデックス",
@@ -265,7 +261,6 @@
     "leechers": "リーチャー",
     "magnet": "マグネット",
     "magnet_links": "マグネットリンク",
-    "new_tag": "新しいタグ",
     "order_by": "並び替え",
     "order_direction_toggle": "並び順を切り替え",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "公開済み",
     "rating": "評価",
     "refresh": "結果を更新",
-    "reprocess": {
-      "force_rematch": "既に一致したコンテンツを強制的に再一致させる",
-      "match_content_by_external_api_search": "外部API検索でコンテンツを一致させる",
-      "match_content_by_local_search": "ローカル検索でコンテンツを一致させる",
-      "reprocess": "再処理"
-    },
     "s_l": "S / L",
     "search": "検索",
     "seeders": "シーダー",
@@ -299,15 +288,6 @@
     "size": "サイズ",
     "source": "トレントソース",
     "summary": "概要",
-    "tags": {
-      "delete": "タグを削除",
-      "delete_tip": "選択したトレントからタグを削除",
-      "placeholder": "タグ...",
-      "put": "タグを付ける",
-      "put_tip": "選択したトレントにタグを追加する",
-      "set": "タグを設定する",
-      "set_tip": "選択したトレントのタグを置き換える"
-    },
     "title": "タイトル",
     "toggle_drawer": "引き出しを切り替え",
     "votes_count_n": "{{count}} 票"

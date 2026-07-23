@@ -237,17 +237,13 @@
     "visualize": "Görselleştir"
   },
   "torrents": {
-    "classification": "Sınıflandırma",
     "clear_search": "Aramayı Temizle",
     "copy": "Kopyala",
     "copy_to_clipboard": "Panoya Kopyala",
-    "delete": "Sil",
-    "delete_action_cannot_be_undone": "Bu işlem geri alınamaz",
-    "delete_are_you_sure": "Bu torrent'i silmek istediğinizden emin misiniz?",
     "deselect_all": "Tüm Seçimleri Kaldır",
     "download": "İndir",
     "download_torrent_file": ".torrent dosyasını indir",
-    "edit_tags": "Etiketleri Düzenle",
+    "download_torrents": "Torrentleri indir",
     "episodes": "Bölümler",
     "external_links": "Dış Bağlantılar",
     "file_index": "Dosya Dizini",
@@ -265,7 +261,6 @@
     "leechers": "Leechers",
     "magnet": "Magnet",
     "magnet_links": "Magnet Bağlantılar",
-    "new_tag": "Yeni etiket",
     "order_by": "Sıralama ölçütü",
     "order_direction_toggle": "Yönü değiştir",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "Yayınlandı",
     "rating": "Puan",
     "refresh": "Sonuçları Yenile",
-    "reprocess": {
-      "force_rematch": "Zaten eşleşen içeriği yeniden eşleştir",
-      "match_content_by_external_api_search": "Dış API aramasıyla içeriği eşleştir",
-      "match_content_by_local_search": "Yerel aramayla içeriği eşleştir",
-      "reprocess": "Yeniden işle"
-    },
     "s_l": "S / L",
     "search": "Ara",
     "seeders": "Seeders",
@@ -299,15 +288,6 @@
     "size": "Boyut",
     "source": "Torrent Kaynağı",
     "summary": "Özet",
-    "tags": {
-      "delete": "Etiketleri sil",
-      "delete_tip": "Seçili torrentlerden etiketleri kaldır",
-      "placeholder": "Etiket...",
-      "put": "Etiket koy",
-      "put_tip": "Seçili torrentlere etiket ekle",
-      "set": "Etiketleri ayarla",
-      "set_tip": "Seçili torrentlerin etiketlerini değiştir"
-    },
     "title": "Başlık",
     "toggle_drawer": "Çekmeceyi Aç/Kapat",
     "votes_count_n": "{{count}} oy"

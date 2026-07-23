@@ -237,17 +237,13 @@
     "visualize": "Visualisieren"
   },
   "torrents": {
-    "classification": "Klassifizierung",
     "clear_search": "Suche löschen",
     "copy": "Kopieren",
     "copy_to_clipboard": "In die Zwischenablage kopieren",
-    "delete": "Löschen",
-    "delete_action_cannot_be_undone": "Diese Aktion kann nicht rückgängig gemacht werden",
-    "delete_are_you_sure": "Sind Sie sicher, dass Sie diesen Torrent löschen möchten?",
     "deselect_all": "Alle abwählen",
     "download": "Herunterladen",
     "download_torrent_file": "Torrent-Datei herunterladen",
-    "edit_tags": "Tags bearbeiten",
+    "download_torrents": "Torrents herunterladen",
     "episodes": "Episoden",
     "external_links": "Externe Links",
     "file_index": "Dateiindex",
@@ -265,7 +261,6 @@
     "leechers": "Leechers",
     "magnet": "Magnet",
     "magnet_links": "Magnet-Links",
-    "new_tag": "Neuer Tag",
     "order_by": "Sortieren nach",
     "order_direction_toggle": "Richtung umschalten",
     "ordering": {
@@ -285,12 +280,6 @@
     "published": "Veröffentlicht",
     "rating": "Bewertung",
     "refresh": "Ergebnisse aktualisieren",
-    "reprocess": {
-      "force_rematch": "Erneutes Zuordnen von bereits zugeordneten Inhalten erzwingen",
-      "match_content_by_external_api_search": "Inhalte durch externe API-Suche zuordnen",
-      "match_content_by_local_search": "Inhalte durch lokale Suche zuordnen",
-      "reprocess": "Erneut verarbeiten"
-    },
     "s_l": "S / L",
     "search": "Suche",
     "seeders": "Seeders",
@@ -299,15 +288,6 @@
     "size": "Größe",
     "source": "Torrent-Quelle",
     "summary": "Zusammenfassung",
-    "tags": {
-      "delete": "Tags löschen",
-      "delete_tip": "Tags aus den ausgewählten Torrents entfernen",
-      "placeholder": "Tag...",
-      "put": "Tags setzen",
-      "put_tip": "Tags zu den ausgewählten Torrents hinzufügen",
-      "set": "Tags setzen",
-      "set_tip": "Tags der ausgewählten Torrents ersetzen"
-    },
     "title": "Titel",
     "toggle_drawer": "Schublade umschalten",
     "votes_count_n": "{{count}} Stimmen"
