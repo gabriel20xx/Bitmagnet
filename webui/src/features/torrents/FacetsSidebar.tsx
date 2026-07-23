@@ -41,7 +41,8 @@ export function FacetsSidebar({
   const contentTypeCounts = useMemo(() => {
     const map: Record<string, { count: number; isEstimate: boolean }> = {}
     for (const ct of result.aggregations.contentType ?? []) {
-      if (ct.value) map[ct.value] = { count: ct.count, isEstimate: ct.isEstimate }
+      const key = ct.value ?? 'null'
+      map[key] = { count: ct.count, isEstimate: ct.isEstimate }
     }
     return map
   }, [result])
