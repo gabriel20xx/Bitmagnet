@@ -9,7 +9,7 @@ import (
 
 const VideoResolutionFacetKey = "video_resolution"
 
-func videoResolutionField(q *dao.Query) field.Field {
+func videoResolutionField(q *dao.Query) field.Expr {
 	return q.TorrentContent.VideoResolution
 }
 

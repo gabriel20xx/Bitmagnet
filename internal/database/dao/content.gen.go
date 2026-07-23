@@ -6,6 +6,7 @@ package dao
 
 import (
 	"context"
+	"database/sql"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -179,11 +180,20 @@ func (c *content) fillFieldMap() {
 
 func (c content) clone(db *gorm.DB) content {
 	c.contentDo.ReplaceConnPool(db.Statement.ConnPool)
+	c.Collections.db = db.Session(&gorm.Session{Initialized: true})
+	c.Collections.db.Statement.ConnPool = db.Statement.ConnPool
+	c.Attributes.db = db.Session(&gorm.Session{Initialized: true})
+	c.Attributes.db.Statement.ConnPool = db.Statement.ConnPool
+	c.MetadataSource.db = db.Session(&gorm.Session{Initialized: true})
+	c.MetadataSource.db.Statement.ConnPool = db.Statement.ConnPool
 	return c
 }
 
 func (c content) replaceDB(db *gorm.DB) content {
 	c.contentDo.ReplaceDB(db)
+	c.Collections.db = db.Session(&gorm.Session{})
+	c.Attributes.db = db.Session(&gorm.Session{})
+	c.MetadataSource.db = db.Session(&gorm.Session{})
 	return c
 }
 
@@ -224,6 +234,11 @@ func (a contentManyToManyCollections) Model(m *model.Content) *contentManyToMany
 	return &contentManyToManyCollectionsTx{a.db.Model(m).Association(a.Name())}
 }
 
+func (a contentManyToManyCollections) Unscoped() *contentManyToManyCollections {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
 type contentManyToManyCollectionsTx struct{ tx *gorm.Association }
 
 func (a contentManyToManyCollectionsTx) Find() (result []*model.ContentCollection, err error) {
@@ -262,6 +277,11 @@ func (a contentManyToManyCollectionsTx) Count() int64 {
 	return a.tx.Count()
 }
 
+func (a contentManyToManyCollectionsTx) Unscoped() *contentManyToManyCollectionsTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
 type contentHasManyAttributes struct {
 	db *gorm.DB
 
@@ -297,6 +317,11 @@ func (a contentHasManyAttributes) Session(session *gorm.Session) *contentHasMany
 
 func (a contentHasManyAttributes) Model(m *model.Content) *contentHasManyAttributesTx {
 	return &contentHasManyAttributesTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a contentHasManyAttributes) Unscoped() *contentHasManyAttributes {
+	a.db = a.db.Unscoped()
+	return &a
 }
 
 type contentHasManyAttributesTx struct{ tx *gorm.Association }
@@ -337,6 +362,11 @@ func (a contentHasManyAttributesTx) Count() int64 {
 	return a.tx.Count()
 }
 
+func (a contentHasManyAttributesTx) Unscoped() *contentHasManyAttributesTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
 type contentBelongsToMetadataSource struct {
 	db *gorm.DB
 
@@ -368,6 +398,11 @@ func (a contentBelongsToMetadataSource) Session(session *gorm.Session) *contentB
 
 func (a contentBelongsToMetadataSource) Model(m *model.Content) *contentBelongsToMetadataSourceTx {
 	return &contentBelongsToMetadataSourceTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a contentBelongsToMetadataSource) Unscoped() *contentBelongsToMetadataSource {
+	a.db = a.db.Unscoped()
+	return &a
 }
 
 type contentBelongsToMetadataSourceTx struct{ tx *gorm.Association }
@@ -406,6 +441,11 @@ func (a contentBelongsToMetadataSourceTx) Clear() error {
 
 func (a contentBelongsToMetadataSourceTx) Count() int64 {
 	return a.tx.Count()
+}
+
+func (a contentBelongsToMetadataSourceTx) Unscoped() *contentBelongsToMetadataSourceTx {
+	a.tx = a.tx.Unscoped()
+	return &a
 }
 
 type contentDo struct{ gen.DO }
@@ -465,6 +505,8 @@ type IContentDo interface {
 	FirstOrCreate() (*model.Content, error)
 	FindByPage(offset int, limit int) (result []*model.Content, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
+	Rows() (*sql.Rows, error)
+	Row() *sql.Row
 	Scan(result interface{}) (err error)
 	Returning(value interface{}, columns ...string) IContentDo
 	UnderlyingDB() *gorm.DB

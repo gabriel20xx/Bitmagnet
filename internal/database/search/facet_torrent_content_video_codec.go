@@ -19,7 +19,7 @@ func VideoCodecFacet(options ...query.FacetOption) query.Facet {
 				query.FacetTriggersCte(),
 			}, options...)...,
 		),
-		field: func(q *dao.Query) field.Field {
+		field: func(q *dao.Query) field.Expr {
 			return q.TorrentContent.VideoCodec
 		},
 		parse: model.ParseVideoCodec,

@@ -19,8 +19,8 @@ func TorrentContentTypeFacet(options ...query.FacetOption) query.Facet {
 					query.FacetUsesOrLogic(),
 				}, options...)...,
 			),
-			field: func(q *dao.Query) field.Field {
-				return field.Field(q.TorrentContent.ContentType)
+			field: func(q *dao.Query) field.Expr {
+				return q.TorrentContent.ContentType
 			},
 			parse: model.ParseContentType,
 		},

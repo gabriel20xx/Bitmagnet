@@ -9,7 +9,7 @@ import (
 
 const Video3DFacetKey = "video_3d"
 
-func video3dField(q *dao.Query) field.Field {
+func video3dField(q *dao.Query) field.Expr {
 	return q.TorrentContent.Video3D
 }
 
