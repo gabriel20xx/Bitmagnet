@@ -33,4 +33,5 @@ fragment TorrentContent on TorrentContent {
   publishedAt
   createdAt
   updatedAt
+  duplicatesCount
 }

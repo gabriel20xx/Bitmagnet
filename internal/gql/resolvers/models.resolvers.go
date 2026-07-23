@@ -8,8 +8,11 @@ package resolvers
 import (
 	"context"
 
+	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
+	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel"
+	"github.com/bitmagnet-io/bitmagnet/internal/maps"
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
 )
 
@@ -28,13 +31,45 @@ func (r *torrentResolver) Sources(ctx context.Context, obj *model.Torrent) ([]gq
 	return gqlmodel.TorrentSourceInfosFromTorrent(*obj), nil
 }
 
+// Duplicates is the resolver for the duplicates field.
+func (r *torrentContentResolver) Duplicates(ctx context.Context, obj *gqlmodel.TorrentContent) ([]gqlmodel.TorrentContent, error) {
+	if obj.DuplicatesCount == 0 {
+		return nil, nil
+	}
+
+	orderBy := maps.NewInsertMap[search.TorrentContentOrderBy, search.OrderDirection]()
+	orderBy.Set(search.TorrentContentOrderBySeeders, search.OrderDirectionDescending)
+
+	result, err := r.Search.TorrentContent(ctx,
+		query.Where(search.TorrentContentDuplicateOfCriteria(obj.InfoHash)),
+		search.TorrentContentCoreJoins(),
+		search.TorrentContentDefaultHydrate(),
+		query.Limit(200),
+		search.TorrentContentFullOrderBy(orderBy).Option(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]gqlmodel.TorrentContent, 0, len(result.Items))
+	for _, item := range result.Items {
+		items = append(items, gqlmodel.NewTorrentContentFromResultItem(item))
+	}
+
+	return items, nil
+}
+
 // Content returns gql.ContentResolver implementation.
 func (r *Resolver) Content() gql.ContentResolver { return &contentResolver{r} }
 
 // Torrent returns gql.TorrentResolver implementation.
 func (r *Resolver) Torrent() gql.TorrentResolver { return &torrentResolver{r} }
 
+// TorrentContent returns gql.TorrentContentResolver implementation.
+func (r *Resolver) TorrentContent() gql.TorrentContentResolver { return &torrentContentResolver{r} }
+
 type (
-	contentResolver struct{ *Resolver }
-	torrentResolver struct{ *Resolver }
+	contentResolver        struct{ *Resolver }
+	torrentResolver        struct{ *Resolver }
+	torrentContentResolver struct{ *Resolver }
 )

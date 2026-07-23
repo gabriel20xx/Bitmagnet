@@ -65,9 +65,12 @@ func (tc TorrentContent) ContentRef() Maybe[ContentRef] {
 
 func (tc *TorrentContent) UpdateTsv() {
 	var tsv fts.Tsvector
+
 	searchParts := make([]string, 0, 8)
+
 	if tc.ContentID.Valid {
 		tsv = tc.Content.Tsv.Copy()
+
 		if tc.Content.SearchString != "" {
 			searchParts = append(searchParts, strings.ToValidUTF8(tc.Content.SearchString, ""))
 		}

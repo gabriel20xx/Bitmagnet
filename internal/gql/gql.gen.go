@@ -43,6 +43,7 @@ type ResolverRoot interface {
 	QueueJob() QueueJobResolver
 	QueueQuery() QueueQueryResolver
 	Torrent() TorrentResolver
+	TorrentContent() TorrentContentResolver
 	TorrentMutation() TorrentMutationResolver
 	TorrentQuery() TorrentQueryResolver
 	QueueEnqueueReprocessTorrentsBatchInput() QueueEnqueueReprocessTorrentsBatchInputResolver
@@ -266,6 +267,8 @@ type ComplexityRoot struct {
 		ContentSource   func(childComplexity int) int
 		ContentType     func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		Duplicates      func(childComplexity int) int
+		DuplicatesCount func(childComplexity int) int
 		Episodes        func(childComplexity int) int
 		ID              func(childComplexity int) int
 		InfoHash        func(childComplexity int) int
@@ -448,6 +451,9 @@ type QueueQueryResolver interface {
 }
 type TorrentResolver interface {
 	Sources(ctx context.Context, obj *model.Torrent) ([]gqlmodel.TorrentSourceInfo, error)
+}
+type TorrentContentResolver interface {
+	Duplicates(ctx context.Context, obj *gqlmodel.TorrentContent) ([]gqlmodel.TorrentContent, error)
 }
 type TorrentMutationResolver interface {
 	Delete(ctx context.Context, obj *gqlmodel.TorrentMutation, infoHashes []protocol.ID) (*string, error)
@@ -1322,6 +1328,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TorrentContent.CreatedAt(childComplexity), true
+	case "TorrentContent.duplicates":
+		if e.ComplexityRoot.TorrentContent.Duplicates == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TorrentContent.Duplicates(childComplexity), true
+	case "TorrentContent.duplicatesCount":
+		if e.ComplexityRoot.TorrentContent.DuplicatesCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TorrentContent.DuplicatesCount(childComplexity), true
 	case "TorrentContent.episodes":
 		if e.ComplexityRoot.TorrentContent.Episodes == nil {
 			break
@@ -2316,6 +2334,16 @@ type TorrentContent {
   publishedAt: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
+  """
+  duplicatesCount is the number of other torrents considered duplicates of this one (same file
+  listing, or same content matched at the same quality) - collapsed out of default search results.
+  """
+  duplicatesCount: Int!
+  """
+  duplicates lists the torrents collapsed into this one by duplicatesCount. Only populated for the
+  canonical (non-duplicate) side of a group - always empty on a duplicate itself.
+  """
+  duplicates: [TorrentContent!]!
 }
 
 type LanguageInfo {
@@ -2589,7 +2617,7 @@ scalar Duration
 scalar Void
 scalar Year
 `, BuiltIn: false},
- 	{Name: "../../graphql/schema/torrent_content.graphqls", Input: `input TorrentContentSearchQueryInput {
+	{Name: "../../graphql/schema/torrent_content.graphqls", Input: `input TorrentContentSearchQueryInput {
   queryString: String
   limit: Int
   page: Int
@@ -2606,6 +2634,11 @@ scalar Year
   aggregationBudget: Float
   sizeMin: Int
   sizeMax: Int
+  """
+  duplicatesOf, when set, returns the torrents recorded as duplicates of the given info hash
+  instead of the default search results (which only ever show the canonical side of each group).
+  """
+  duplicatesOf: Hash20
 }
 
 input ContentTypeFacetInput {
@@ -3221,6 +3254,10 @@ func (ec *executionContext) childFields_TorrentContent(ctx context.Context, fiel
 		return ec.fieldContext_TorrentContent_createdAt(ctx, field)
 	case "updatedAt":
 		return ec.fieldContext_TorrentContent_updatedAt(ctx, field)
+	case "duplicatesCount":
+		return ec.fieldContext_TorrentContent_duplicatesCount(ctx, field)
+	case "duplicates":
+		return ec.fieldContext_TorrentContent_duplicates(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type TorrentContent", field.Name)
 }
@@ -7709,6 +7746,61 @@ func (ec *executionContext) fieldContext_TorrentContent_updatedAt(_ context.Cont
 	return graphql.NewScalarFieldContext("TorrentContent", field, false, false, errors.New("field of type DateTime does not have child fields"))
 }
 
+func (ec *executionContext) _TorrentContent_duplicatesCount(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TorrentContent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TorrentContent_duplicatesCount(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DuplicatesCount, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v uint) graphql.Marshaler {
+			return ec.marshalNInt2uint(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TorrentContent_duplicatesCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TorrentContent", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TorrentContent_duplicates(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TorrentContent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TorrentContent_duplicates(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.TorrentContent().Duplicates(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []gqlmodel.TorrentContent) graphql.Marshaler {
+			return ec.marshalNTorrentContent2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTorrentContentᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TorrentContent_duplicates(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TorrentContent",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TorrentContent(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TorrentContentAggregations_contentType(ctx context.Context, field graphql.CollectedField, obj *gen.TorrentContentAggregations) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -11541,7 +11633,7 @@ func (ec *executionContext) unmarshalInputTorrentContentSearchQueryInput(ctx con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"queryString", "limit", "page", "offset", "totalCount", "hasNextPage", "infoHashes", "facets", "orderBy", "cached", "aggregationBudget", "sizeMin", "sizeMax"}
+	fieldsInOrder := [...]string{"queryString", "limit", "page", "offset", "totalCount", "hasNextPage", "infoHashes", "facets", "orderBy", "cached", "aggregationBudget", "sizeMin", "sizeMax", "duplicatesOf"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11627,22 +11719,25 @@ func (ec *executionContext) unmarshalInputTorrentContentSearchQueryInput(ctx con
 			it.AggregationBudget = data
 		case "sizeMin":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sizeMin"))
-			data, err := ec.unmarshalOInt2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullUint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖuint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if data.Valid {
-				it.SizeMin = &data.Uint
-			}
+			it.SizeMin = data
 		case "sizeMax":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sizeMax"))
-			data, err := ec.unmarshalOInt2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullUint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖuint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if data.Valid {
-				it.SizeMax = &data.Uint
+			it.SizeMax = data
+		case "duplicatesOf":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("duplicatesOf"))
+			data, err := ec.unmarshalOHash202githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋprotocolᚐID(ctx, v)
+			if err != nil {
+				return it, err
 			}
+			it.DuplicatesOf = graphql.OmittableOf(data)
 		}
 	}
 	return it, nil
@@ -13995,108 +14090,151 @@ func (ec *executionContext) _TorrentContent(ctx context.Context, sel ast.Selecti
 		case "id":
 			out.Values[i] = ec._TorrentContent_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "infoHash":
 			out.Values[i] = ec._TorrentContent_infoHash(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "torrent":
 			out.Values[i] = ec._TorrentContent_torrent(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "contentType":
 			out.Values[i] = ec._TorrentContent_contentType(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "contentSource":
 			out.Values[i] = ec._TorrentContent_contentSource(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "contentId":
 			out.Values[i] = ec._TorrentContent_contentId(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "content":
 			out.Values[i] = ec._TorrentContent_content(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "title":
 			out.Values[i] = ec._TorrentContent_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "languages":
 			out.Values[i] = ec._TorrentContent_languages(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "episodes":
 			out.Values[i] = ec._TorrentContent_episodes(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "videoResolution":
 			out.Values[i] = ec._TorrentContent_videoResolution(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "videoSource":
 			out.Values[i] = ec._TorrentContent_videoSource(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "videoCodec":
 			out.Values[i] = ec._TorrentContent_videoCodec(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "video3d":
 			out.Values[i] = ec._TorrentContent_video3d(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "videoModifier":
 			out.Values[i] = ec._TorrentContent_videoModifier(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "releaseGroup":
 			out.Values[i] = ec._TorrentContent_releaseGroup(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "seeders":
 			out.Values[i] = ec._TorrentContent_seeders(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "leechers":
 			out.Values[i] = ec._TorrentContent_leechers(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "publishedAt":
 			out.Values[i] = ec._TorrentContent_publishedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._TorrentContent_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._TorrentContent_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "duplicatesCount":
+			out.Values[i] = ec._TorrentContent_duplicatesCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "duplicates":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TorrentContent_duplicates(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -17143,6 +17281,16 @@ func (ec *executionContext) unmarshalOGenreFacetInput2ᚖgithubᚗcomᚋbitmagne
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOHash202githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋprotocolᚐID(ctx context.Context, v any) (protocol.ID, error) {
+	var res protocol.ID
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOHash202githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋprotocolᚐID(ctx context.Context, sel ast.SelectionSet, v protocol.ID) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalOHash202ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋprotocolᚐIDᚄ(ctx context.Context, v any) ([]protocol.ID, error) {
 	if v == nil {
 		return nil, nil
@@ -17243,6 +17391,24 @@ func (ec *executionContext) marshalOInt2ᚕintᚄ(ctx context.Context, sel ast.S
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖuint(ctx context.Context, v any) (*uint, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalUint(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖuint(ctx context.Context, sel ast.SelectionSet, v *uint) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalUint(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOLanguage2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐLanguageᚄ(ctx context.Context, v any) ([]model.Language, error) {

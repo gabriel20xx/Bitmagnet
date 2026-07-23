@@ -48,6 +48,9 @@ func newTorrentContent(db *gorm.DB, opts ...gen.DOOption) torrentContent {
 	_torrentContent.PublishedAt = field.NewTime(tableName, "published_at")
 	_torrentContent.Size = field.NewUint(tableName, "size")
 	_torrentContent.FilesCount = field.NewField(tableName, "files_count")
+	_torrentContent.SearchString = field.NewString(tableName, "search_string")
+	_torrentContent.DuplicateOfInfoHash = field.NewBytes(tableName, "duplicate_of_info_hash")
+	_torrentContent.DuplicatesCount = field.NewInt32(tableName, "duplicates_count")
 	_torrentContent.Torrent = torrentContentBelongsToTorrent{
 		db: db.Session(&gorm.Session{}),
 
@@ -137,29 +140,32 @@ func newTorrentContent(db *gorm.DB, opts ...gen.DOOption) torrentContent {
 type torrentContent struct {
 	torrentContentDo
 
-	ALL             field.Asterisk
-	ID              field.String
-	InfoHash        field.Field
-	ContentType     field.String
-	ContentSource   field.String
-	ContentID       field.String
-	Languages       field.Field
-	Episodes        field.Field
-	VideoResolution field.Field
-	VideoSource     field.Field
-	VideoCodec      field.Field
-	Video3D         field.Field
-	VideoModifier   field.Field
-	ReleaseGroup    field.Field
-	CreatedAt       field.Time
-	UpdatedAt       field.Time
-	Tsv             field.Field
-	Seeders         field.Field
-	Leechers        field.Field
-	PublishedAt     field.Time
-	Size            field.Uint
-	FilesCount      field.Field
-	Torrent         torrentContentBelongsToTorrent
+	ALL                 field.Asterisk
+	ID                  field.String
+	InfoHash            field.Field
+	ContentType         field.String
+	ContentSource       field.String
+	ContentID           field.String
+	Languages           field.Field
+	Episodes            field.Field
+	VideoResolution     field.Field
+	VideoSource         field.Field
+	VideoCodec          field.Field
+	Video3D             field.Field
+	VideoModifier       field.Field
+	ReleaseGroup        field.Field
+	CreatedAt           field.Time
+	UpdatedAt           field.Time
+	Tsv                 field.Field
+	Seeders             field.Field
+	Leechers            field.Field
+	PublishedAt         field.Time
+	Size                field.Uint
+	FilesCount          field.Field
+	SearchString        field.String
+	DuplicateOfInfoHash field.Bytes
+	DuplicatesCount     field.Int32
+	Torrent             torrentContentBelongsToTorrent
 
 	Content torrentContentBelongsToContent
 
@@ -199,6 +205,9 @@ func (t *torrentContent) updateTableName(table string) *torrentContent {
 	t.PublishedAt = field.NewTime(table, "published_at")
 	t.Size = field.NewUint(table, "size")
 	t.FilesCount = field.NewField(table, "files_count")
+	t.SearchString = field.NewString(table, "search_string")
+	t.DuplicateOfInfoHash = field.NewBytes(table, "duplicate_of_info_hash")
+	t.DuplicatesCount = field.NewInt32(table, "duplicates_count")
 
 	t.fillFieldMap()
 
@@ -215,7 +224,7 @@ func (t *torrentContent) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (t *torrentContent) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 23)
+	t.fieldMap = make(map[string]field.Expr, 26)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["info_hash"] = t.InfoHash
 	t.fieldMap["content_type"] = t.ContentType
@@ -237,6 +246,9 @@ func (t *torrentContent) fillFieldMap() {
 	t.fieldMap["published_at"] = t.PublishedAt
 	t.fieldMap["size"] = t.Size
 	t.fieldMap["files_count"] = t.FilesCount
+	t.fieldMap["search_string"] = t.SearchString
+	t.fieldMap["duplicate_of_info_hash"] = t.DuplicateOfInfoHash
+	t.fieldMap["duplicates_count"] = t.DuplicatesCount
 
 }
 

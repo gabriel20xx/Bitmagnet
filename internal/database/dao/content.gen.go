@@ -44,6 +44,7 @@ func newContent(db *gorm.DB, opts ...gen.DOOption) content {
 	_content.CreatedAt = field.NewTime(tableName, "created_at")
 	_content.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_content.Tsv = field.NewField(tableName, "tsv")
+	_content.SearchString = field.NewString(tableName, "search_string")
 	_content.Collections = contentManyToManyCollections{
 		db: db.Session(&gorm.Session{}),
 
@@ -98,6 +99,7 @@ type content struct {
 	CreatedAt        field.Time
 	UpdatedAt        field.Time
 	Tsv              field.Field
+	SearchString     field.String
 	Collections      contentManyToManyCollections
 
 	Attributes contentHasManyAttributes
@@ -136,6 +138,7 @@ func (c *content) updateTableName(table string) *content {
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.Tsv = field.NewField(table, "tsv")
+	c.SearchString = field.NewString(table, "search_string")
 
 	c.fillFieldMap()
 
@@ -152,7 +155,7 @@ func (c *content) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *content) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 20)
+	c.fieldMap = make(map[string]field.Expr, 21)
 	c.fieldMap["type"] = c.Type
 	c.fieldMap["source"] = c.Source
 	c.fieldMap["id"] = c.ID
@@ -170,6 +173,7 @@ func (c *content) fillFieldMap() {
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["tsv"] = c.Tsv
+	c.fieldMap["search_string"] = c.SearchString
 
 }
 

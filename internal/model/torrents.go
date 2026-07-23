@@ -1,6 +1,8 @@
 package model
 
 import (
+	"crypto/sha256"
+	"encoding/binary"
 	"net/url"
 	"sort"
 	"strconv"
@@ -253,4 +255,28 @@ outer:
 	}
 
 	return searchStrings
+}
+
+// ComputeFileFingerprint returns a deterministic hash of a torrent's file sizes (order-independent),
+// used to detect near-duplicate torrents - e.g. the same release repacked under a different info
+// hash - regardless of naming or whether content classification succeeded. Returns nil if there are
+// no sizes to fingerprint, since an empty/unknown listing shouldn't be treated as matching another.
+func ComputeFileFingerprint(fileSizes []uint64) []byte {
+	if len(fileSizes) == 0 {
+		return nil
+	}
+
+	sorted := make([]uint64, len(fileSizes))
+	copy(sorted, fileSizes)
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i] < sorted[j] })
+
+	h := sha256.New()
+	buf := make([]byte, 8)
+
+	for _, size := range sorted {
+		binary.BigEndian.PutUint64(buf, size)
+		_, _ = h.Write(buf) // hash.Hash.Write never returns an error
+	}
+
+	return h.Sum(nil)
 }

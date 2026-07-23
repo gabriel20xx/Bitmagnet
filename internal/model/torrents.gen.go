@@ -14,21 +14,22 @@ const TableNameTorrent = "torrents"
 
 // Torrent mapped from table <torrents>
 type Torrent struct {
-	InfoHash    protocol.ID             `gorm:"column:info_hash;primaryKey;<-:create" json:"infoHash"`
-	Name        string                  `gorm:"column:name;not null" json:"name"`
-	Size        uint                    `gorm:"column:size;not null" json:"size"`
-	Private     bool                    `gorm:"column:private;not null" json:"private"`
-	CreatedAt   time.Time               `gorm:"column:created_at;not null;<-:create" json:"createdAt"`
-	UpdatedAt   time.Time               `gorm:"column:updated_at;not null" json:"updatedAt"`
-	FilesStatus FilesStatus             `gorm:"column:files_status;not null" json:"filesStatus"`
-	Extension   NullString              `gorm:"column:extension;<-:false" json:"extension"`
-	FilesCount  NullUint                `gorm:"column:files_count" json:"filesCount"`
-	Hint        TorrentHint             `gorm:"foreignKey:InfoHash" json:"hint"`
-	Contents    []TorrentContent        `gorm:"foreignKey:InfoHash" json:"contents"`
-	Sources     []TorrentsTorrentSource `gorm:"foreignKey:InfoHash" json:"sources"`
-	Files       []TorrentFile           `gorm:"foreignKey:InfoHash" json:"files"`
-	Pieces      TorrentPieces           `gorm:"foreignKey:InfoHash" json:"-"`
-	Tags        []TorrentTag            `gorm:"foreignKey:InfoHash" json:"tags"`
+	InfoHash        protocol.ID             `gorm:"column:info_hash;primaryKey;<-:create" json:"infoHash"`
+	Name            string                  `gorm:"column:name;not null" json:"name"`
+	Size            uint                    `gorm:"column:size;not null" json:"size"`
+	Private         bool                    `gorm:"column:private;not null" json:"private"`
+	CreatedAt       time.Time               `gorm:"column:created_at;not null;<-:create" json:"createdAt"`
+	UpdatedAt       time.Time               `gorm:"column:updated_at;not null" json:"updatedAt"`
+	FilesStatus     FilesStatus             `gorm:"column:files_status;not null" json:"filesStatus"`
+	Extension       NullString              `gorm:"column:extension;<-:false" json:"extension"`
+	FilesCount      NullUint                `gorm:"column:files_count" json:"filesCount"`
+	FileFingerprint []byte                  `gorm:"column:file_fingerprint" json:"fileFingerprint"`
+	Hint            TorrentHint             `gorm:"foreignKey:InfoHash" json:"hint"`
+	Contents        []TorrentContent        `gorm:"foreignKey:InfoHash" json:"contents"`
+	Sources         []TorrentsTorrentSource `gorm:"foreignKey:InfoHash" json:"sources"`
+	Files           []TorrentFile           `gorm:"foreignKey:InfoHash" json:"files"`
+	Pieces          TorrentPieces           `gorm:"foreignKey:InfoHash" json:"-"`
+	Tags            []TorrentTag            `gorm:"foreignKey:InfoHash" json:"tags"`
 }
 
 // TableName Torrent's table name

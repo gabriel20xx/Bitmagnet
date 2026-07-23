@@ -19,27 +19,7 @@ type persistPayload struct {
 }
 
 func (c processor) persist(ctx context.Context, payload persistPayload) error {
-	contentsMap := make(map[model.ContentRef]struct{}, len(payload.torrentContents))
-	contentsPtr := make([]*model.Content, 0, len(payload.torrentContents))
-	torrentContentsPtr := make([]*model.TorrentContent, 0, len(payload.torrentContents))
 	torrentTagsPtr := make([]*model.TorrentTag, 0, len(payload.addTags))
-
-	for _, tc := range payload.torrentContents {
-		tcCopy := tc
-		tcCopy.Torrent = model.Torrent{}
-
-		if tcCopy.ContentID.Valid && tcCopy.Content.CreatedAt.IsZero() {
-			contentRef := tcCopy.Content.Ref()
-			if _, ok := contentsMap[contentRef]; !ok {
-				contentsMap[contentRef] = struct{}{}
-				contentCopy := tcCopy.Content
-				contentsPtr = append(contentsPtr, &contentCopy)
-			}
-		}
-
-		tcCopy.Content = model.Content{}
-		torrentContentsPtr = append(torrentContentsPtr, &tcCopy)
-	}
 
 	for infoHash, tags := range payload.addTags {
 		for tag := range tags {
@@ -57,6 +37,40 @@ func (c processor) persist(ctx context.Context, payload persistPayload) error {
 	}
 
 	return c.dao.Transaction(func(tx *dao.Query) error {
+		// Resolved here, inside the transaction, while tc.Torrent (in particular its
+		// FileFingerprint) is still populated - the copies made below clear it.
+		tcs := make([]*model.TorrentContent, len(payload.torrentContents))
+
+		for i := range payload.torrentContents {
+			tcCopy := payload.torrentContents[i]
+			tcs[i] = &tcCopy
+		}
+
+		touchedCanonicals, dedupErr := resolveDuplicates(ctx, tx, tcs)
+		if dedupErr != nil {
+			return dedupErr
+		}
+
+		contentsMap := make(map[model.ContentRef]struct{}, len(tcs))
+		contentsPtr := make([]*model.Content, 0, len(tcs))
+		torrentContentsPtr := make([]*model.TorrentContent, 0, len(tcs))
+
+		for _, tc := range tcs {
+			if tc.ContentID.Valid && tc.Content.CreatedAt.IsZero() {
+				contentRef := tc.Content.Ref()
+				if _, ok := contentsMap[contentRef]; !ok {
+					contentsMap[contentRef] = struct{}{}
+					contentCopy := tc.Content
+					contentsPtr = append(contentsPtr, &contentCopy)
+				}
+			}
+
+			tcCopy := *tc
+			tcCopy.Torrent = model.Torrent{}
+			tcCopy.Content = model.Content{}
+			torrentContentsPtr = append(torrentContentsPtr, &tcCopy)
+		}
+
 		if len(contentsPtr) > 0 {
 			if createContentErr := tx.Content.WithContext(ctx).Clauses(
 				clause.OnConflict{
@@ -81,6 +95,29 @@ func (c processor) persist(ctx context.Context, payload persistPayload) error {
 				},
 			).CreateInBatches(torrentContentsPtr, 100); createErr != nil {
 				return createErr
+			}
+		}
+
+		// duplicates_count is reset to its zero value by the UpdateAll upsert above whenever a
+		// row is (re)written, so recompute it for every row just written - not just the
+		// canonicals newly pointed at - to self-heal that reset.
+		recomputeSet := make(map[protocol.ID]struct{}, len(tcs)+len(touchedCanonicals))
+		for _, tc := range tcs {
+			recomputeSet[tc.InfoHash] = struct{}{}
+		}
+
+		for _, infoHash := range touchedCanonicals {
+			recomputeSet[infoHash] = struct{}{}
+		}
+
+		if len(recomputeSet) > 0 {
+			recomputeInfoHashes := make([]protocol.ID, 0, len(recomputeSet))
+			for infoHash := range recomputeSet {
+				recomputeInfoHashes = append(recomputeInfoHashes, infoHash)
+			}
+
+			if recomputeErr := recomputeDuplicatesCount(ctx, tx, recomputeInfoHashes); recomputeErr != nil {
+				return recomputeErr
 			}
 		}
 

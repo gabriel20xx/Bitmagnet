@@ -103,6 +103,7 @@ func (c *crawler) runPersistTorrents(ctx context.Context) {
 						string(c.dao.Torrent.Name.ColumnName()),
 						string(c.dao.Torrent.FilesStatus.ColumnName()),
 						string(c.dao.Torrent.FilesCount.ColumnName()),
+						string(c.dao.Torrent.FileFingerprint.ColumnName()),
 						string(c.dao.Torrent.UpdatedAt.ColumnName()),
 					}),
 				}).CreateInBatches(torrentsToPersist, 100); err != nil {
@@ -194,15 +195,26 @@ func createTorrentModel(
 		}
 	}
 
+	fileSizes := make([]uint64, 0, max(len(info.Files), 1))
+
+	if len(info.Files) > 0 {
+		for _, file := range info.Files {
+			fileSizes = append(fileSizes, uint64(file.Length))
+		}
+	} else {
+		fileSizes = append(fileSizes, uint64(info.TotalLength()))
+	}
+
 	return model.Torrent{
-		InfoHash:    hash,
-		Name:        name,
-		Size:        uint(info.TotalLength()),
-		Private:     private,
-		Pieces:      pieces,
-		Files:       files,
-		FilesStatus: filesStatus,
-		FilesCount:  filesCount,
+		InfoHash:        hash,
+		Name:            name,
+		Size:            uint(info.TotalLength()),
+		Private:         private,
+		Pieces:          pieces,
+		Files:           files,
+		FilesStatus:     filesStatus,
+		FilesCount:      filesCount,
+		FileFingerprint: model.ComputeFileFingerprint(fileSizes),
 		Sources: []model.TorrentsTorrentSource{
 			{
 				Source:   "dht",

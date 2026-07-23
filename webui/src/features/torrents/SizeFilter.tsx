@@ -2,10 +2,10 @@ import { useTranslation } from 'react-i18next'
 import { formatFilesize } from '@/lib/utils/filesize'
 import type { TorrentSearchControls } from './searchControls'
 
-const BYTES_PER_GB = 1024 * 1024 * 1024
+const BYTES_PER_GB = 1_000_000_000 // decimal GB (SI), not the binary GiB (1024^3)
 // Purely the slider's initial visual scale, not an enforced ceiling — it grows to fit
 // whatever value is typed into the max field, so there's no artificial upper limit.
-const DEFAULT_SLIDER_MAX_GB = 1024
+const DEFAULT_SLIDER_MAX_GB = 1000
 const SIZE_STEP_GB = 1
 
 const gbToBytes = (gb: number) => Math.round(gb * BYTES_PER_GB)

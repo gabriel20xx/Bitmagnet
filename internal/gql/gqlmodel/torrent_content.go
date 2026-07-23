@@ -38,6 +38,7 @@ type TorrentContent struct {
 	PublishedAt     time.Time
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+	DuplicatesCount uint
 	Torrent         model.Torrent
 	Content         *model.Content
 }
@@ -66,6 +67,7 @@ func NewTorrentContentFromResultItem(item search.TorrentContentResultItem) Torre
 		PublishedAt:     item.PublishedAt,
 		CreatedAt:       item.CreatedAt,
 		UpdatedAt:       item.UpdatedAt,
+		DuplicatesCount: uint(item.DuplicatesCount),
 		Torrent:         item.Torrent,
 	}
 	if item.Content.ID != "" {
@@ -113,11 +115,12 @@ func TorrentSourceInfosFromTorrent(t model.Torrent) []TorrentSourceInfo {
 
 type TorrentContentSearchQueryInput struct {
 	q.SearchParams
-	Facets     *gen.TorrentContentFacetsInput
-	OrderBy    []gen.TorrentContentOrderByInput
-	InfoHashes graphql.Omittable[[]protocol.ID]
-	SizeMin    *uint
-	SizeMax    *uint
+	Facets       *gen.TorrentContentFacetsInput
+	OrderBy      []gen.TorrentContentOrderByInput
+	InfoHashes   graphql.Omittable[[]protocol.ID]
+	SizeMin      *uint
+	SizeMax      *uint
+	DuplicatesOf graphql.Omittable[protocol.ID]
 }
 
 type TorrentContentSearchResult struct {
@@ -151,6 +154,12 @@ func (t TorrentContentQuery) Search(
 
 	if input.SizeMin != nil || input.SizeMax != nil {
 		options = append(options, q.Where(search.TorrentContentSizeCriteria(input.SizeMin, input.SizeMax)))
+	}
+
+	if duplicatesOf, ok := input.DuplicatesOf.ValueOK(); ok {
+		options = append(options, q.Where(search.TorrentContentDuplicateOfCriteria(duplicatesOf)))
+	} else {
+		options = append(options, q.Where(search.TorrentContentNotDuplicateCriteria()))
 	}
 
 	fullOrderBy := maps.NewInsertMap[search.TorrentContentOrderBy, search.OrderDirection]()

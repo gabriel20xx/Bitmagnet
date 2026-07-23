@@ -1,6 +1,6 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Magnet, Download, HelpCircle } from 'lucide-react'
+import { Magnet, Download, HelpCircle, Copy } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { formatFilesize } from '@/lib/utils/filesize'
@@ -9,6 +9,7 @@ import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { contentTypeInfo } from './contentTypes'
 import { TorrentChips } from './TorrentChips'
+import { TorrentDuplicatesRow } from './TorrentDuplicatesRow'
 import { TorrentFilesTree } from './TorrentFilesTree'
 import type { TorrentSearchControls } from './searchControls'
 
@@ -38,6 +39,7 @@ export function TorrentsTable({
   const { t, i18n } = useTranslation()
   const isAllSelected = items.length > 0 && items.every((i) => selected.has(i.infoHash))
   const isIndeterminate = !isAllSelected && items.some((i) => selected.has(i.infoHash))
+  const [expandedDuplicatesOf, setExpandedDuplicatesOf] = useState<string | null>(null)
 
   const toggleSelectedTorrent = (infoHash: string) => {
     onSelectControls((c) => ({
@@ -115,6 +117,19 @@ export function TorrentsTable({
                             <p className="truncate text-xs text-muted-fg">{item.torrent.name}</p>
                           )}
                           <TorrentChips torrentContent={item} />
+                          {item.duplicatesCount > 0 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setExpandedDuplicatesOf((prev) => (prev === item.infoHash ? null : item.infoHash))
+                              }}
+                              className="mt-1 flex items-center gap-1 text-xs text-muted-fg hover:text-primary hover:underline"
+                            >
+                              <Copy className="size-3" />
+                              {t('torrents.duplicates_count_n', { count: item.duplicatesCount })}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -155,6 +170,9 @@ export function TorrentsTable({
                       <TorrentFilesTree torrent={item.torrent} />
                     </td>
                   </tr>
+                )}
+                {expandedDuplicatesOf === item.infoHash && (
+                  <TorrentDuplicatesRow infoHash={item.infoHash} colSpan={displayedColumns.length} />
                 )}
               </Fragment>
             )

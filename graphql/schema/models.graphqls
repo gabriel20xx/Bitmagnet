@@ -65,6 +65,16 @@ type TorrentContent {
   publishedAt: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
+  """
+  duplicatesCount is the number of other torrents considered duplicates of this one (same file
+  listing, or same content matched at the same quality) - collapsed out of default search results.
+  """
+  duplicatesCount: Int!
+  """
+  duplicates lists the torrents collapsed into this one by duplicatesCount. Only populated for the
+  canonical (non-duplicate) side of a group - always empty on a duplicate itself.
+  """
+  duplicates: [TorrentContent!]!
 }
 
 type LanguageInfo {

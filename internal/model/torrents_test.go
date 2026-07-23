@@ -23,8 +23,8 @@ func TestFileSearchStringsProducesValidUTF8(t *testing.T) {
 		{
 			name: "japanese shared prefix and suffix",
 			paths: []string{
-				"日本語のフォルダ/第一話.mkv",
-				"日本語のフォルダ/第二話.mkv",
+				"日本語のフォルダ/第一話.mkv", //nolint:gosmopolitan // intentional non-Latin test fixture
+				"日本語のフォルダ/第二話.mkv", //nolint:gosmopolitan // intentional non-Latin test fixture
 			},
 		},
 		{
@@ -39,8 +39,8 @@ func TestFileSearchStringsProducesValidUTF8(t *testing.T) {
 		{
 			name: "chinese fully shared suffix",
 			paths: []string{
-				"甲乙丙丁戊己庚辛壬癸.mkv",
-				"子丑寅卯辰巳午未申酉戊己庚辛壬癸.mkv",
+				"甲乙丙丁戊己庚辛壬癸.mkv",       //nolint:gosmopolitan // intentional non-Latin test fixture
+				"子丑寅卯辰巳午未申酉戊己庚辛壬癸.mkv", //nolint:gosmopolitan // intentional non-Latin test fixture
 			},
 		},
 	}
@@ -58,7 +58,10 @@ func TestFileSearchStringsProducesValidUTF8(t *testing.T) {
 
 			for _, str := range torrent.fileSearchStrings() {
 				if !utf8.ValidString(str) {
-					t.Errorf("fileSearchStrings() returned invalid UTF-8 string %q (bytes: %x)", str, []byte(str))
+					t.Errorf(
+						"fileSearchStrings() returned invalid UTF-8 string %q (bytes: %x)",
+						str, []byte(str),
+					)
 				}
 			}
 		})
@@ -68,7 +71,7 @@ func TestFileSearchStringsProducesValidUTF8(t *testing.T) {
 func TestAlignToRuneBoundary(t *testing.T) {
 	t.Parallel()
 
-	s := "日本語" // 3 runes, 3 bytes each (9 bytes total)
+	s := "日本語" //nolint:gosmopolitan // intentional non-Latin test fixture; 3 runes, 3 bytes each
 
 	tests := []struct {
 		name string
@@ -92,7 +95,10 @@ func TestAlignToRuneBoundary(t *testing.T) {
 			}
 
 			if !utf8.ValidString(s[:got]) || !utf8.ValidString(s[got:]) {
-				t.Errorf("alignToRuneBoundary(%q, %d) = %d does not split on a valid rune boundary", s, tt.i, got)
+				t.Errorf(
+					"alignToRuneBoundary(%q, %d) = %d does not split on a valid rune boundary",
+					s, tt.i, got,
+				)
 			}
 		})
 	}

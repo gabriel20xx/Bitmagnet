@@ -15,6 +15,11 @@ input TorrentContentSearchQueryInput {
   aggregationBudget: Float
   sizeMin: Int
   sizeMax: Int
+  """
+  duplicatesOf, when set, returns the torrents recorded as duplicates of the given info hash
+  instead of the default search results (which only ever show the canonical side of each group).
+  """
+  duplicatesOf: Hash20
 }
 
 input ContentTypeFacetInput {
