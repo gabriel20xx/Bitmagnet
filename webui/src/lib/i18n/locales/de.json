@@ -239,6 +239,7 @@
   },
   "torrents": {
     "clear_search": "Suche löschen",
+    "copied": "Kopiert!",
     "copy": "Kopieren",
     "copy_to_clipboard": "In die Zwischenablage kopieren",
     "deselect_all": "Alle abwählen",

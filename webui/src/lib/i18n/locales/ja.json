@@ -239,6 +239,7 @@
   },
   "torrents": {
     "clear_search": "検索をクリア",
+    "copied": "コピーしました!",
     "copy": "コピー",
     "copy_to_clipboard": "クリップボードにコピー",
     "deselect_all": "すべての選択を解除",

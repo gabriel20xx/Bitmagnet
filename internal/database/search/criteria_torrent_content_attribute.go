@@ -1,8 +1,6 @@
 package search
 
 import (
-	"database/sql/driver"
-
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
 	"github.com/bitmagnet-io/bitmagnet/internal/maps"
@@ -19,13 +17,9 @@ func torrentContentAttributeCriteria[T attribute](getFld func(*dao.Query) field.
 	return func(values ...T) query.Criteria {
 		return query.GenCriteria(func(ctx query.DBContext) (query.Criteria, error) {
 			fld := getFld(ctx.Query())
-			valuers := make([]driver.Valuer, 0, len(values))
-			for _, v := range values {
-				valuers = append(valuers, v)
-			}
 
-			vals := make([]interface{}, len(valuers))
-			for i, v := range valuers {
+			vals := make([]interface{}, len(values))
+			for i, v := range values {
 				vals[i] = v
 			}
 

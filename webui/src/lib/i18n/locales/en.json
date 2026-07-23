@@ -236,6 +236,7 @@
   },
   "torrents": {
     "clear_search": "Clear Search",
+    "copied": "Copied!",
     "copy": "Copy",
     "copy_to_clipboard": "Copy to clipboard",
     "deselect_all": "Deselect All",

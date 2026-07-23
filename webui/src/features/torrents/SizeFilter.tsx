@@ -53,7 +53,7 @@ export function SizeFilter({
     onUpdate((c) => ({ ...c, sizeMax: boundedGb >= sliderMaxGb ? undefined : gbToBytes(boundedGb), page: 1 }))
   }
 
-  const formatLabel = (gb: number) => formatFilesize(gbToBytes(gb), i18n.language)
+  const formatLabel = (gb: number) => formatFilesize(gbToBytes(gb), i18n.language, 10)
 
   return (
     <div className="px-2">

@@ -239,6 +239,7 @@
   },
   "torrents": {
     "clear_search": "Effacer la recherche",
+    "copied": "Copié !",
     "copy": "Copier",
     "copy_to_clipboard": "Copier dans le presse-papiers",
     "deselect_all": "Tout désélectionner",

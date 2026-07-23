@@ -239,6 +239,7 @@
   },
   "torrents": {
     "clear_search": "مسح البحث",
+    "copied": "تم النسخ!",
     "copy": "نسخ",
     "copy_to_clipboard": "نسخ إلى الحافظة",
     "deselect_all": "إلغاء تحديد الكل",

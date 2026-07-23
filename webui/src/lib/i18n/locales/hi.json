@@ -239,6 +239,7 @@
   },
   "torrents": {
     "clear_search": "खोज साफ़ करें",
+    "copied": "कॉपी हो गया!",
     "copy": "कॉपी करें",
     "copy_to_clipboard": "क्लिपबोर्ड में कॉपी करें",
     "deselect_all": "सभी को अचयनित करें",

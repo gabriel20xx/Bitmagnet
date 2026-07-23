@@ -107,9 +107,9 @@ export function TorrentsTable({
                   )}
                   {displayedColumns.includes('summary') && (
                     <td className="max-w-md py-2">
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-center gap-2">
                         <SimpleTooltip label={t(`content_types.singular.${item.contentType ?? 'null'}`)}>
-                          <ContentTypeIcon className="mt-0.5 size-4 shrink-0" />
+                          <ContentTypeIcon className="size-4 shrink-0" />
                         </SimpleTooltip>
                         <div className="min-w-0">
                           <div className="truncate font-medium">{item.title}</div>

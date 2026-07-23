@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import { FileText, Fingerprint } from 'lucide-react'
+import { Check, FileText, Fingerprint } from 'lucide-react'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
+import { useCopyFeedback } from '@/lib/hooks/useCopyFeedback'
 import { formatFilesize } from '@/lib/utils/filesize'
-import { copyToClipboard } from '@/lib/utils/clipboard'
 import { formatTimeAgo } from '@/lib/dates/format'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { TorrentFilesTree } from './TorrentFilesTree'
@@ -37,6 +37,7 @@ export function TorrentContent({
 }) {
   const { t, i18n } = useTranslation()
   const isDesktop = useIsDesktop()
+  const [infoHashCopied, copyInfoHash] = useCopyFeedback()
 
   const posterPath = getAttribute(torrentContent, 'poster_path', 'tmdb')
   const genres = getCollections(torrentContent, 'genre')
@@ -81,14 +82,16 @@ export function TorrentContent({
             </p>
           )}
           <p className="flex items-center gap-1.5">
-            <Fingerprint className="size-4 shrink-0 text-muted-fg" />
+            {infoHashCopied ? (
+              <Check className="size-4 shrink-0 text-primary" />
+            ) : (
+              <Fingerprint className="size-4 shrink-0 text-muted-fg" />
+            )}
             <strong>{t('torrents.info_hash')}:</strong>{' '}
-            <SimpleTooltip label={t('torrents.copy_to_clipboard')}>
+            <SimpleTooltip label={t(infoHashCopied ? 'torrents.copied' : 'torrents.copy_to_clipboard')}>
               <button
                 type="button"
-                onClick={() => {
-                  copyToClipboard(torrentContent.infoHash).catch(() => {})
-                }}
+                onClick={() => copyInfoHash(torrentContent.infoHash)}
                 className="font-mono hover:underline"
               >
                 {torrentContent.infoHash}

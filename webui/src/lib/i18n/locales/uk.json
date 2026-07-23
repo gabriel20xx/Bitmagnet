@@ -239,6 +239,7 @@
   },
   "torrents": {
     "clear_search": "Очистити пошук",
+    "copied": "Скопійовано!",
     "copy": "Копіювати",
     "copy_to_clipboard": "Копіювати в буфер обміну",
     "deselect_all": "Зняти виділення",

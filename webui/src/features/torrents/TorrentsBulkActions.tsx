@@ -1,13 +1,15 @@
 import { useTranslation } from 'react-i18next'
-import { Download, Fingerprint, Magnet } from 'lucide-react'
+import { Check, Download, Fingerprint, Magnet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
-import { copyToClipboard } from '@/lib/utils/clipboard'
+import { useCopyFeedback } from '@/lib/hooks/useCopyFeedback'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 
 export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentContentFragment[] }) {
   const { t } = useTranslation()
+  const [magnetsCopied, copyMagnets] = useCopyFeedback()
+  const [infoHashesCopied, copyInfoHashes] = useCopyFeedback()
 
   const infoHashes = selectedItems.map((i) => i.infoHash)
   const hasSelection = infoHashes.length > 0
@@ -27,29 +29,25 @@ export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentC
 
   return (
     <div className="flex flex-wrap gap-2">
-      <SimpleTooltip label={t('torrents.copy_to_clipboard')}>
+      <SimpleTooltip label={t(magnetsCopied ? 'torrents.copied' : 'torrents.copy_to_clipboard')}>
         <Button
           type="button"
           variant="outline"
           disabled={!hasSelection}
-          onClick={() => {
-            copyToClipboard(selectedItems.map((i) => i.torrent.magnetUri).join('\n')).catch(() => {})
-          }}
+          onClick={() => copyMagnets(selectedItems.map((i) => i.torrent.magnetUri).join('\n'))}
         >
-          <Magnet className="size-4" />
+          {magnetsCopied ? <Check className="size-4" /> : <Magnet className="size-4" />}
           {t('torrents.magnet_links')}
         </Button>
       </SimpleTooltip>
-      <SimpleTooltip label={t('torrents.copy_to_clipboard')}>
+      <SimpleTooltip label={t(infoHashesCopied ? 'torrents.copied' : 'torrents.copy_to_clipboard')}>
         <Button
           type="button"
           variant="outline"
           disabled={!hasSelection}
-          onClick={() => {
-            copyToClipboard(infoHashes.join('\n')).catch(() => {})
-          }}
+          onClick={() => copyInfoHashes(infoHashes.join('\n'))}
         >
-          <Fingerprint className="size-4" />
+          {infoHashesCopied ? <Check className="size-4" /> : <Fingerprint className="size-4" />}
           {t('torrents.info_hashes')}
         </Button>
       </SimpleTooltip>
