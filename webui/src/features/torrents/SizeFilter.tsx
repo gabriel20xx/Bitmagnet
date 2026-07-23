@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { formatFilesize } from '@/lib/utils/filesize'
 import type { TorrentSearchControls } from './searchControls'
 
 const BYTES_PER_GB = 1_000_000_000 // decimal GB (SI), not the binary GiB (1024^3)
@@ -18,7 +17,7 @@ export function SizeFilter({
   controls: TorrentSearchControls
   onUpdate: (fn: (c: TorrentSearchControls) => TorrentSearchControls) => void
 }) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   const sizeMinGb = controls.sizeMin != null ? bytesToGb(controls.sizeMin) : 0
   const sizeMaxGb = controls.sizeMax != null ? bytesToGb(controls.sizeMax) : null
@@ -52,8 +51,6 @@ export function SizeFilter({
     const boundedGb = Math.max(valueGb, sizeMinGb + SIZE_STEP_GB)
     onUpdate((c) => ({ ...c, sizeMax: boundedGb >= sliderMaxGb ? undefined : gbToBytes(boundedGb), page: 1 }))
   }
-
-  const formatLabel = (gb: number) => formatFilesize(gbToBytes(gb), i18n.language, 10)
 
   return (
     <div className="px-2">
@@ -122,12 +119,6 @@ export function SizeFilter({
               }}
             />
           </div>
-        </div>
-
-        <div className="flex justify-between text-xs text-muted-fg">
-          <span>{formatLabel(0)}</span>
-          <span>{formatLabel((sizeMinGb + (sizeMaxGb ?? sliderMaxGb)) / 2)}</span>
-          <span>{sizeMaxGb != null ? formatLabel(sizeMaxGb) : t('torrents.no_limit')}</span>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
-// Package mediastream serves image/audio/video files from inside a torrent for in-browser
-// preview, by fetching piece data on demand directly from peers. Unlike the rest of
-// bitmagnet, which only ever indexes DHT metadata, this package acts as a real (leech-only)
+// Package mediastream serves image/audio/video/text files from inside a torrent for
+// in-browser preview, by fetching piece data on demand directly from peers. Unlike the rest
+// of bitmagnet, which only ever indexes DHT metadata, this package acts as a real (leech-only)
 // BitTorrent client for the specific files being previewed.
 package mediastream
 
@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -104,7 +105,7 @@ func (s *Service) OpenStream(ctx context.Context, t *model.Torrent, index uint) 
 		return nil, resolveErr
 	}
 
-	if !isPreviewable(fileType) {
+	if !isPreviewable(fileType) && !isTextFile(name) {
 		return nil, ErrFileNotPreviewable
 	}
 
@@ -161,10 +162,22 @@ func (s *Service) OpenStream(ctx context.Context, t *model.Torrent, index uint) 
 	}, nil
 }
 
+// getOrAddTorrent hands the torrent to the client so it can fetch piece data from peers.
+// When we already have piece hashes on file (the common case), it reconstructs the full
+// .torrent metadata locally, which lets the client start verifying and downloading pieces
+// immediately. Otherwise (e.g. piece saving was disabled at crawl time), it falls back to
+// adding the torrent by info hash alone, exactly like a magnet link: the client fetches the
+// info dict - including piece hashes - live from peers over the BEP-9 metadata extension.
 func (s *Service) getOrAddTorrent(t *model.Torrent) (*at.Torrent, error) {
 	fileBytes, buildErr := torrentfile.Build(t)
 	if buildErr != nil {
-		return nil, buildErr
+		if !errors.Is(buildErr, torrentfile.ErrDataUnavailable) {
+			return nil, buildErr
+		}
+
+		tt, _ := s.client.AddTorrentInfoHash(metainfo.Hash(t.InfoHash))
+
+		return tt, nil
 	}
 
 	mi, loadErr := metainfo.Load(bytes.NewReader(fileBytes))
@@ -285,4 +298,21 @@ func isPreviewable(ft model.NullFileType) bool {
 	default:
 		return false
 	}
+}
+
+// textFileExtensions are the subset of model.FileTypeDocument/model.FileTypeSubtitles
+// extensions that are actually plain text - as opposed to e.g. pdf/epub/docx, which share
+// the "document" bucket but can't be rendered as raw text.
+var textFileExtensions = map[string]bool{
+	".txt": true,
+	".nfo": true,
+	".md":  true,
+	".log": true,
+	".srt": true,
+	".vtt": true,
+	".sub": true,
+}
+
+func isTextFile(name string) bool {
+	return textFileExtensions[strings.ToLower(filepath.Ext(name))]
 }

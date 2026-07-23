@@ -10,7 +10,7 @@
       "null": "Desconegut",
       "software": "Programari",
       "tv_show": "Programes de TV",
-      "xxx": "XXX"
+      "xxx": "Porno"
     },
     "singular": {
       "audiobook": "Audiollibre",
@@ -20,7 +20,7 @@
       "music": "Música",
       "software": "Desconegut",
       "tv_show": "Programa de TV",
-      "xxx": "XXX"
+      "xxx": "Porno"
     }
   },
   "dashboard": {
@@ -260,11 +260,11 @@
     "original_release_date": "Data de llançament original",
     "permalink": "Enllaç permanent",
     "poster": "Pòster",
-    "preview_data_unavailable": "Les dades dels fragments no estan disponibles per a aquest torrent, així que no es pot previsualitzar",
     "preview_failed": "No s'ha pogut reproduir aquest fitxer",
     "preview_file": "Previsualitza el fitxer",
     "preview_loading": "Carregant la previsualització…",
     "preview_too_many_streams": "S'estan executant massa previsualitzacions ara mateix; torna-ho a provar d'aquí a poc",
+    "preview_truncated": "Només es mostra el començament d'aquest fitxer",
     "published": "Publicat",
     "rating": "Valoració",
     "refresh": "Actualitza els resultats",

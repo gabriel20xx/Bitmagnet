@@ -11,7 +11,7 @@
       "null": "Onbekend",
       "software": "Software",
       "tv_show": "Tv-programma's",
-      "xxx": "XXX"
+      "xxx": "Porno"
     },
     "singular": {
       "audiobook": "Audioboek",
@@ -23,7 +23,7 @@
       "null": "Onbekend",
       "software": "Software",
       "tv_show": "Tv-programma",
-      "xxx": "XXX"
+      "xxx": "Porno"
     }
   },
   "dashboard": {
@@ -282,11 +282,11 @@
     "original_release_date": "Oorspronkelijke releasedatum",
     "permalink": "Permalink",
     "poster": "Poster",
-    "preview_data_unavailable": "Er zijn geen piece-gegevens beschikbaar voor deze torrent, dus deze kan niet worden bekeken",
     "preview_failed": "Dit bestand kon niet worden afgespeeld",
     "preview_file": "Bestand voorvertonen",
     "preview_loading": "Voorvertoning wordt geladen…",
     "preview_too_many_streams": "Er lopen nu te veel voorvertoningen — probeer het straks opnieuw",
+    "preview_truncated": "Alleen het begin van dit bestand wordt getoond",
     "published": "Gepubliceerd",
     "rating": "Beoordeling",
     "refresh": "Vernieuw resultaten",

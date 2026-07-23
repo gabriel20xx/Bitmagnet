@@ -2,6 +2,8 @@ package mediastream
 
 import "mime"
 
+const mimeTypePlainText = "text/plain; charset=utf-8"
+
 // extraMimeTypes fills in extensions commonly found in torrents that aren't reliably
 // registered in the standard library's mime type table across platforms, so browsers
 // receive a correct Content-Type for playback.
@@ -37,6 +39,14 @@ var extraMimeTypes = map[string]string{
 	".ico":  "image/x-icon",
 	".tif":  "image/tiff",
 	".tiff": "image/tiff",
+
+	".txt": mimeTypePlainText,
+	".nfo": mimeTypePlainText,
+	".md":  mimeTypePlainText,
+	".log": mimeTypePlainText,
+	".srt": mimeTypePlainText,
+	".sub": mimeTypePlainText,
+	".vtt": "text/vtt",
 }
 
 func init() {

@@ -1,8 +1,56 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { resolveTorrentFileStreamUrl } from '@/lib/graphql/endpoint'
+import { isTextPreviewable } from '@/lib/utils/textPreview'
 import type { FileType } from '@/lib/graphql/generated'
+
+// Fetched as a ranged request so a huge file misclassified as text can't hang the tab.
+const TEXT_PREVIEW_BYTE_LIMIT = 500_000
+
+type TextPreviewState = { text: string; truncated: boolean }
+
+function useTextPreview(url: string, onError: () => void): TextPreviewState | null {
+  const [state, setState] = useState<TextPreviewState | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    fetch(url, { headers: { Range: `bytes=0-${TEXT_PREVIEW_BYTE_LIMIT - 1}` } })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('failed to load text preview')
+
+        const text = await res.text()
+        const total = Number(res.headers.get('Content-Range')?.split('/')[1])
+        if (!cancelled) setState({ text, truncated: Number.isFinite(total) && total > TEXT_PREVIEW_BYTE_LIMIT })
+      })
+      .catch(() => {
+        if (!cancelled) onError()
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [url, onError])
+
+  return state
+}
+
+function TextPreview({ url, onError }: { url: string; onError: () => void }) {
+  const { t } = useTranslation()
+  const state = useTextPreview(url, onError)
+
+  if (!state) return null
+
+  return (
+    <div className="w-full text-left">
+      <pre className="max-h-[70vh] overflow-auto whitespace-pre-wrap break-words rounded bg-surface p-4 text-sm">
+        {state.text}
+      </pre>
+      {state.truncated && <p className="mt-2 text-xs text-muted-fg">{t('torrents.preview_truncated')}</p>}
+    </div>
+  )
+}
 
 interface PreviewableNode {
   name: string
@@ -14,8 +62,6 @@ type Availability = { status: 'checking' } | { status: 'ready' } | { status: 'un
 
 function messageKeyForStatus(status: number): string {
   switch (status) {
-    case 409:
-      return 'torrents.preview_data_unavailable'
     case 503:
       return 'torrents.preview_too_many_streams'
     default:
@@ -24,8 +70,9 @@ function messageKeyForStatus(status: number): string {
 }
 
 // The stream endpoint can fail for reasons that have nothing to do with codec support
-// (piece data not saved, too many concurrent previews, ...). A cheap ranged preflight lets
-// us surface that distinction instead of always showing a generic "couldn't be played".
+// (too many concurrent previews, no peers found the data in time, ...). A cheap ranged
+// preflight lets us surface that distinction instead of always showing a generic "couldn't
+// be played".
 function useStreamAvailability(url: string): Availability {
   const [state, setState] = useState<Availability>({ status: 'checking' })
 
@@ -52,6 +99,7 @@ function useStreamAvailability(url: string): Availability {
 function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string }) {
   const { t } = useTranslation()
   const [playbackFailed, setPlaybackFailed] = useState(false)
+  const handlePlaybackError = useCallback(() => setPlaybackFailed(true), [])
   const availability = useStreamAvailability(url)
 
   if (availability.status === 'checking') {
@@ -69,6 +117,10 @@ function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string })
 
   if (playbackFailed) {
     return <p className="py-8 text-sm text-muted-fg">{t('torrents.preview_failed')}</p>
+  }
+
+  if (isTextPreviewable(node.name)) {
+    return <TextPreview url={url} onError={handlePlaybackError} />
   }
 
   if (node.fileType === 'image') {

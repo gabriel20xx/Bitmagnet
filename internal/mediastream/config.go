@@ -7,8 +7,8 @@ import (
 )
 
 // Config controls the on-demand media streaming subsystem, which downloads piece data
-// directly from torrent peers so image/audio/video files can be previewed in the browser
-// without waiting for a full download.
+// directly from torrent peers so image/audio/video/text files can be previewed in the
+// browser without waiting for a full download.
 type Config struct {
 	// DataDir is where in-flight piece data is cached on disk while streaming.
 	DataDir string

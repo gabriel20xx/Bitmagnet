@@ -1,5 +1,16 @@
-import { BookOpen, Clapperboard, Gamepad2, HelpCircle, Mic, Monitor, Music, Tv, type LucideIcon } from 'lucide-react'
-import { Explicit18Icon } from '@/components/icons/Explicit18Icon'
+import {
+  BookImage,
+  BookOpen,
+  Clapperboard,
+  Gamepad2,
+  HelpCircle,
+  Mic,
+  Monitor,
+  Music,
+  Tv,
+  type LucideIcon,
+} from 'lucide-react'
+import { XxxIcon } from '@/components/icons/XxxIcon'
 import type { ContentType } from '@/lib/graphql/generated'
 
 interface ContentTypeInfo {
@@ -11,11 +22,11 @@ export const contentTypeMap: Record<ContentType | 'null', ContentTypeInfo> = {
   tv_show: { icon: Tv },
   music: { icon: Music },
   ebook: { icon: BookOpen },
-  comic: { icon: BookOpen },
+  comic: { icon: BookImage },
   audiobook: { icon: Mic },
   software: { icon: Monitor },
   game: { icon: Gamepad2 },
-  xxx: { icon: Explicit18Icon },
+  xxx: { icon: XxxIcon },
   null: { icon: HelpCircle },
 }
 

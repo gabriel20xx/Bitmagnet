@@ -11,7 +11,7 @@
       "null": "Bilinmiyor",
       "software": "Yazılım",
       "tv_show": "TV Programları",
-      "xxx": "XXX"
+      "xxx": "Porno"
     },
     "singular": {
       "audiobook": "Sesli Kitap",
@@ -23,7 +23,7 @@
       "null": "Bilinmiyor",
       "software": "Yazılım",
       "tv_show": "TV Programı",
-      "xxx": "XXX"
+      "xxx": "Porno"
     }
   },
   "dashboard": {
@@ -282,11 +282,11 @@
     "original_release_date": "Orijinal çıkış tarihi",
     "permalink": "Kalıcı Bağlantı",
     "poster": "Poster",
-    "preview_data_unavailable": "Bu torrent için parça verileri mevcut değil, bu yüzden önizlenemiyor",
     "preview_failed": "Bu dosya oynatılamadı",
     "preview_file": "Dosyayı önizle",
     "preview_loading": "Önizleme yükleniyor…",
     "preview_too_many_streams": "Şu anda çok fazla önizleme çalışıyor — kısa süre sonra tekrar deneyin",
+    "preview_truncated": "Yalnızca bu dosyanın başlangıcı gösteriliyor",
     "published": "Yayınlandı",
     "rating": "Puan",
     "refresh": "Sonuçları Yenile",

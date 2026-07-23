@@ -11,7 +11,7 @@
       "null": "Inconnu",
       "software": "Logiciels",
       "tv_show": "Séries TV",
-      "xxx": "XXX"
+      "xxx": "Porno"
     },
     "singular": {
       "audiobook": "Livre audio",
@@ -23,7 +23,7 @@
       "null": "Inconnu",
       "software": "Logiciel",
       "tv_show": "Série TV",
-      "xxx": "XXX"
+      "xxx": "Porno"
     }
   },
   "dashboard": {
@@ -282,11 +282,11 @@
     "original_release_date": "Date de sortie originale",
     "permalink": "Permalien",
     "poster": "Affiche",
-    "preview_data_unavailable": "Les données des fragments ne sont pas disponibles pour ce torrent, il ne peut donc pas être prévisualisé",
     "preview_failed": "Ce fichier n'a pas pu être lu",
     "preview_file": "Aperçu du fichier",
     "preview_loading": "Chargement de l'aperçu…",
     "preview_too_many_streams": "Trop d'aperçus sont en cours en ce moment — réessayez dans un instant",
+    "preview_truncated": "Seul le début de ce fichier est affiché",
     "published": "Publié",
     "rating": "Évaluation",
     "refresh": "Rafraîchir les résultats",

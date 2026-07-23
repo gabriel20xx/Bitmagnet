@@ -11,7 +11,7 @@
       "null": "Unbekannt",
       "software": "Software",
       "tv_show": "TV-Shows",
-      "xxx": "XXX"
+      "xxx": "Porno"
     },
     "singular": {
       "audiobook": "Hörbuch",
@@ -23,7 +23,7 @@
       "null": "Unbekannt",
       "software": "Software",
       "tv_show": "TV-Show",
-      "xxx": "XXX"
+      "xxx": "Porno"
     }
   },
   "dashboard": {
@@ -282,11 +282,11 @@
     "original_release_date": "Originales Veröffentlichungsdatum",
     "permalink": "Permalink",
     "poster": "Poster",
-    "preview_data_unavailable": "Für diesen Torrent sind keine Piece-Daten verfügbar, daher kann er nicht als Vorschau angezeigt werden",
     "preview_failed": "Diese Datei konnte nicht abgespielt werden",
     "preview_file": "Datei-Vorschau",
     "preview_loading": "Vorschau wird geladen…",
     "preview_too_many_streams": "Gerade laufen zu viele Vorschauen – bitte versuchen Sie es in Kürze erneut",
+    "preview_truncated": "Es wird nur der Anfang dieser Datei angezeigt",
     "published": "Veröffentlicht",
     "rating": "Bewertung",
     "refresh": "Ergebnisse aktualisieren",

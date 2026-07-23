@@ -1,16 +1,43 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@apollo/client/react'
-import { ChevronRight, ChevronDown, Folder, FolderOpen, File as FileIcon, Play } from 'lucide-react'
+import {
+  ChevronRight,
+  ChevronDown,
+  Folder,
+  FolderOpen,
+  File as FileIcon,
+  Archive,
+  Database,
+  FileText,
+  Image,
+  Monitor,
+  Music,
+  Subtitles,
+  Video,
+  type LucideIcon,
+} from 'lucide-react'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { addError } from '@/lib/toast/store'
+import { isTextPreviewable } from '@/lib/utils/textPreview'
 import { TorrentFilesDocument, type FileType, type TorrentFragment } from '@/lib/graphql/generated'
 import { MediaPreviewModal } from './MediaPreviewModal'
 
 const PREVIEWABLE_FILE_TYPES: readonly FileType[] = ['image', 'audio', 'video']
 
-function isPreviewable(fileType: FileType | null): boolean {
-  return fileType != null && PREVIEWABLE_FILE_TYPES.includes(fileType)
+function isPreviewable(fileType: FileType | null, name: string): boolean {
+  return (fileType != null && PREVIEWABLE_FILE_TYPES.includes(fileType)) || isTextPreviewable(name)
+}
+
+const FILE_TYPE_ICONS: Partial<Record<FileType, LucideIcon>> = {
+  archive: Archive,
+  audio: Music,
+  data: Database,
+  document: FileText,
+  image: Image,
+  software: Monitor,
+  subtitles: Subtitles,
+  video: Video,
 }
 
 interface FileNode {
@@ -96,14 +123,11 @@ function isNodeExpanded(path: string, depth: number, toggled: Set<string>): bool
 
 function FileRow({ node, depth, onPreview }: { node: FileNode; depth: number; onPreview: (node: FileNode) => void }) {
   const { t, i18n } = useTranslation()
-  const previewable = isPreviewable(node.fileType)
+  const previewable = isPreviewable(node.fileType, node.name)
+  const TypeIcon = (node.fileType && FILE_TYPE_ICONS[node.fileType]) ?? FileIcon
   const content = (
     <>
-      {previewable ? (
-        <Play className="size-4 shrink-0 text-primary" />
-      ) : (
-        <FileIcon className="size-4 shrink-0 text-muted-fg" />
-      )}
+      <TypeIcon className={`size-4 shrink-0 ${previewable ? 'text-primary' : 'text-muted-fg'}`} />
       <span className="flex-1 truncate">{node.name}</span>
       <span className="w-20 shrink-0 text-xs text-muted-fg">{t(`file_types.${node.fileType ?? 'unknown'}`)}</span>
       <span

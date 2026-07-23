@@ -11,7 +11,6 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
 	"github.com/bitmagnet-io/bitmagnet/internal/mediastream"
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
-	"github.com/bitmagnet-io/bitmagnet/internal/torrentfile"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -105,8 +104,6 @@ func (b *builder) handleStream(ctx *gin.Context) {
 			ctx.Status(http.StatusUnsupportedMediaType)
 		case errors.Is(openErr, mediastream.ErrTooManyStreams):
 			ctx.Status(http.StatusServiceUnavailable)
-		case errors.Is(openErr, torrentfile.ErrDataUnavailable):
-			ctx.String(http.StatusConflict, openErr.Error())
 		default:
 			b.logger.Errorw("error opening media stream", "error", openErr)
 			ctx.Status(http.StatusInternalServerError)
