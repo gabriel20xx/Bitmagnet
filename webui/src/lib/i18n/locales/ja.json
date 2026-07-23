@@ -109,6 +109,7 @@
   },
   "general": {
     "all": "すべて",
+    "clear": "Clear",
     "dismiss": "閉じる",
     "error": "エラー",
     "none": "なし",
@@ -286,6 +287,8 @@
     "select_all": "すべて選択",
     "showing_x_of_y_files": "{{x}} 件中 {{y}} 件表示",
     "size": "サイズ",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "トレントソース",
     "summary": "概要",
     "title": "タイトル",

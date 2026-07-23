@@ -109,6 +109,7 @@
   },
   "general": {
     "all": "Alle",
+    "clear": "Clear",
     "dismiss": "Verwerfen",
     "error": "Fehler",
     "none": "Keine",
@@ -286,6 +287,8 @@
     "select_all": "Alle auswählen",
     "showing_x_of_y_files": "{{x}} von {{y}} Dateien anzeigen",
     "size": "Größe",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "Torrent-Quelle",
     "summary": "Zusammenfassung",
     "title": "Titel",

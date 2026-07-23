@@ -109,6 +109,7 @@
   },
   "general": {
     "all": "Усі",
+    "clear": "Clear",
     "dismiss": "Закрити",
     "error": "Помилка",
     "none": "Немає",
@@ -286,6 +287,8 @@
     "select_all": "Вибрати всі",
     "showing_x_of_y_files": "Показано {{x}} з {{y}} файлів",
     "size": "Розмір",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "Джерело торрента",
     "summary": "Зведення",
     "title": "Назва",

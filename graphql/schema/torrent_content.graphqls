@@ -13,6 +13,8 @@ input TorrentContentSearchQueryInput {
   orderBy: [TorrentContentOrderByInput!]
   cached: Boolean
   aggregationBudget: Float
+  sizeMin: Int
+  sizeMax: Int
 }
 
 input ContentTypeFacetInput {

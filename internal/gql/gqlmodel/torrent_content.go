@@ -116,6 +116,8 @@ type TorrentContentSearchQueryInput struct {
 	Facets     *gen.TorrentContentFacetsInput
 	OrderBy    []gen.TorrentContentOrderByInput
 	InfoHashes graphql.Omittable[[]protocol.ID]
+	SizeMin    *uint
+	SizeMax    *uint
 }
 
 type TorrentContentSearchResult struct {
@@ -145,6 +147,10 @@ func (t TorrentContentQuery) Search(
 
 	if infoHashes, ok := input.InfoHashes.ValueOK(); ok {
 		options = append(options, q.Where(search.TorrentContentInfoHashCriteria(infoHashes...)))
+	}
+
+	if input.SizeMin != nil || input.SizeMax != nil {
+		options = append(options, q.Where(search.TorrentContentSizeCriteria(input.SizeMin, input.SizeMax)))
 	}
 
 	fullOrderBy := maps.NewInsertMap[search.TorrentContentOrderBy, search.OrderDirection]()

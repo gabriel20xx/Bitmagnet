@@ -1,4 +1,4 @@
-import { Album, Drama, FileText, Languages, Ratio, Share2, Tag, type LucideIcon } from 'lucide-react'
+import { Album, Drama, FileText, Languages, Ratio, Share2, type LucideIcon } from 'lucide-react'
 import type { TFunction } from 'i18next'
 import type {
   ContentType,
@@ -30,7 +30,6 @@ export interface TorrentSearchFacets {
   language: FacetInput<Language>
   fileType: FacetInput<FileType>
   torrentSource: FacetInput<string>
-  torrentTag: FacetInput<string>
   videoResolution: FacetInput<VideoResolution>
   videoSource: FacetInput<VideoSource>
 }
@@ -48,6 +47,8 @@ export interface TorrentSearchControls {
   orderBy: OrderBySelection
   facets: TorrentSearchFacets
   selectedTorrent?: TorrentSelection
+  sizeMin?: number
+  sizeMax?: number
 }
 
 export const defaultLimit = 20
@@ -65,10 +66,11 @@ export const initControls: TorrentSearchControls = {
     language: inactiveFacet,
     fileType: inactiveFacet,
     torrentSource: inactiveFacet,
-    torrentTag: inactiveFacet,
     videoResolution: inactiveFacet,
     videoSource: inactiveFacet,
   },
+  sizeMin: undefined,
+  sizeMax: undefined,
 }
 
 export type Agg<T, AllowNull extends boolean> = {
@@ -97,16 +99,6 @@ export const torrentSourceFacet: FacetDefinition<string, false> = {
   patchInput: (f, i) => ({ ...f, torrentSource: i }),
   extractAggregations: (aggs) => aggs.torrentSource ?? [],
   resolveLabel: (agg) => agg.label,
-}
-
-export const torrentTagFacet: FacetDefinition<string, false> = {
-  key: 'torrent_tag',
-  icon: Tag,
-  allowNull: false,
-  extractInput: (f) => f.torrentTag,
-  patchInput: (f, i) => ({ ...f, torrentTag: i }),
-  extractAggregations: (aggs) => aggs.torrentTag ?? [],
-  resolveLabel: (agg) => agg.value,
 }
 
 export const fileTypeFacet: FacetDefinition<FileType, false> = {
@@ -167,7 +159,6 @@ export const videoSourceFacet: FacetDefinition<VideoSource, true> = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const facets: FacetDefinition<any, any>[] = [
   torrentSourceFacet,
-  torrentTagFacet,
   fileTypeFacet,
   languageFacet,
   genreFacet,
@@ -211,6 +202,8 @@ export function controlsToQueryVariables(ctrl: TorrentSearchControls): TorrentCo
       totalCount: true,
       hasNextPage: true,
       orderBy: [ctrl.orderBy],
+      sizeMin: ctrl.sizeMin,
+      sizeMax: ctrl.sizeMax,
       facets: {
         contentType: {
           aggregate: true,
@@ -223,9 +216,6 @@ export function controlsToQueryVariables(ctrl: TorrentSearchControls): TorrentCo
           : undefined,
         torrentSource: ctrl.facets.torrentSource.active
           ? { aggregate: true, filter: ctrl.facets.torrentSource.filter }
-          : undefined,
-        torrentTag: ctrl.facets.torrentTag.active
-          ? { aggregate: true, filter: ctrl.facets.torrentTag.filter }
           : undefined,
         videoResolution: ctrl.facets.videoResolution.active
           ? { aggregate: true, filter: ctrl.facets.videoResolution.filter }
@@ -369,6 +359,8 @@ export function paramsToControls(params: URLSearchParams): TorrentSearchControls
   if (selectedTorrentParam) {
     selectedTorrent = { infoHash: selectedTorrentParam }
   }
+  const sizeMin = intParam(params, 'size_min')
+  const sizeMax = intParam(params, 'size_max')
   return {
     queryString,
     orderBy: orderByParam(params, !!queryString),
@@ -376,6 +368,8 @@ export function paramsToControls(params: URLSearchParams): TorrentSearchControls
     limit: intParam(params, 'limit') ?? defaultLimit,
     page: intParam(params, 'page') ?? 1,
     selectedTorrent,
+    sizeMin,
+    sizeMax,
     facets: facets.reduce<TorrentSearchFacets>((acc, facet) => {
       const active = activeFacets?.includes(facet.key) ?? false
       const filter = stringListParam(params, facet.key)
@@ -411,6 +405,8 @@ export function controlsToParams(ctrl: TorrentSearchControls): URLSearchParams {
   set('page', ctrl.page === 1 ? undefined : String(ctrl.page))
   set('limit', ctrl.limit === defaultLimit ? undefined : String(ctrl.limit))
   set('content_type', ctrl.contentType ?? undefined)
+  set('size_min', ctrl.sizeMin?.toString())
+  set('size_max', ctrl.sizeMax?.toString())
   const orderBy = isDefaultOrdering(ctrl) ? undefined : ctrl.orderBy
   set('order', orderBy?.field)
   set('desc', orderBy ? (orderBy.descending ? '1' : '0') : undefined)

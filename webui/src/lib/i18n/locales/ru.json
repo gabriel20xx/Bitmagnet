@@ -109,6 +109,7 @@
   },
   "general": {
     "all": "Все",
+    "clear": "Clear",
     "dismiss": "Закрыть",
     "error": "Ошибка",
     "none": "Нет",
@@ -286,6 +287,8 @@
     "select_all": "Выбрать все",
     "showing_x_of_y_files": "Показано {{x}} из {{y}} файлов",
     "size": "Размер",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "Источник торрента",
     "summary": "Сводка",
     "title": "Название",

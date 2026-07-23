@@ -109,6 +109,7 @@
   },
   "general": {
     "all": "Tous",
+    "clear": "Clear",
     "dismiss": "Fermer",
     "error": "Erreur",
     "none": "Aucun",
@@ -286,6 +287,8 @@
     "select_all": "Tout sélectionner",
     "showing_x_of_y_files": "Affichage de {{x}} sur {{y}} fichiers",
     "size": "Taille",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "Source du torrent",
     "summary": "Résumé",
     "title": "Titre",

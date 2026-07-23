@@ -93,6 +93,7 @@
   },
   "general": {
     "all": "Tot",
+    "clear": "Clear",
     "dismiss": "Descarta",
     "error": "Error",
     "none": "Cap",
@@ -264,6 +265,8 @@
     "select_all": "Seleccionar-ho tot",
     "showing_x_of_y_files": "Mostrant {{x}} de {{y}} fitxers",
     "size": "Mida",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "Origen del torrent",
     "summary": "Resum",
     "title": "Títol",

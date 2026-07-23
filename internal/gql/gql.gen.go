@@ -2589,7 +2589,7 @@ scalar Duration
 scalar Void
 scalar Year
 `, BuiltIn: false},
-	{Name: "../../graphql/schema/torrent_content.graphqls", Input: `input TorrentContentSearchQueryInput {
+ 	{Name: "../../graphql/schema/torrent_content.graphqls", Input: `input TorrentContentSearchQueryInput {
   queryString: String
   limit: Int
   page: Int
@@ -2604,6 +2604,8 @@ scalar Year
   orderBy: [TorrentContentOrderByInput!]
   cached: Boolean
   aggregationBudget: Float
+  sizeMin: Int
+  sizeMax: Int
 }
 
 input ContentTypeFacetInput {
@@ -11539,7 +11541,7 @@ func (ec *executionContext) unmarshalInputTorrentContentSearchQueryInput(ctx con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"queryString", "limit", "page", "offset", "totalCount", "hasNextPage", "infoHashes", "facets", "orderBy", "cached", "aggregationBudget"}
+	fieldsInOrder := [...]string{"queryString", "limit", "page", "offset", "totalCount", "hasNextPage", "infoHashes", "facets", "orderBy", "cached", "aggregationBudget", "sizeMin", "sizeMax"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11623,6 +11625,24 @@ func (ec *executionContext) unmarshalInputTorrentContentSearchQueryInput(ctx con
 				return it, err
 			}
 			it.AggregationBudget = data
+		case "sizeMin":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sizeMin"))
+			data, err := ec.unmarshalOInt2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullUint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if data.Valid {
+				it.SizeMin = &data.Uint
+			}
+		case "sizeMax":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sizeMax"))
+			data, err := ec.unmarshalOInt2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullUint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if data.Valid {
+				it.SizeMax = &data.Uint
+			}
 		}
 	}
 	return it, nil

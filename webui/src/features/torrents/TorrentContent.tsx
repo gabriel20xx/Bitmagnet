@@ -3,6 +3,7 @@ import { FileText } from 'lucide-react'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { formatFilesize } from '@/lib/utils/filesize'
+import { copyToClipboard } from '@/lib/utils/clipboard'
 import { formatTimeAgo } from '@/lib/dates/format'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { TorrentFilesTree } from './TorrentFilesTree'
@@ -83,7 +84,10 @@ export function TorrentContent({
             <strong>{t('torrents.info_hash')}:</strong>{' '}
             <SimpleTooltip label={t('torrents.copy_to_clipboard')}>
               <button
-                onClick={() => void navigator.clipboard.writeText(torrentContent.infoHash)}
+                type="button"
+                onClick={() => {
+                  copyToClipboard(torrentContent.infoHash).catch(() => {})
+                }}
                 className="font-mono hover:underline"
               >
                 {torrentContent.infoHash}

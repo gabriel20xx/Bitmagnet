@@ -106,6 +106,7 @@
   },
   "general": {
     "all": "All",
+    "clear": "Clear",
     "dismiss": "Dismiss",
     "error": "Error",
     "none": "None",
@@ -283,6 +284,8 @@
     "select_all": "Select All",
     "showing_x_of_y_files": "Showing {{x}} of {{y}} files",
     "size": "Size",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "Torrent Source",
     "summary": "Summary",
     "title": "Title",

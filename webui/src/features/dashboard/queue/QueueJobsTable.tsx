@@ -2,10 +2,9 @@ import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { formatTimeAgo } from '@/lib/dates/format'
+import { copyToClipboard } from '@/lib/utils/clipboard'
 import type { QueueJobFragment } from '@/lib/graphql/generated'
 import type { JobsTableColumn } from './queueConstants'
-
-// Port of webui/src/app/dashboard/queue/queue-jobs-table.component.ts/.html
 
 function beautifyPayload(payload: string): string {
   try {
@@ -30,7 +29,9 @@ export function QueueJobsTable({
 }) {
   const { t, i18n } = useTranslation()
 
-  const copy = (value: string) => void navigator.clipboard.writeText(value)
+  const copy = async (value: string) => {
+    await copyToClipboard(value)
+  }
 
   return (
     <div>
@@ -91,14 +92,17 @@ export function QueueJobsTable({
                       <p className="mb-2 text-sm">
                         <strong>ID:</strong>{' '}
                         <SimpleTooltip label={t('torrents.copy_to_clipboard')}>
-                          <span className="cursor-copy underline decoration-dotted" onClick={() => copy(item.id)}>
+                          <span className="cursor-copy underline decoration-dotted" onClick={() => void copy(item.id)}>
                             {item.id}
                           </span>
                         </SimpleTooltip>
                       </p>
                       <h5 className="mb-1 text-sm font-semibold">
                         <SimpleTooltip label={t('torrents.copy_to_clipboard')}>
-                          <span className="cursor-copy underline decoration-dotted" onClick={() => copy(item.payload)}>
+                          <span
+                            className="cursor-copy underline decoration-dotted"
+                            onClick={() => void copy(item.payload)}
+                          >
                             {t('dashboard.queues.payload')}:
                           </span>
                         </SimpleTooltip>
@@ -112,7 +116,7 @@ export function QueueJobsTable({
                             <SimpleTooltip label={t('torrents.copy_to_clipboard')}>
                               <span
                                 className="cursor-copy underline decoration-dotted"
-                                onClick={() => copy(item.error ?? '')}
+                                onClick={() => void copy(item.error ?? '')}
                               >
                                 {t('general.error')}:
                               </span>

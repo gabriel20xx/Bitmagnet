@@ -239,6 +239,8 @@ export type TorrentContentSearchQueryInput = {
   orderBy?: Array<TorrentContentOrderByInput> | null | undefined;
   page?: number | null | undefined;
   queryString?: string | null | undefined;
+  sizeMax?: number | null | undefined;
+  sizeMin?: number | null | undefined;
   totalCount?: boolean | null | undefined;
 };
 

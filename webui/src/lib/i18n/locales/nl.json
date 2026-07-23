@@ -109,6 +109,7 @@
   },
   "general": {
     "all": "Alle",
+    "clear": "Clear",
     "dismiss": "Sluiten",
     "error": "Fout",
     "none": "Geen",
@@ -286,6 +287,8 @@
     "select_all": "Alles selecteren",
     "showing_x_of_y_files": "{{x}} van {{y}} bestanden weergegeven",
     "size": "Grootte",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "Torrentbron",
     "summary": "Samenvatting",
     "title": "Titel",

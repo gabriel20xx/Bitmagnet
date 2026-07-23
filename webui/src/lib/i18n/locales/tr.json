@@ -109,6 +109,7 @@
   },
   "general": {
     "all": "Tümü",
+    "clear": "Clear",
     "dismiss": "Kapat",
     "error": "Hata",
     "none": "Hiçbiri",
@@ -286,6 +287,8 @@
     "select_all": "Tümünü Seç",
     "showing_x_of_y_files": "{{y}} dosyanın {{x}} tanesi gösteriliyor",
     "size": "Boyut",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "Torrent Kaynağı",
     "summary": "Özet",
     "title": "Başlık",

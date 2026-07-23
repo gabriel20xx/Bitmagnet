@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { formatIntEstimate } from '@/lib/utils/intEstimate'
 import type { TorrentContentSearchResultFragment } from '@/lib/graphql/generated'
 import { contentTypeList } from './contentTypes'
+import { SizeFilter } from './SizeFilter'
 import {
   activateFacet,
   activateFilter,
@@ -132,6 +133,10 @@ export function FacetsSidebar({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      <div className="rounded-lg border border-border bg-bg">
+        <SizeFilter controls={controls} onUpdate={onUpdate} />
+      </div>
 
       <Accordion
         type="multiple"

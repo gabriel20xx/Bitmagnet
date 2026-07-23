@@ -109,6 +109,7 @@
   },
   "general": {
     "all": "الكل",
+    "clear": "Clear",
     "dismiss": "رفض",
     "error": "خطأ",
     "none": "لا شيء",
@@ -286,6 +287,8 @@
     "select_all": "تحديد الكل",
     "showing_x_of_y_files": "عرض {{x}} من {{y}} ملفات",
     "size": "الحجم",
+    "size_max": "Max size",
+    "size_min": "Min size",
     "source": "مصدر التورنت",
     "summary": "الملخص",
     "title": "العنوان",
