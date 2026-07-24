@@ -8,7 +8,8 @@ import (
 )
 
 type client struct {
-	requester Requester
+	requester      Requester
+	keyInvalidator *requesterLazy
 }
 
 func newError(msg string) error {
@@ -23,6 +24,14 @@ var (
 func (c client) ValidateAPIKey(ctx context.Context) error {
 	_, err := c.requester.Request(ctx, "/authentication", nil, nil)
 	return err
+}
+
+// InvalidateAPIKey forces the next request to rebuild the underlying HTTP client, re-resolving
+// the API key so an admin-configured change (internal/settings) is applied immediately.
+func (c client) InvalidateAPIKey() {
+	if c.keyInvalidator != nil {
+		c.keyInvalidator.Invalidate()
+	}
 }
 
 func (c client) SearchMovie(ctx context.Context, request SearchMovieRequest) (SearchMovieResponse, error) {

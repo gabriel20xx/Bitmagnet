@@ -10,6 +10,8 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/processor"
 	"github.com/bitmagnet-io/bitmagnet/internal/queue/manager"
+	"github.com/bitmagnet-io/bitmagnet/internal/settings"
+	"github.com/bitmagnet-io/bitmagnet/internal/tmdb"
 	"github.com/bitmagnet-io/bitmagnet/internal/worker"
 )
 
@@ -28,4 +30,6 @@ type Resolver struct {
 	Processor            processor.Processor
 	BlockingManager      blocking.Manager
 	IntegrationsManager  integrations.Manager
+	SettingsManager      settings.Manager
+	TmdbClient           tmdb.Client
 }

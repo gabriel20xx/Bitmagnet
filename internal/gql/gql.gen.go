@@ -176,6 +176,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		Integrations func(childComplexity int) int
 		Queue        func(childComplexity int) int
+		Tmdb         func(childComplexity int) int
 		Torrent      func(childComplexity int) int
 	}
 
@@ -184,6 +185,7 @@ type ComplexityRoot struct {
 		Health         func(childComplexity int) int
 		Integrations   func(childComplexity int) int
 		Queue          func(childComplexity int) int
+		Tmdb           func(childComplexity int) int
 		Torrent        func(childComplexity int) int
 		TorrentContent func(childComplexity int) int
 		Version        func(childComplexity int) int
@@ -266,6 +268,15 @@ type ComplexityRoot struct {
 	SuggestedTag struct {
 		Count func(childComplexity int) int
 		Name  func(childComplexity int) int
+	}
+
+	TmdbMutation struct {
+		ClearApiKey func(childComplexity int) int
+		SetApiKey   func(childComplexity int, apiKey string) int
+	}
+
+	TmdbQuery struct {
+		HasCustomApiKey func(childComplexity int) int
 	}
 
 	Torrent struct {
@@ -463,6 +474,7 @@ type MutationResolver interface {
 	Torrent(ctx context.Context) (gqlmodel.TorrentMutation, error)
 	Queue(ctx context.Context) (gqlmodel.QueueMutation, error)
 	Integrations(ctx context.Context) (gqlmodel.IntegrationsMutation, error)
+	Tmdb(ctx context.Context) (gqlmodel.TmdbMutation, error)
 }
 type QueryResolver interface {
 	Version(ctx context.Context) (string, error)
@@ -473,6 +485,7 @@ type QueryResolver interface {
 	TorrentContent(ctx context.Context) (gqlmodel.TorrentContentQuery, error)
 	Integrations(ctx context.Context) ([]model.Integration, error)
 	DatabaseStats(ctx context.Context) (gqlmodel.DatabaseStatsQuery, error)
+	Tmdb(ctx context.Context) (gqlmodel.TmdbQuery, error)
 }
 type QueueJobResolver interface {
 	RanAt(ctx context.Context, obj *model.QueueJob) (*time.Time, error)
@@ -1026,6 +1039,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.Queue(childComplexity), true
+	case "Mutation.tmdb":
+		if e.ComplexityRoot.Mutation.Tmdb == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Mutation.Tmdb(childComplexity), true
 	case "Mutation.torrent":
 		if e.ComplexityRoot.Mutation.Torrent == nil {
 			break
@@ -1058,6 +1077,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.Queue(childComplexity), true
+	case "Query.tmdb":
+		if e.ComplexityRoot.Query.Tmdb == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.Tmdb(childComplexity), true
 	case "Query.torrent":
 		if e.ComplexityRoot.Query.Torrent == nil {
 			break
@@ -1366,6 +1391,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SuggestedTag.Name(childComplexity), true
+
+	case "TmdbMutation.clearApiKey":
+		if e.ComplexityRoot.TmdbMutation.ClearApiKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TmdbMutation.ClearApiKey(childComplexity), true
+	case "TmdbMutation.setApiKey":
+		if e.ComplexityRoot.TmdbMutation.SetApiKey == nil {
+			break
+		}
+
+		args, err := ec.field_TmdbMutation_setApiKey_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TmdbMutation.SetApiKey(childComplexity, args["apiKey"].(string)), true
+
+	case "TmdbQuery.hasCustomApiKey":
+		if e.ComplexityRoot.TmdbQuery.HasCustomApiKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TmdbQuery.HasCustomApiKey(childComplexity), true
 
 	case "Torrent.createdAt":
 		if e.ComplexityRoot.Torrent.CreatedAt == nil {
@@ -2649,6 +2699,7 @@ type ContentCollection {
   torrent: TorrentMutation!
   queue: QueueMutation!
   integrations: IntegrationsMutation!
+  tmdb: TmdbMutation!
 }
 
 type TorrentMutation {
@@ -2676,6 +2727,7 @@ input TorrentReprocessInput {
   torrentContent: TorrentContentQuery!
   integrations: [Integration!]!
   databaseStats: DatabaseStatsQuery!
+  tmdb: TmdbQuery!
 }
 
 type DatabaseStatsQuery {
@@ -2856,6 +2908,17 @@ scalar DateTime
 scalar Duration
 scalar Void
 scalar Year
+`, BuiltIn: false},
+	{Name: "../../graphql/schema/tmdb.graphqls", Input: `type TmdbQuery {
+  # Whether an admin-configured API key overrides the env/file-configured one. The key itself is
+  # never exposed back to clients once set.
+  hasCustomApiKey: Boolean!
+}
+
+type TmdbMutation {
+  setApiKey(apiKey: String!): Void
+  clearApiKey: Void
+}
 `, BuiltIn: false},
 	{Name: "../../graphql/schema/torrent_content.graphqls", Input: `input TorrentContentSearchQueryInput {
   queryString: String
@@ -3456,6 +3519,24 @@ func (ec *executionContext) childFields_SuggestedTag(ctx context.Context, field 
 		return ec.fieldContext_SuggestedTag_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SuggestedTag", field.Name)
+}
+
+func (ec *executionContext) childFields_TmdbMutation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "setApiKey":
+		return ec.fieldContext_TmdbMutation_setApiKey(ctx, field)
+	case "clearApiKey":
+		return ec.fieldContext_TmdbMutation_clearApiKey(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TmdbMutation", field.Name)
+}
+
+func (ec *executionContext) childFields_TmdbQuery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "hasCustomApiKey":
+		return ec.fieldContext_TmdbQuery_hasCustomApiKey(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TmdbQuery", field.Name)
 }
 
 func (ec *executionContext) childFields_Torrent(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -4107,6 +4188,20 @@ func (ec *executionContext) field_QueueQuery_metrics_args(ctx context.Context, r
 		return nil, err
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_TmdbMutation_setApiKey_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "apiKey",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["apiKey"] = arg0
 	return args, nil
 }
 
@@ -6357,6 +6452,38 @@ func (ec *executionContext) fieldContext_Mutation_integrations(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_tmdb(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_tmdb(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Mutation().Tmdb(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.TmdbMutation) graphql.Marshaler {
+			return ec.marshalNTmdbMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTmdbMutation(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_tmdb(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TmdbMutation(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_version(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6599,6 +6726,38 @@ func (ec *executionContext) fieldContext_Query_databaseStats(_ context.Context, 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_DatabaseStatsQuery(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_tmdb(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_tmdb(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().Tmdb(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.TmdbQuery) graphql.Marshaler {
+			return ec.marshalNTmdbQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTmdbQuery(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_tmdb(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TmdbQuery(ctx, field)
 		},
 	}
 	return fc, nil
@@ -7773,6 +7932,96 @@ func (ec *executionContext) _SuggestedTag_count(ctx context.Context, field graph
 }
 func (ec *executionContext) fieldContext_SuggestedTag_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SuggestedTag", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TmdbMutation_setApiKey(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TmdbMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TmdbMutation_setApiKey(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.SetApiKey(ctx, fc.Args["apiKey"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_TmdbMutation_setApiKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TmdbMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Void does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TmdbMutation_setApiKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TmdbMutation_clearApiKey(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TmdbMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TmdbMutation_clearApiKey(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ClearApiKey(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_TmdbMutation_clearApiKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TmdbMutation", field, true, false, errors.New("field of type Void does not have child fields"))
+}
+
+func (ec *executionContext) _TmdbQuery_hasCustomApiKey(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TmdbQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TmdbQuery_hasCustomApiKey(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.HasCustomApiKey(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TmdbQuery_hasCustomApiKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TmdbQuery", field, true, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _Torrent_infoHash(ctx context.Context, field graphql.CollectedField, obj *model.Torrent) (ret graphql.Marshaler) {
@@ -14565,6 +14814,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "tmdb":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_tmdb(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14770,6 +15026,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_databaseStats(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "tmdb":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_tmdb(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -15567,6 +15845,186 @@ func (ec *executionContext) _SuggestedTag(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var tmdbMutationImplementors = []string{"TmdbMutation"}
+
+func (ec *executionContext) _TmdbMutation(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.TmdbMutation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tmdbMutationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TmdbMutation")
+		case "setApiKey":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TmdbMutation_setApiKey(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "clearApiKey":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TmdbMutation_clearApiKey(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var tmdbQueryImplementors = []string{"TmdbQuery"}
+
+func (ec *executionContext) _TmdbQuery(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.TmdbQuery) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tmdbQueryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TmdbQuery")
+		case "hasCustomApiKey":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TmdbQuery_hasCustomApiKey(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18279,6 +18737,14 @@ func (ec *executionContext) marshalNSuggestedTag2ᚕgithubᚗcomᚋbitmagnetᚑi
 func (ec *executionContext) unmarshalNTestIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTestIntegrationInput(ctx context.Context, v any) (gen.TestIntegrationInput, error) {
 	res, err := ec.unmarshalInputTestIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTmdbMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTmdbMutation(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TmdbMutation) graphql.Marshaler {
+	return ec._TmdbMutation(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTmdbQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTmdbQuery(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TmdbQuery) graphql.Marshaler {
+	return ec._TmdbQuery(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNTorrent2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐTorrent(ctx context.Context, sel ast.SelectionSet, v model.Torrent) graphql.Marshaler {

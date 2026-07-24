@@ -16,6 +16,8 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/processor"
 	"github.com/bitmagnet-io/bitmagnet/internal/queue/manager"
+	"github.com/bitmagnet-io/bitmagnet/internal/settings"
+	"github.com/bitmagnet-io/bitmagnet/internal/tmdb"
 	"github.com/bitmagnet-io/bitmagnet/internal/worker"
 	"go.uber.org/fx"
 )
@@ -79,6 +81,14 @@ func New() fx.Option {
 						if err != nil {
 							return nil, err
 						}
+						sm, err := p.SettingsManager.Get()
+						if err != nil {
+							return nil, err
+						}
+						tc, err := p.TmdbClient.Get()
+						if err != nil {
+							return nil, err
+						}
 						return &resolvers.Resolver{
 							Dao:                  d,
 							Search:               s,
@@ -89,6 +99,8 @@ func New() fx.Option {
 							Processor:            pr,
 							BlockingManager:      bm,
 							IntegrationsManager:  im,
+							SettingsManager:      sm,
+							TmdbClient:           tc,
 						}, nil
 					}),
 				}
@@ -118,6 +130,8 @@ type Params struct {
 	Processor            lazy.Lazy[processor.Processor]
 	BlockingManager      lazy.Lazy[blocking.Manager]
 	IntegrationsManager  lazy.Lazy[integrations.Manager]
+	SettingsManager      lazy.Lazy[settings.Manager]
+	TmdbClient           lazy.Lazy[tmdb.Client]
 }
 
 type Result struct {

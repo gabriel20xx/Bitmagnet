@@ -1,0 +1,10 @@
+type TmdbQuery {
+  # Whether an admin-configured API key overrides the env/file-configured one. The key itself is
+  # never exposed back to clients once set.
+  hasCustomApiKey: Boolean!
+}
+
+type TmdbMutation {
+  setApiKey(apiKey: String!): Void
+  clearApiKey: Void
+}

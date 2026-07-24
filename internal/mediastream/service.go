@@ -73,6 +73,7 @@ func New(config Config, logger *zap.SugaredLogger) (*Service, error) {
 	clientConfig.DataDir = config.DataDir
 	clientConfig.NoUpload = true
 	clientConfig.Seed = false
+	clientConfig.Logger = newClientLogger()
 
 	client, clientErr := at.NewClient(clientConfig)
 	if clientErr != nil {

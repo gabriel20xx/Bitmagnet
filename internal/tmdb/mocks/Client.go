@@ -79,6 +79,38 @@ func (_c *Client_FindByID_Call) RunAndReturn(run func(context.Context, tmdb.Find
 	return _c
 }
 
+// InvalidateAPIKey provides a mock function with no fields
+func (_m *Client) InvalidateAPIKey() {
+	_m.Called()
+}
+
+// Client_InvalidateAPIKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InvalidateAPIKey'
+type Client_InvalidateAPIKey_Call struct {
+	*mock.Call
+}
+
+// InvalidateAPIKey is a helper method to define mock.On call
+func (_e *Client_Expecter) InvalidateAPIKey() *Client_InvalidateAPIKey_Call {
+	return &Client_InvalidateAPIKey_Call{Call: _e.mock.On("InvalidateAPIKey")}
+}
+
+func (_c *Client_InvalidateAPIKey_Call) Run(run func()) *Client_InvalidateAPIKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Client_InvalidateAPIKey_Call) Return() *Client_InvalidateAPIKey_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *Client_InvalidateAPIKey_Call) RunAndReturn(run func()) *Client_InvalidateAPIKey_Call {
+	_c.Run(run)
+	return _c
+}
+
 // MovieDetails provides a mock function with given fields: _a0, _a1
 func (_m *Client) MovieDetails(_a0 context.Context, _a1 tmdb.MovieDetailsRequest) (tmdb.MovieDetailsResponse, error) {
 	ret := _m.Called(_a0, _a1)

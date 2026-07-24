@@ -1,0 +1,5 @@
+mutation SetTmdbApiKey($apiKey: String!) {
+  tmdb {
+    setApiKey(apiKey: $apiKey)
+  }
+}

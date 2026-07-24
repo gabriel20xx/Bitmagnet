@@ -25,3 +25,7 @@ const (
 	defaultRateLimit      = time.Second / 20
 	defaultRateLimitBurst = 5
 )
+
+// APIKeySettingsKey is the settings.Manager key an admin-configured API key is stored under,
+// taking precedence over the env/file-configured one.
+const APIKeySettingsKey = "tmdb_api_key"

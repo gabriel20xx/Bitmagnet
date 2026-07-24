@@ -57,11 +57,13 @@
       "weeks_1": "1 week"
     },
     "metrics": {
-      "event": "Event",
+      "queue_event": "Queue Event",
+      "queue_throughput": "Queue Throughput",
       "resolution": "Resolution",
-      "throughput": "Throughput",
       "timeframe": "Timeframe",
-      "toggle_legend": "Toggle legend"
+      "toggle_legend": "Toggle legend",
+      "torrent_event": "Torrent Event",
+      "torrent_throughput": "Torrent Throughput"
     },
     "queues": {
       "created": "Created",
@@ -85,6 +87,12 @@
       "queues": "Queues",
       "ran_at": "Ran at",
       "retry": "Retry",
+      "set_tmdb_api_key": "Set TMDB API key",
+      "set_tmdb_api_key_description": "Configure a custom TMDB API key for matching movie, TV and other content metadata, overriding the default bundled key. Applied immediately, no restart needed.",
+      "tmdb_api_key_custom": "A custom API key is currently configured.",
+      "tmdb_api_key_default": "Using the default bundled API key.",
+      "tmdb_api_key_placeholder": "TMDB API key",
+      "tmdb_api_key_reset": "Reset to default",
       "total_counts_by_status": "Total counts by status"
     }
   },

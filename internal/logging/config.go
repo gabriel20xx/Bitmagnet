@@ -77,7 +77,7 @@ var jsonEncoderConfig = zapcore.EncoderConfig{
 }
 
 var consoleEncoderConfig = zapcore.EncoderConfig{
-	TimeKey:        "",
+	TimeKey:        "T",
 	LevelKey:       "L",
 	NameKey:        "N",
 	CallerKey:      "C",

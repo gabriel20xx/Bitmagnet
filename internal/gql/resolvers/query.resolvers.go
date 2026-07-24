@@ -116,6 +116,11 @@ func (r *queryResolver) DatabaseStats(ctx context.Context) (gqlmodel.DatabaseSta
 	return gqlmodel.DatabaseStatsQuery{Dao: r.Dao}, nil
 }
 
+// Tmdb is the resolver for the tmdb field.
+func (r *queryResolver) Tmdb(ctx context.Context) (gqlmodel.TmdbQuery, error) {
+	return gqlmodel.TmdbQuery{SettingsManager: r.SettingsManager}, nil
+}
+
 // Files is the resolver for the files field.
 func (r *torrentQueryResolver) Files(ctx context.Context, obj *gqlmodel.TorrentQuery, input gqlmodel.TorrentFilesQueryInput) (query.GenericResult[model.TorrentFile], error) {
 	return gqlmodel.TorrentQuery{

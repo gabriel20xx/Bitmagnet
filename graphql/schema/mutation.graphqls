@@ -2,6 +2,7 @@ type Mutation {
   torrent: TorrentMutation!
   queue: QueueMutation!
   integrations: IntegrationsMutation!
+  tmdb: TmdbMutation!
 }
 
 type TorrentMutation {

@@ -31,6 +31,11 @@ func (r *mutationResolver) Integrations(ctx context.Context) (gqlmodel.Integrati
 	return gqlmodel.IntegrationsMutation{Manager: r.IntegrationsManager, Dao: r.Dao}, nil
 }
 
+// Tmdb is the resolver for the tmdb field.
+func (r *mutationResolver) Tmdb(ctx context.Context) (gqlmodel.TmdbMutation, error) {
+	return gqlmodel.TmdbMutation{SettingsManager: r.SettingsManager, Client: r.TmdbClient}, nil
+}
+
 // Delete is the resolver for the delete field.
 func (r *torrentMutationResolver) Delete(ctx context.Context, obj *gqlmodel.TorrentMutation, infoHashes []protocol.ID) (*string, error) {
 	err := r.BlockingManager.Block(ctx, infoHashes, true)
