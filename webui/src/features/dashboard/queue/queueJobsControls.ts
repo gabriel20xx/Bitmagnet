@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next'
+import { Boxes, ListChecks, type LucideIcon } from 'lucide-react'
 import type {
   QueueJobsQueryResultFragment,
   QueueJobsOrderByField,
@@ -58,6 +59,7 @@ export type Agg<T> = {
 
 export interface FacetDefinition<T> {
   key: string
+  icon: LucideIcon
   extractInput: (facets: QueueJobsControls['facets']) => FacetInput<T>
   patchInput: (facets: QueueJobsControls['facets'], input: FacetInput<T>) => QueueJobsControls['facets']
   extractAggregations: (aggs: QueueJobsQueryResultFragment['aggregations']) => Array<Agg<T>>
@@ -66,6 +68,7 @@ export interface FacetDefinition<T> {
 
 export const queueFacet: FacetDefinition<string> = {
   key: 'queue',
+  icon: Boxes,
   extractInput: (f) => f.queue,
   patchInput: (f, i) => ({ ...f, queue: i }),
   extractAggregations: (aggs) => aggs.queue ?? [],
@@ -74,6 +77,7 @@ export const queueFacet: FacetDefinition<string> = {
 
 export const statusFacet: FacetDefinition<QueueJobStatus> = {
   key: 'status',
+  icon: ListChecks,
   extractInput: (f) => f.status,
   patchInput: (f, i) => ({ ...f, status: i }),
   extractAggregations: (aggs) => aggs.status ?? [],

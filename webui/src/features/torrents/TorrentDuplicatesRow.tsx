@@ -9,6 +9,7 @@ import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import { addError } from '@/lib/toast/store'
 import { TorrentSendIcon } from '@/features/integrations/TorrentSendIcon'
 import { TorrentContentSearchDocument } from '@/lib/graphql/generated'
+import { SeedersLeechers } from './SeedersLeechers'
 
 export function TorrentDuplicatesRow({ infoHash, colSpan }: { infoHash: string; colSpan: number }) {
   const { t, i18n } = useTranslation()
@@ -34,7 +35,8 @@ export function TorrentDuplicatesRow({ infoHash, colSpan }: { infoHash: string; 
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{dup.torrent.name}</div>
                 <p className="text-xs text-muted-fg">
-                  {formatFilesize(dup.torrent.size, i18n.language)} · {dup.seeders ?? '?'} / {dup.leechers ?? '?'} ·{' '}
+                  {formatFilesize(dup.torrent.size, i18n.language)} ·{' '}
+                  <SeedersLeechers seeders={dup.seeders} leechers={dup.leechers} /> ·{' '}
                   {formatTimeAgo(dup.publishedAt, i18n.language)}
                 </p>
               </div>

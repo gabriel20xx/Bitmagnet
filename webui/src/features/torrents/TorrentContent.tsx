@@ -6,6 +6,7 @@ import { useCopyFeedback } from '@/lib/hooks/useCopyFeedback'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { formatTimeAgo } from '@/lib/dates/format'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
+import { SeedersLeechers } from './SeedersLeechers'
 import { TorrentFilesTree } from './TorrentFilesTree'
 
 function getAttribute(tc: TorrentContentFragment, key: string, source?: string): string | undefined {
@@ -78,7 +79,8 @@ export function TorrentContent({
           )}
           {peers && (
             <p>
-              <strong>{t('torrents.s_l')}:</strong> {torrentContent.seeders ?? '?'} / {torrentContent.leechers ?? '?'}
+              <strong>{t('torrents.s_l')}:</strong>{' '}
+              <SeedersLeechers seeders={torrentContent.seeders} leechers={torrentContent.leechers} />
             </p>
           )}
           <p className="flex items-center gap-1.5">

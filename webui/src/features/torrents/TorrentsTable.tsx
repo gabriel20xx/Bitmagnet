@@ -9,6 +9,7 @@ import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import { TorrentSendIcon } from '@/features/integrations/TorrentSendIcon'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { contentTypeInfo } from './contentTypes'
+import { SeedersLeechers } from './SeedersLeechers'
 import { TorrentChips } from './TorrentChips'
 import { TorrentDuplicatesRow } from './TorrentDuplicatesRow'
 import { TorrentFilesTree } from './TorrentFilesTree'
@@ -146,7 +147,7 @@ export function TorrentsTable({
                   )}
                   {displayedColumns.includes('peers') && (
                     <td className="py-2">
-                      {item.seeders ?? '?'} / {item.leechers ?? '?'}
+                      <SeedersLeechers seeders={item.seeders} leechers={item.leechers} />
                     </td>
                   )}
                   {displayedColumns.includes('magnet') && (

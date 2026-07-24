@@ -23,12 +23,12 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { to: '/torrents', icon: Magnet, labelKey: 'routes.torrents' },
-  { to: '/dashboard', end: true, icon: LayoutDashboard, labelKey: 'routes.home' },
   { to: '/dashboard/torrents', icon: Activity, labelKey: 'routes.torrent_metrics' },
   { to: '/dashboard/visualize', icon: LineChart, labelKey: 'routes.visualize' },
   { to: '/dashboard/jobs', icon: ListChecks, labelKey: 'routes.jobs' },
   { to: '/dashboard/integrations', icon: Plug, labelKey: 'routes.integrations' },
   { to: '/dashboard/admin', icon: Wrench, labelKey: 'routes.admin' },
+  { to: '/dashboard', end: true, icon: LayoutDashboard, labelKey: 'routes.home' },
 ]
 
 export function Header() {

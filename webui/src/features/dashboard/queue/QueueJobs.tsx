@@ -6,7 +6,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { Paginator } from '@/components/ui/paginator'
-import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { activateFilter, deactivateFilter, facets, orderByOptions } from './queueJobsControls'
 import { useQueueJobs, useQueueJobsControls } from './useQueueJobs'
@@ -17,7 +16,6 @@ import { jobsTableColumns } from './queueConstants'
 
 export function QueueJobs() {
   const { t, i18n } = useTranslation()
-  const isDesktop = useIsDesktop()
   useDocumentTitle(t('routes.jobs'), t('routes.dashboard'))
 
   const [controls, updateControls] = useQueueJobsControls()
@@ -41,32 +39,41 @@ export function QueueJobs() {
 
   return (
     <div className="flex">
-      {(isDesktop || drawerOpen) && (
-        <div className="w-56 shrink-0 space-y-3 border-r border-border p-3">
+      {drawerOpen && (
+        <div className="w-64 shrink-0 space-y-1 border-r border-border p-3">
           {facetInfos.map((facet) => (
-            <div key={facet.def.key} className="rounded-lg border border-border bg-surface p-3">
-              <h4 className="mb-2 text-sm font-semibold">{t(`facets.${facet.def.key}`)}</h4>
-              <ul className="space-y-1.5">
-                {facet.aggregations.map((agg) => {
-                  const checked = facet.filter?.length ? (facet.filter as unknown[]).includes(agg.value) : true
-                  return (
-                    <li key={String(agg.value)} className="flex items-center gap-2 text-sm">
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(isChecked) =>
-                          updateControls((c) =>
-                            isChecked
-                              ? activateFilter(c, facet.def, agg.value)
-                              : deactivateFilter(c, facet.def, agg.value),
-                          )
-                        }
-                      />
-                      <span className="flex-1 truncate">{agg.label}</span>
-                      <small className="text-muted-fg">{agg.count.toLocaleString(i18n.language)}</small>
-                    </li>
-                  )
-                })}
-              </ul>
+            <div key={facet.def.key} className="border-b border-border">
+              <div className="flex items-center gap-2 py-3 text-sm font-medium">
+                <facet.def.icon className="size-4" />
+                {t(`facets.${facet.def.key}`)}
+              </div>
+              <div className="pb-3">
+                {facet.aggregations.length === 0 ? (
+                  <p className="px-2 text-sm text-muted-fg">{t('general.none')}</p>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {facet.aggregations.map((agg) => {
+                      const checked = facet.filter?.length ? (facet.filter as unknown[]).includes(agg.value) : true
+                      return (
+                        <li key={String(agg.value)} className="flex items-center gap-2 px-2 text-sm">
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(isChecked) =>
+                              updateControls((c) =>
+                                isChecked
+                                  ? activateFilter(c, facet.def, agg.value)
+                                  : deactivateFilter(c, facet.def, agg.value),
+                              )
+                            }
+                          />
+                          <span className="flex-1 truncate">{agg.label}</span>
+                          <small className="text-muted-fg">{agg.count.toLocaleString(i18n.language)}</small>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
             </div>
           ))}
         </div>
