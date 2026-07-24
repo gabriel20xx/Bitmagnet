@@ -17,7 +17,7 @@ WORKDIR /src
 
 # Cache Go modules
 COPY go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod go mod download
+RUN go mod download
 
 COPY . ./
 
@@ -29,7 +29,6 @@ COPY --from=webui-builder /src/webui/dist ./webui/dist
 ARG TARGETOS TARGETARCH TARGETVARIANT
 
 RUN --network=none \
-    --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
 export GOOS=$TARGETOS; \
 export GOARCH=$TARGETARCH; \
