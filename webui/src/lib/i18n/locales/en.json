@@ -281,6 +281,7 @@
     "preview_failed": "This file couldn't be played",
     "preview_file": "Preview file",
     "preview_loading": "Loading preview…",
+    "preview_no_peers": "No peers found for this file yet — try again shortly",
     "preview_too_many_streams": "Too many previews running right now — try again shortly",
     "preview_truncated": "Showing only the beginning of this file",
     "published": "Published",

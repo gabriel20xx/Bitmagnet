@@ -104,6 +104,10 @@ func (b *builder) handleStream(ctx *gin.Context) {
 			ctx.Status(http.StatusUnsupportedMediaType)
 		case errors.Is(openErr, mediastream.ErrTooManyStreams):
 			ctx.Status(http.StatusServiceUnavailable)
+		case errors.Is(openErr, mediastream.ErrMetadataTimeout):
+			// Expected when the swarm has no responsive peers within the timeout - not a
+			// server malfunction, so this doesn't warrant an error-level log entry.
+			ctx.Status(http.StatusGatewayTimeout)
 		default:
 			b.logger.Errorw("error opening media stream", "error", openErr)
 			ctx.Status(http.StatusInternalServerError)

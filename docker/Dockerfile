@@ -4,7 +4,7 @@ WORKDIR /src/webui
 
 # Cache npm dependencies
 COPY webui/package.json webui/package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY webui/ ./
 RUN npm run build
@@ -17,7 +17,7 @@ WORKDIR /src
 
 # Cache Go modules
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
 COPY . ./
 
@@ -29,6 +29,8 @@ COPY --from=webui-builder /src/webui/dist ./webui/dist
 ARG TARGETOS TARGETARCH TARGETVARIANT
 
 RUN --network=none \
+    --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
 export GOOS=$TARGETOS; \
 export GOARCH=$TARGETARCH; \
 [[ "$GOARCH" == "amd64" ]] && export GOAMD64=$TARGETVARIANT; \

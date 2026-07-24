@@ -21,6 +21,10 @@ type Config struct {
 	// ReadaheadBytes is how far ahead of the current read position pieces are
 	// proactively downloaded, to keep playback smooth.
 	ReadaheadBytes int64
+	// MetadataTimeout is how long to wait for peers to hand over the torrent's info dict
+	// (piece hashes/file list) before giving up. Only relevant when we don't already have
+	// piece data saved locally, since that's otherwise fetched live over BEP-9.
+	MetadataTimeout time.Duration
 }
 
 func NewDefaultConfig() Config {
@@ -29,5 +33,6 @@ func NewDefaultConfig() Config {
 		MaxConcurrentStreams: 4,
 		IdleTimeout:          5 * time.Minute,
 		ReadaheadBytes:       8 * 1024 * 1024,
+		MetadataTimeout:      30 * time.Second,
 	}
 }

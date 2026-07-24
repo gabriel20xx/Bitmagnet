@@ -27,6 +27,9 @@ var (
 	ErrTooManyStreams     = errors.New("too many concurrent media streams")
 	ErrFileNotFound       = errors.New("file not found in torrent")
 	ErrFileNotPreviewable = errors.New("file type is not previewable")
+	// ErrMetadataTimeout means no peer handed over the torrent's info dict in time. This is a
+	// routine consequence of a cold or dead swarm rather than a server malfunction.
+	ErrMetadataTimeout = errors.New("timed out waiting for torrent info")
 )
 
 // Stream is a previewable file's content, ready to be served over HTTP with range support.
@@ -128,10 +131,10 @@ func (s *Service) OpenStream(ctx context.Context, t *model.Torrent, index uint) 
 		s.releaseSlot(key)
 
 		return nil, ctx.Err()
-	case <-time.After(30 * time.Second):
+	case <-time.After(s.config.MetadataTimeout):
 		s.releaseSlot(key)
 
-		return nil, errors.New("timed out waiting for torrent info")
+		return nil, ErrMetadataTimeout
 	}
 
 	files := tt.Files()

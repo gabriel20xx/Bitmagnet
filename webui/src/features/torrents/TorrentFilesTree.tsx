@@ -20,10 +20,13 @@ import {
 import { formatFilesize } from '@/lib/utils/filesize'
 import { addError } from '@/lib/toast/store'
 import { isTextPreviewable } from '@/lib/utils/textPreview'
+import { Paginator, type PageEvent } from '@/components/ui/paginator'
 import { TorrentFilesDocument, type FileType, type TorrentFragment } from '@/lib/graphql/generated'
 import { MediaPreviewModal } from './MediaPreviewModal'
 
 const PREVIEWABLE_FILE_TYPES: readonly FileType[] = ['image', 'audio', 'video']
+
+const DEFAULT_ROWS_PAGING: PageEvent = { page: 1, pageSize: 50 }
 
 function isPreviewable(fileType: FileType | null, name: string): boolean {
   return (fileType != null && PREVIEWABLE_FILE_TYPES.includes(fileType)) || isTextPreviewable(name)
@@ -121,6 +124,24 @@ function isNodeExpanded(path: string, depth: number, toggled: Set<string>): bool
   return toggled.has(path) ? !defaultExpanded : defaultExpanded
 }
 
+interface VisibleRow {
+  node: TreeNode
+  depth: number
+}
+
+// Flattens the currently-expanded tree into the ordered row list the UI actually renders, so
+// pagination can apply once per torrent instead of separately within every expanded folder.
+function flattenVisibleRows(children: TreeNode[], depth: number, toggled: Set<string>): VisibleRow[] {
+  const rows: VisibleRow[] = []
+  for (const child of children) {
+    rows.push({ node: child, depth })
+    if (child.kind === 'folder' && isNodeExpanded(child.path, depth, toggled)) {
+      rows.push(...flattenVisibleRows(child.children, depth + 1, toggled))
+    }
+  }
+  return rows
+}
+
 function FileRow({ node, depth, onPreview }: { node: FileNode; depth: number; onPreview: (node: FileNode) => void }) {
   const { t, i18n } = useTranslation()
   const previewable = isPreviewable(node.fileType, node.name)
@@ -165,62 +186,43 @@ function FolderRow({
   depth,
   toggled,
   onToggle,
-  onPreview,
 }: {
   node: FolderNode
   depth: number
   toggled: Set<string>
   onToggle: (path: string) => void
-  onPreview: (node: FileNode) => void
 }) {
   const { t, i18n } = useTranslation()
   const isExpanded = isNodeExpanded(node.path, depth, toggled)
 
   return (
-    <div>
-      <button
-        type="button"
-        className="flex w-full items-center gap-2 rounded py-1 text-left text-sm hover:bg-surface-hover"
-        style={{ paddingLeft: depth * 20 }}
-        onClick={() => onToggle(node.path)}
+    <button
+      type="button"
+      className="flex w-full items-center gap-2 rounded py-1 text-left text-sm hover:bg-surface-hover"
+      style={{ paddingLeft: depth * 20 }}
+      onClick={() => onToggle(node.path)}
+    >
+      {isExpanded ? (
+        <ChevronDown className="size-4 shrink-0 text-muted-fg" />
+      ) : (
+        <ChevronRight className="size-4 shrink-0 text-muted-fg" />
+      )}
+      {isExpanded ? (
+        <FolderOpen className="size-4 shrink-0 text-muted-fg" />
+      ) : (
+        <Folder className="size-4 shrink-0 text-muted-fg" />
+      )}
+      <span className="flex-1 truncate font-medium">{node.name}</span>
+      <span className="w-20 shrink-0 text-right text-xs text-muted-fg">
+        {t('torrents.files_count_n', { count: node.fileCount })}
+      </span>
+      <span
+        className="w-20 shrink-0 text-right text-xs text-muted-fg"
+        title={formatFilesize(node.size, i18n.language, 10)}
       >
-        {isExpanded ? (
-          <ChevronDown className="size-4 shrink-0 text-muted-fg" />
-        ) : (
-          <ChevronRight className="size-4 shrink-0 text-muted-fg" />
-        )}
-        {isExpanded ? (
-          <FolderOpen className="size-4 shrink-0 text-muted-fg" />
-        ) : (
-          <Folder className="size-4 shrink-0 text-muted-fg" />
-        )}
-        <span className="flex-1 truncate font-medium">{node.name}</span>
-        <span className="w-20 shrink-0 text-right text-xs text-muted-fg">
-          {t('torrents.files_count_n', { count: node.fileCount })}
-        </span>
-        <span
-          className="w-20 shrink-0 text-right text-xs text-muted-fg"
-          title={formatFilesize(node.size, i18n.language, 10)}
-        >
-          {formatFilesize(node.size, i18n.language)}
-        </span>
-      </button>
-      {isExpanded &&
-        node.children.map((child) =>
-          child.kind === 'folder' ? (
-            <FolderRow
-              key={child.path}
-              node={child}
-              depth={depth + 1}
-              toggled={toggled}
-              onToggle={onToggle}
-              onPreview={onPreview}
-            />
-          ) : (
-            <FileRow key={child.path} node={child} depth={depth + 1} onPreview={onPreview} />
-          ),
-        )}
-    </div>
+        {formatFilesize(node.size, i18n.language)}
+      </span>
+    </button>
   )
 }
 
@@ -258,6 +260,7 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
 
   const [toggled, setToggled] = useState<Set<string>>(new Set())
   const [previewNode, setPreviewNode] = useState<FileNode | null>(null)
+  const [rowsPaging, setRowsPaging] = useState<PageEvent>(DEFAULT_ROWS_PAGING)
 
   const toggle = (path: string) => {
     setToggled((prev) => {
@@ -267,6 +270,17 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
       return next
     })
   }
+
+  const visibleRows = useMemo(() => flattenVisibleRows(tree.children, 0, toggled), [tree, toggled])
+
+  // Expanding/collapsing a folder changes how many rows there are to page through, so the
+  // previous page position is no longer meaningful once that happens.
+  useEffect(() => {
+    setRowsPaging((p) => ({ ...p, page: 1 }))
+  }, [tree, toggled])
+
+  const rowsStart = (rowsPaging.page - 1) * rowsPaging.pageSize
+  const pageRows = visibleRows.slice(rowsStart, rowsStart + rowsPaging.pageSize)
 
   return (
     <div>
@@ -280,21 +294,23 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
         </p>
       )}
       <div>
-        {tree.children.map((child) =>
-          child.kind === 'folder' ? (
-            <FolderRow
-              key={child.path}
-              node={child}
-              depth={0}
-              toggled={toggled}
-              onToggle={toggle}
-              onPreview={setPreviewNode}
-            />
+        {pageRows.map(({ node, depth }) =>
+          node.kind === 'folder' ? (
+            <FolderRow key={node.path} node={node} depth={depth} toggled={toggled} onToggle={toggle} />
           ) : (
-            <FileRow key={child.path} node={child} depth={0} onPreview={setPreviewNode} />
+            <FileRow key={node.path} node={node} depth={depth} onPreview={setPreviewNode} />
           ),
         )}
       </div>
+      {visibleRows.length > rowsPaging.pageSize && (
+        <Paginator
+          page={rowsPaging.page}
+          pageSize={rowsPaging.pageSize}
+          pageLength={pageRows.length}
+          totalLength={visibleRows.length}
+          onPaging={setRowsPaging}
+        />
+      )}
       <MediaPreviewModal
         infoHash={torrent.infoHash}
         node={previewNode}

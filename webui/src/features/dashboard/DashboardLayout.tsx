@@ -45,6 +45,12 @@ export function DashboardLayout() {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/dashboard/torrents" className={navItemClass}>
+                <Magnet className="size-4" />
+                {t('routes.torrents')}
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/dashboard/visualize" className={navItemClass}>
                 <LineChart className="size-4" />
                 {t('routes.visualize')}
@@ -60,12 +66,6 @@ export function DashboardLayout() {
               <NavLink to="/dashboard/admin" className={navItemClass}>
                 <Wrench className="size-4" />
                 {t('routes.admin')}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/dashboard/torrents" className={navItemClass}>
-                <Magnet className="size-4" />
-                {t('routes.torrents')}
               </NavLink>
             </li>
           </ul>

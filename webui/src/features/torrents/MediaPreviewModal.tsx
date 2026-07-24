@@ -43,8 +43,8 @@ function TextPreview({ url, onError }: { url: string; onError: () => void }) {
   if (!state) return null
 
   return (
-    <div className="w-full text-left">
-      <pre className="max-h-[85vh] overflow-auto whitespace-pre-wrap break-words rounded bg-surface p-4 text-sm">
+    <div className="flex h-full w-full flex-col text-left">
+      <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words rounded bg-surface p-4 text-sm">
         {state.text}
       </pre>
       {state.truncated && <p className="mt-2 text-xs text-muted-fg">{t('torrents.preview_truncated')}</p>}
@@ -64,6 +64,8 @@ function messageKeyForStatus(status: number): string {
   switch (status) {
     case 503:
       return 'torrents.preview_too_many_streams'
+    case 504:
+      return 'torrents.preview_no_peers'
     default:
       return 'torrents.preview_failed'
   }
@@ -104,7 +106,7 @@ function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string })
 
   if (availability.status === 'checking') {
     return (
-      <div className="w-full py-8 text-center text-sm text-muted-fg">
+      <div className="w-full max-w-sm text-center text-sm text-muted-fg">
         <div className="mb-3 h-0.5 w-full animate-pulse bg-primary" />
         {t('torrents.preview_loading')}
       </div>
@@ -112,11 +114,11 @@ function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string })
   }
 
   if (availability.status === 'unavailable') {
-    return <p className="py-8 text-sm text-muted-fg">{t(availability.messageKey)}</p>
+    return <p className="text-sm text-muted-fg">{t(availability.messageKey)}</p>
   }
 
   if (playbackFailed) {
-    return <p className="py-8 text-sm text-muted-fg">{t('torrents.preview_failed')}</p>
+    return <p className="text-sm text-muted-fg">{t('torrents.preview_failed')}</p>
   }
 
   if (isTextPreviewable(node.name)) {
@@ -128,7 +130,7 @@ function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string })
       <img
         src={url}
         alt={node.name}
-        className="max-h-[85vh] w-full object-contain"
+        className="h-full max-h-full w-full object-contain"
         onError={() => setPlaybackFailed(true)}
       />
     )
@@ -138,7 +140,15 @@ function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string })
     return <audio controls autoPlay src={url} className="w-full" onError={() => setPlaybackFailed(true)} />
   }
 
-  return <video controls autoPlay src={url} className="max-h-[85vh] w-full" onError={() => setPlaybackFailed(true)} />
+  return (
+    <video
+      controls
+      autoPlay
+      src={url}
+      className="h-full max-h-full w-full object-contain"
+      onError={() => setPlaybackFailed(true)}
+    />
+  )
 }
 
 export function MediaPreviewModal({
@@ -158,7 +168,7 @@ export function MediaPreviewModal({
             <DialogHeader>
               <DialogTitle className="truncate">{node.name}</DialogTitle>
             </DialogHeader>
-            <div className="flex items-center justify-center">
+            <div className="flex h-[80vh] items-center justify-center overflow-hidden">
               <MediaPreviewBody key={node.index} node={node} url={resolveTorrentFileStreamUrl(infoHash, node.index)} />
             </div>
           </>
