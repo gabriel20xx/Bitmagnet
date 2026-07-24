@@ -2399,6 +2399,7 @@ input CreateIntegrationInput {
   url: String!
   username: String
   password: String
+  apiKey: String
 }
 
 input UpdateIntegrationInput {
@@ -2407,6 +2408,7 @@ input UpdateIntegrationInput {
   url: String
   username: String
   password: String
+  apiKey: String
 }
 
 input TestIntegrationInput {
@@ -2414,6 +2416,7 @@ input TestIntegrationInput {
   url: String!
   username: String
   password: String
+  apiKey: String
 }
 
 type IntegrationsMutation {
@@ -11795,7 +11798,7 @@ func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"type", "name", "enabled", "url", "username", "password"}
+	fieldsInOrder := [...]string{"type", "name", "enabled", "url", "username", "password", "apiKey"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11844,6 +11847,13 @@ func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Con
 				return it, err
 			}
 			it.Password = graphql.OmittableOf(data)
+		case "apiKey":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKey"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.APIKey = graphql.OmittableOf(data)
 		}
 	}
 	return it, nil
@@ -12432,7 +12442,7 @@ func (ec *executionContext) unmarshalInputTestIntegrationInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"type", "url", "username", "password"}
+	fieldsInOrder := [...]string{"type", "url", "username", "password", "apiKey"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12467,6 +12477,13 @@ func (ec *executionContext) unmarshalInputTestIntegrationInput(ctx context.Conte
 				return it, err
 			}
 			it.Password = graphql.OmittableOf(data)
+		case "apiKey":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKey"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.APIKey = graphql.OmittableOf(data)
 		}
 	}
 	return it, nil
@@ -13084,7 +13101,7 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "enabled", "url", "username", "password"}
+	fieldsInOrder := [...]string{"name", "enabled", "url", "username", "password", "apiKey"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13126,6 +13143,13 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Con
 				return it, err
 			}
 			it.Password = graphql.OmittableOf(data)
+		case "apiKey":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("apiKey"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.APIKey = graphql.OmittableOf(data)
 		}
 	}
 	return it, nil

@@ -35,6 +35,7 @@ type CreateIntegrationInput struct {
 	URL      string                     `json:"url"`
 	Username graphql.Omittable[*string] `json:"username,omitempty"`
 	Password graphql.Omittable[*string] `json:"password,omitempty"`
+	APIKey   graphql.Omittable[*string] `json:"apiKey,omitempty"`
 }
 
 type GenreAgg struct {
@@ -151,6 +152,7 @@ type TestIntegrationInput struct {
 	URL      string                     `json:"url"`
 	Username graphql.Omittable[*string] `json:"username,omitempty"`
 	Password graphql.Omittable[*string] `json:"password,omitempty"`
+	APIKey   graphql.Omittable[*string] `json:"apiKey,omitempty"`
 }
 
 type TorrentContentAggregations struct {
@@ -255,6 +257,7 @@ type UpdateIntegrationInput struct {
 	URL      graphql.Omittable[*string] `json:"url,omitempty"`
 	Username graphql.Omittable[*string] `json:"username,omitempty"`
 	Password graphql.Omittable[*string] `json:"password,omitempty"`
+	APIKey   graphql.Omittable[*string] `json:"apiKey,omitempty"`
 }
 
 type VideoResolutionAgg struct {

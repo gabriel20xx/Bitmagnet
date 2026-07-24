@@ -147,6 +147,10 @@
   },
   "integrations": {
     "add_integration": "Add integration",
+    "api_key": "API key",
+    "auth_api_key": "API key",
+    "auth_method": "Authentication",
+    "auth_password": "Username & password",
     "confirm_delete": "Are you sure you want to delete \"{{name}}\"?",
     "delete_integration": "Delete integration",
     "edit_integration": "Edit integration",

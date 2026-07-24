@@ -36,6 +36,10 @@ func (m IntegrationsMutation) Create(ctx context.Context, input gen.CreateIntegr
 		req.Password = *password
 	}
 
+	if apiKey, ok := input.APIKey.ValueOK(); ok && apiKey != nil {
+		req.APIKey = *apiKey
+	}
+
 	return m.Manager.Create(ctx, req)
 }
 
@@ -64,6 +68,10 @@ func (m IntegrationsMutation) Update(
 
 	if password, ok := input.Password.ValueOK(); ok {
 		req.Password = password
+	}
+
+	if apiKey, ok := input.APIKey.ValueOK(); ok {
+		req.APIKey = apiKey
 	}
 
 	return m.Manager.Update(ctx, id, req)
@@ -104,6 +112,10 @@ func (m IntegrationsMutation) Test(ctx context.Context, input gen.TestIntegratio
 
 	if password, ok := input.Password.ValueOK(); ok && password != nil {
 		details.Password = *password
+	}
+
+	if apiKey, ok := input.APIKey.ValueOK(); ok && apiKey != nil {
+		details.APIKey = *apiKey
 	}
 
 	if err := m.Manager.TestConnection(ctx, details); err != nil {

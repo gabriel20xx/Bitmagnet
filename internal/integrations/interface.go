@@ -18,6 +18,9 @@ type ConnectionDetails struct {
 	URL      string
 	Username string
 	Password string
+	// APIKey, if set, is used instead of Username/Password (e.g. qBittorrent >= v5.2.0's
+	// Authorization: Bearer scheme).
+	APIKey string
 }
 
 type CreateRequest struct {
@@ -27,6 +30,7 @@ type CreateRequest struct {
 	URL      string
 	Username string
 	Password string
+	APIKey   string
 }
 
 type UpdateRequest struct {
@@ -38,6 +42,9 @@ type UpdateRequest struct {
 	// Password, if non-nil, replaces the stored password. Nil leaves the existing one unchanged,
 	// since the API never returns the current password back to the client to be echoed back.
 	Password *string
+	// APIKey, if non-nil, replaces the stored API key. Nil leaves the existing one unchanged, for
+	// the same reason as Password.
+	APIKey *string
 }
 
 type Manager interface {

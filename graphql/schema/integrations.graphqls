@@ -20,6 +20,7 @@ input CreateIntegrationInput {
   url: String!
   username: String
   password: String
+  apiKey: String
 }
 
 input UpdateIntegrationInput {
@@ -28,6 +29,7 @@ input UpdateIntegrationInput {
   url: String
   username: String
   password: String
+  apiKey: String
 }
 
 input TestIntegrationInput {
@@ -35,6 +37,7 @@ input TestIntegrationInput {
   url: String!
   username: String
   password: String
+  apiKey: String
 }
 
 type IntegrationsMutation {

@@ -34,6 +34,7 @@ func integrationConnectionDetails(integration model.Integration) ConnectionDetai
 		URL:      integration.URL,
 		Username: integration.Username.String,
 		Password: integration.Password.String,
+		APIKey:   integration.APIKey.String,
 	}
 }
 
@@ -42,7 +43,7 @@ func integrationConnectionDetails(integration model.Integration) ConnectionDetai
 func newClient(details ConnectionDetails) (Client, error) {
 	switch details.Type {
 	case model.IntegrationTypeQbittorrent:
-		return qbittorrent.New(details.URL, details.Username, details.Password), nil
+		return qbittorrent.New(details.URL, details.Username, details.Password, details.APIKey), nil
 	default:
 		return nil, fmt.Errorf("unsupported integration type: %s", details.Type)
 	}

@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { cn } from '@/lib/utils/cn'
 import { addError } from '@/lib/toast/store'
 import {
   CreateIntegrationDocument,
@@ -26,6 +27,8 @@ const testStatusIcon = {
 const inputClass =
   'h-9 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
+type AuthMethod = 'password' | 'apiKey'
+
 export function IntegrationDialog({
   open,
   onOpenChange,
@@ -44,8 +47,10 @@ export function IntegrationDialog({
   const [name, setName] = useState('')
   const [enabled, setEnabled] = useState(true)
   const [url, setUrl] = useState('')
+  const [authMethod, setAuthMethod] = useState<AuthMethod>('password')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [apiKey, setApiKey] = useState('')
 
   const [create, { loading: creating }] = useMutation(CreateIntegrationDocument)
   const [update, { loading: updating }] = useMutation(UpdateIntegrationDocument)
@@ -58,8 +63,10 @@ export function IntegrationDialog({
     setName(integration?.name ?? '')
     setEnabled(integration?.enabled ?? true)
     setUrl(integration?.url ?? '')
+    setAuthMethod('password')
     setUsername(integration?.username ?? '')
     setPassword('')
+    setApiKey('')
   }, [open, integration])
 
   const canSave = name.trim().length > 0 && url.trim().length > 0
@@ -68,14 +75,14 @@ export function IntegrationDialog({
   const handleTest = () => {
     if (!canTest || testStatus === 'testing') return
 
-    // A blank password field means "keep the existing one" in edit mode - since that real
-    // password never reaches the client, test the saved integration's own credentials instead.
-    if (isEdit && password.length === 0) {
+    // Blank credential fields mean "keep the existing ones" in edit mode - since those real
+    // values never reach the client, test the saved integration's own credentials instead.
+    if (isEdit && password.length === 0 && apiKey.length === 0) {
       testSaved(integration.id)
       return
     }
 
-    test({ type, url, username, password })
+    test({ type, url, username, password, apiKey })
   }
 
   const handleSave = () => {
@@ -91,12 +98,13 @@ export function IntegrationDialog({
               url,
               username,
               password: password.length > 0 ? password : undefined,
+              apiKey: apiKey.length > 0 ? apiKey : undefined,
             },
           },
         })
       : create({
           variables: {
-            input: { type, name, enabled, url, username, password },
+            input: { type, name, enabled, url, username, password, apiKey },
           },
         })
 
@@ -152,22 +160,54 @@ export function IntegrationDialog({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-sm font-medium">{t('integrations.username')}</label>
-              <input className={inputClass} value={username} onChange={(e) => setUsername(e.target.value)} />
+          <div>
+            <label className="mb-1 block text-sm font-medium">{t('integrations.auth_method')}</label>
+            <div className="flex gap-1 rounded-md border border-border p-1">
+              {(['password', 'apiKey'] as const).map((method) => (
+                <button
+                  key={method}
+                  type="button"
+                  onClick={() => setAuthMethod(method)}
+                  className={cn(
+                    'flex-1 rounded px-2 py-1 text-sm transition-colors',
+                    authMethod === method ? 'bg-surface-hover font-medium text-primary' : 'text-muted-fg',
+                  )}
+                >
+                  {t(method === 'password' ? 'integrations.auth_password' : 'integrations.auth_api_key')}
+                </button>
+              ))}
             </div>
+          </div>
+
+          {authMethod === 'password' ? (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium">{t('integrations.username')}</label>
+                <input className={inputClass} value={username} onChange={(e) => setUsername(e.target.value)} />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">{t('integrations.password')}</label>
+                <input
+                  type="password"
+                  className={inputClass}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={isEdit ? t('integrations.password_unchanged') : ''}
+                />
+              </div>
+            </div>
+          ) : (
             <div>
-              <label className="mb-1 block text-sm font-medium">{t('integrations.password')}</label>
+              <label className="mb-1 block text-sm font-medium">{t('integrations.api_key')}</label>
               <input
                 type="password"
                 className={inputClass}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
                 placeholder={isEdit ? t('integrations.password_unchanged') : ''}
               />
             </div>
-          </div>
+          )}
 
           <label className="flex items-center gap-2 text-sm">
             <Checkbox checked={enabled} onCheckedChange={(checked) => setEnabled(!!checked)} />

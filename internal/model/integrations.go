@@ -14,6 +14,7 @@ type Integration struct {
 	URL       string          `gorm:"column:url;not null" json:"url"`
 	Username  NullString      `gorm:"column:username" json:"username"`
 	Password  NullString      `gorm:"column:password" json:"password"`
+	APIKey    NullString      `gorm:"column:api_key" json:"apiKey"`
 	CreatedAt time.Time       `gorm:"column:created_at;not null;<-:create" json:"createdAt"`
 	UpdatedAt time.Time       `gorm:"column:updated_at;not null" json:"updatedAt"`
 }

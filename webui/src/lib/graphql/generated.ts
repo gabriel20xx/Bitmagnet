@@ -21,6 +21,7 @@ export type ContentTypeFacetInput = {
 };
 
 export type CreateIntegrationInput = {
+  apiKey?: string | null | undefined;
   enabled?: boolean | null | undefined;
   name: string;
   password?: string | null | undefined;
@@ -212,6 +213,7 @@ export type ReleaseYearFacetInput = {
 };
 
 export type TestIntegrationInput = {
+  apiKey?: string | null | undefined;
   password?: string | null | undefined;
   type: IntegrationType;
   url: string;
@@ -316,6 +318,7 @@ export type TorrentTagFacetInput = {
 };
 
 export type UpdateIntegrationInput = {
+  apiKey?: string | null | undefined;
   enabled?: boolean | null | undefined;
   name?: string | null | undefined;
   password?: string | null | undefined;

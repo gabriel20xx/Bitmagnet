@@ -26,6 +26,7 @@ func (m manager) Create(ctx context.Context, req CreateRequest) (model.Integrati
 		URL:      req.URL,
 		Username: model.NewNullString(req.Username),
 		Password: model.NewNullString(req.Password),
+		APIKey:   model.NewNullString(req.APIKey),
 	}
 
 	err := m.db.WithContext(ctx).Create(&integration).Error
@@ -57,6 +58,10 @@ func (m manager) Update(ctx context.Context, id string, req UpdateRequest) (mode
 
 	if req.Password != nil {
 		integration.Password = model.NewNullString(*req.Password)
+	}
+
+	if req.APIKey != nil {
+		integration.APIKey = model.NewNullString(*req.APIKey)
 	}
 
 	if err := m.db.WithContext(ctx).Save(&integration).Error; err != nil {
