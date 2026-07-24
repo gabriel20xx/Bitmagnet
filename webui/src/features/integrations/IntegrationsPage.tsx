@@ -40,17 +40,16 @@ export function IntegrationsPage() {
         </Button>
       </div>
       <div className="p-4">
-        {loading && <div className="mb-2 h-0.5 w-full animate-pulse bg-primary" />}
         {!loading && integrations.length === 0 ? (
           <p className="text-sm text-muted-fg">{t('integrations.none_configured')}</p>
         ) : (
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="text-muted-fg">
+                <th className="py-2 font-medium">{t('integrations.status')}</th>
                 <th className="py-2 font-medium">{t('integrations.name')}</th>
                 <th className="py-2 font-medium">{t('integrations.type')}</th>
                 <th className="py-2 font-medium">{t('integrations.url')}</th>
-                <th className="py-2 text-center font-medium">{t('integrations.enabled')}</th>
                 <th className="py-2 text-right font-medium" />
               </tr>
             </thead>

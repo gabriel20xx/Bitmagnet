@@ -20,7 +20,6 @@ export type Column = (typeof allColumns)[number]
 
 export function TorrentsTable({
   items,
-  loading,
   controls,
   displayedColumns,
   selected,
@@ -29,7 +28,6 @@ export function TorrentsTable({
   onSelectControls,
 }: {
   items: TorrentContentFragment[]
-  loading: boolean
   controls: TorrentSearchControls
   displayedColumns: readonly Column[]
   selected: Set<string>
@@ -51,7 +49,6 @@ export function TorrentsTable({
 
   return (
     <div>
-      {loading && <div className="h-0.5 w-full animate-pulse bg-primary" />}
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="text-muted-fg">

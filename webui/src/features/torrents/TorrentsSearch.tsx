@@ -18,7 +18,7 @@ export function TorrentsSearch() {
   const { t } = useTranslation()
   const isDesktop = useIsDesktop()
   const [controls, updateControls] = useTorrentSearchControls()
-  const { result, loading, refresh } = useTorrentSearch(controls)
+  const { result, refresh } = useTorrentSearch(controls)
   const [queryInput, setQueryInput] = useState(controls.queryString ?? '')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [drawerOpen, setDrawerOpen] = useState(true)
@@ -163,7 +163,6 @@ export function TorrentsSearch() {
         <div className="rounded-lg border border-border bg-bg">
           <TorrentsTable
             items={filteredItems}
-            loading={loading}
             controls={controls}
             displayedColumns={isDesktop ? allColumns : compactColumns}
             selected={selected}

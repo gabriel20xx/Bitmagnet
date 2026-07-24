@@ -333,10 +333,6 @@ export function QueueVisualize() {
         </div>
       </div>
 
-      <div className="my-3 h-0.5 w-full overflow-hidden rounded bg-surface">
-        {m.loading && <div className="h-full w-1/3 animate-pulse bg-primary" />}
-      </div>
-
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-border bg-surface p-3">
           <h4 className="mb-2 text-sm font-semibold">{t('dashboard.queues.total_counts_by_status')}</h4>

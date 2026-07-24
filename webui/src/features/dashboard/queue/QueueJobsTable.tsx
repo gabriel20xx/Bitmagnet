@@ -16,13 +16,11 @@ function beautifyPayload(payload: string): string {
 
 export function QueueJobsTable({
   items,
-  loading,
   displayedColumns,
   expandedId,
   onToggleExpanded,
 }: {
   items: QueueJobFragment[]
-  loading: boolean
   displayedColumns: readonly JobsTableColumn[]
   expandedId: string | null
   onToggleExpanded: (id: string) => void
@@ -35,7 +33,6 @@ export function QueueJobsTable({
 
   return (
     <div>
-      {loading && <div className="h-0.5 w-full animate-pulse bg-primary" />}
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="text-muted-fg">

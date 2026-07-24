@@ -229,7 +229,7 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
   const { t, i18n } = useTranslation()
   const isSingle = torrent.filesStatus === 'single'
 
-  const { data, loading, error } = useQuery(TorrentFilesDocument, {
+  const { data, error } = useQuery(TorrentFilesDocument, {
     variables: {
       input: {
         infoHashes: [torrent.infoHash],
@@ -283,7 +283,6 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
 
   return (
     <div>
-      {!isSingle && loading && <div className="h-0.5 w-full animate-pulse bg-primary" />}
       {torrent.filesStatus === 'over_threshold' && (
         <p className="mb-2 text-sm text-muted-fg">
           {t('torrents.showing_x_of_y_files', {

@@ -21,7 +21,7 @@ export function QueueJobs() {
   useDocumentTitle(t('routes.jobs'), t('routes.dashboard'))
 
   const [controls, updateControls] = useQueueJobsControls()
-  const { result, loading, refresh } = useQueueJobs(controls)
+  const { result, refresh } = useQueueJobs(controls)
   const [drawerOpen, setDrawerOpen] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   // Derived rather than reset via an effect: once the current page's items no longer contain the
@@ -123,7 +123,6 @@ export function QueueJobs() {
         <div className="rounded-lg border border-border bg-bg">
           <QueueJobsTable
             items={result.items}
-            loading={loading}
             displayedColumns={jobsTableColumns}
             expandedId={visibleExpandedId}
             onToggleExpanded={(id) => setExpandedId((cur) => (cur === id ? null : id))}

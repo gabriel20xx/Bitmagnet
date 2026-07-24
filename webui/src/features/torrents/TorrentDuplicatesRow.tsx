@@ -27,7 +27,6 @@ export function TorrentDuplicatesRow({ infoHash, colSpan }: { infoHash: string; 
   return (
     <tr className="border-t border-border bg-surface/50">
       <td colSpan={colSpan} className="p-4">
-        {loading && <div className="h-0.5 w-full animate-pulse bg-primary" />}
         {!loading && items.length === 0 && <p className="text-sm text-muted-fg">{t('torrents.no_duplicates_found')}</p>}
         <ul className="space-y-2">
           {items.map((dup) => (

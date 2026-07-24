@@ -305,10 +305,6 @@ export function TorrentMetrics() {
         </div>
       </div>
 
-      <div className="my-3 h-0.5 w-full overflow-hidden rounded bg-surface">
-        {m.loading && <div className="h-full w-1/3 animate-pulse bg-primary" />}
-      </div>
-
       <div className="rounded-lg border border-border bg-surface p-3">
         <h4 className="mb-2 text-sm font-semibold">{t('dashboard.metrics.throughput')}</h4>
         <div className="h-[400px]">
