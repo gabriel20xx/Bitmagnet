@@ -4,6 +4,7 @@ package qbittorrent
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -67,6 +68,11 @@ func (c *Client) Send(ctx context.Context, magnetURIs []string) error {
 		Post("/api/v2/torrents/add")
 	if err != nil {
 		return fmt.Errorf("qbittorrent add torrents: %w", err)
+	}
+
+	// A torrent already present in the client isn't a failure from the caller's perspective.
+	if res.StatusCode() == http.StatusConflict {
+		return nil
 	}
 
 	if !res.IsSuccess() {

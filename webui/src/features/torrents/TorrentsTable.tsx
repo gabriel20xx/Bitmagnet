@@ -156,12 +156,16 @@ export function TorrentsTable({
                     <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-2">
                         <TorrentSendIcon infoHash={item.infoHash} />
-                        <a href={item.torrent.magnetUri} title={t('torrents.magnet')}>
-                          <Magnet className="size-4 text-primary" />
-                        </a>
-                        <a href={resolveTorrentDownloadUrl(item.infoHash)} title={t('torrents.download_torrent_file')}>
-                          <Download className="size-4 text-primary" />
-                        </a>
+                        <SimpleTooltip label={t('torrents.magnet')}>
+                          <a href={item.torrent.magnetUri} className="cursor-pointer">
+                            <Magnet className="size-4 text-primary" />
+                          </a>
+                        </SimpleTooltip>
+                        <SimpleTooltip label={t('torrents.download_torrent_file')}>
+                          <a href={resolveTorrentDownloadUrl(item.infoHash)} className="cursor-pointer">
+                            <Download className="size-4 text-primary" />
+                          </a>
+                        </SimpleTooltip>
                       </div>
                     </td>
                   )}

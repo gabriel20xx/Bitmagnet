@@ -41,7 +41,7 @@ import { buildTorrentTimelineChart } from './torrentChartAdapter'
 
 export function TorrentMetrics() {
   const { t, i18n } = useTranslation()
-  useDocumentTitle(t('routes.torrents'), t('routes.dashboard'))
+  useDocumentTitle(t('routes.torrent_metrics'), t('routes.dashboard'))
 
   const m = useTorrentMetrics({ buckets: defaultBucketParams, autoRefresh: 'seconds_30' })
   const [legend, setLegend] = useState(true)

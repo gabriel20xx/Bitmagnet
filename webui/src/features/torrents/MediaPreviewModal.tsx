@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { LoaderCircle, RotateCcw } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { resolveTorrentFileStreamUrl } from '@/lib/graphql/endpoint'
 import { isTextPreviewable } from '@/lib/utils/textPreview'
 import type { FileType } from '@/lib/graphql/generated'
@@ -75,11 +77,12 @@ function messageKeyForStatus(status: number): string {
 // (too many concurrent previews, no peers found the data in time, ...). A cheap ranged
 // preflight lets us surface that distinction instead of always showing a generic "couldn't
 // be played".
-function useStreamAvailability(url: string): Availability {
+function useStreamAvailability(url: string, retryKey: number): Availability {
   const [state, setState] = useState<Availability>({ status: 'checking' })
 
   useEffect(() => {
     let cancelled = false
+    setState({ status: 'checking' })
 
     fetch(url, { headers: { Range: 'bytes=0-0' } })
       .then((res) => {
@@ -93,32 +96,57 @@ function useStreamAvailability(url: string): Availability {
     return () => {
       cancelled = true
     }
-  }, [url])
+  }, [url, retryKey])
 
   return state
 }
 
-function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string }) {
+function PreviewLoading() {
   const { t } = useTranslation()
+
+  return (
+    <div className="flex w-full max-w-sm flex-col items-center gap-3 text-center text-sm text-muted-fg">
+      <LoaderCircle className="size-8 animate-spin text-primary" />
+      {t('torrents.preview_loading')}
+    </div>
+  )
+}
+
+function RetryablePreviewMessage({ messageKey, onRetry }: { messageKey: string; onRetry: () => void }) {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <p className="text-sm text-muted-fg">{t(messageKey)}</p>
+      <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+        <RotateCcw className="size-4" />
+        {t('general.try_again')}
+      </Button>
+    </div>
+  )
+}
+
+function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string }) {
   const [playbackFailed, setPlaybackFailed] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
   const handlePlaybackError = useCallback(() => setPlaybackFailed(true), [])
-  const availability = useStreamAvailability(url)
+  const availability = useStreamAvailability(url, retryKey)
+
+  const retry = () => {
+    setPlaybackFailed(false)
+    setRetryKey((k) => k + 1)
+  }
 
   if (availability.status === 'checking') {
-    return (
-      <div className="w-full max-w-sm text-center text-sm text-muted-fg">
-        <div className="mb-3 h-0.5 w-full animate-pulse bg-primary" />
-        {t('torrents.preview_loading')}
-      </div>
-    )
+    return <PreviewLoading />
   }
 
   if (availability.status === 'unavailable') {
-    return <p className="text-sm text-muted-fg">{t(availability.messageKey)}</p>
+    return <RetryablePreviewMessage messageKey={availability.messageKey} onRetry={retry} />
   }
 
   if (playbackFailed) {
-    return <p className="text-sm text-muted-fg">{t('torrents.preview_failed')}</p>
+    return <RetryablePreviewMessage messageKey="torrents.preview_failed" onRetry={retry} />
   }
 
   if (isTextPreviewable(node.name)) {

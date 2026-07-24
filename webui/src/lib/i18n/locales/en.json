@@ -114,7 +114,8 @@
     "page_not_found": "Page not found",
     "refresh": "Refresh",
     "save": "Save",
-    "status": "Status"
+    "status": "Status",
+    "try_again": "Try again"
   },
   "health": {
     "bitmagnet_is_status": "bitmagnet is {{status}}",
@@ -249,9 +250,10 @@
   "routes": {
     "admin": "Admin",
     "dashboard": "Dashboard",
-    "home": "Home",
+    "home": "Status",
     "integrations": "Integrations",
     "jobs": "Jobs",
+    "torrent_metrics": "Metrics",
     "torrents": "Torrents",
     "visualize": "Visualize"
   },

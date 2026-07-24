@@ -20,7 +20,7 @@ export function TorrentSendIcon({ infoHash }: { infoHash: string }) {
     const sent = sentId === integration.id
     return (
       <SimpleTooltip label={t('torrents.send_to_integration', { name: integration.name })}>
-        <button type="button" onClick={() => send(integration.id, [infoHash])}>
+        <button type="button" className="cursor-pointer" onClick={() => send(integration.id, [infoHash])}>
           {sent ? <Check className="size-4 text-primary" /> : <Send className="size-4 text-primary" />}
         </button>
       </SimpleTooltip>
@@ -33,7 +33,7 @@ export function TorrentSendIcon({ infoHash }: { infoHash: string }) {
     <DropdownMenu>
       <SimpleTooltip label={t('torrents.send_to_integration_prompt')}>
         <DropdownMenuTrigger asChild>
-          <button type="button">
+          <button type="button" className="cursor-pointer">
             {anySent ? <Check className="size-4 text-primary" /> : <Send className="size-4 text-primary" />}
           </button>
         </DropdownMenuTrigger>

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@apollo/client/react'
 import { Magnet, Download } from 'lucide-react'
+import { SimpleTooltip } from '@/components/ui/tooltip'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { formatTimeAgo } from '@/lib/dates/format'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
@@ -40,12 +41,16 @@ export function TorrentDuplicatesRow({ infoHash, colSpan }: { infoHash: string; 
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <TorrentSendIcon infoHash={dup.infoHash} />
-                <a href={dup.torrent.magnetUri} title={t('torrents.magnet')}>
-                  <Magnet className="size-4 text-primary" />
-                </a>
-                <a href={resolveTorrentDownloadUrl(dup.infoHash)} title={t('torrents.download_torrent_file')}>
-                  <Download className="size-4 text-primary" />
-                </a>
+                <SimpleTooltip label={t('torrents.magnet')}>
+                  <a href={dup.torrent.magnetUri} className="cursor-pointer">
+                    <Magnet className="size-4 text-primary" />
+                  </a>
+                </SimpleTooltip>
+                <SimpleTooltip label={t('torrents.download_torrent_file')}>
+                  <a href={resolveTorrentDownloadUrl(dup.infoHash)} className="cursor-pointer">
+                    <Download className="size-4 text-primary" />
+                  </a>
+                </SimpleTooltip>
               </div>
             </li>
           ))}

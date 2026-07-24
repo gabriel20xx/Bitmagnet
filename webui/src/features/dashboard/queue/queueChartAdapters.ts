@@ -99,7 +99,7 @@ export function buildQueueTimelineChart(
     }
     const relevantEvents = eventNames.filter((n) => (result.params.event ?? n) === n)
     for (const queue of nonEmptyQueues) {
-      for (const event of relevantEvents) {
+      const pushEventDataset = (event: EventName): void => {
         const series: number[] = []
         for (let i = minBucket; i <= maxBucket; i++) {
           series.push(queue.events?.eventBuckets?.[event]?.entries?.[`${i}`]?.count ?? 0)
@@ -116,6 +116,13 @@ export function buildQueueTimelineChart(
           pointHoverBorderColor: colors.pointHoverBorder,
         })
       }
+
+      // "failed" is pushed after latency (rather than inline with the other events) so it
+      // renders after it in the legend/draw order.
+      for (const event of relevantEvents.filter((e) => e !== 'failed')) {
+        pushEventDataset(event)
+      }
+
       const latencyEvents = (['processed', 'failed'] as const).filter((e) => relevantEvents.includes(e))
       if (latencyEvents.length) {
         const latencySeries: Array<number | null> = []
@@ -138,6 +145,10 @@ export function buildQueueTimelineChart(
           pointHoverBackgroundColor: secondaryColor,
           pointHoverBorderColor: secondaryColor,
         })
+      }
+
+      if (relevantEvents.includes('failed')) {
+        pushEventDataset('failed')
       }
     }
   }

@@ -27,7 +27,7 @@ export function SelectContent({ className, children, ...props }: React.Component
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         className={cn(
-          'z-50 max-h-72 min-w-[8rem] overflow-y-auto rounded-md border border-border bg-surface p-1 shadow-lg',
+          'z-50 max-h-72 w-[var(--radix-select-trigger-width)] overflow-y-auto rounded-md border border-border bg-surface p-1 shadow-lg',
           className,
         )}
         position="popper"
