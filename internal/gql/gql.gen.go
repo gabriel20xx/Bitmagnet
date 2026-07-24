@@ -131,6 +131,24 @@ type ComplexityRoot struct {
 		Status func(childComplexity int) int
 	}
 
+	Integration struct {
+		CreatedAt func(childComplexity int) int
+		Enabled   func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Type      func(childComplexity int) int
+		URL       func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		Username  func(childComplexity int) int
+	}
+
+	IntegrationsMutation struct {
+		Create       func(childComplexity int, input gen.CreateIntegrationInput) int
+		Delete       func(childComplexity int, id string) int
+		SendTorrents func(childComplexity int, integrationID string, infoHashes []protocol.ID) int
+		Update       func(childComplexity int, id string, input gen.UpdateIntegrationInput) int
+	}
+
 	LanguageAgg struct {
 		Count      func(childComplexity int) int
 		IsEstimate func(childComplexity int) int
@@ -149,12 +167,14 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Queue   func(childComplexity int) int
-		Torrent func(childComplexity int) int
+		Integrations func(childComplexity int) int
+		Queue        func(childComplexity int) int
+		Torrent      func(childComplexity int) int
 	}
 
 	Query struct {
 		Health         func(childComplexity int) int
+		Integrations   func(childComplexity int) int
 		Queue          func(childComplexity int) int
 		Torrent        func(childComplexity int) int
 		TorrentContent func(childComplexity int) int
@@ -434,6 +454,7 @@ type ContentResolver interface {
 type MutationResolver interface {
 	Torrent(ctx context.Context) (gqlmodel.TorrentMutation, error)
 	Queue(ctx context.Context) (gqlmodel.QueueMutation, error)
+	Integrations(ctx context.Context) (gqlmodel.IntegrationsMutation, error)
 }
 type QueryResolver interface {
 	Version(ctx context.Context) (string, error)
@@ -442,6 +463,7 @@ type QueryResolver interface {
 	Queue(ctx context.Context) (gqlmodel.QueueQuery, error)
 	Torrent(ctx context.Context) (gqlmodel.TorrentQuery, error)
 	TorrentContent(ctx context.Context) (gqlmodel.TorrentContentQuery, error)
+	Integrations(ctx context.Context) ([]model.Integration, error)
 }
 type QueueJobResolver interface {
 	RanAt(ctx context.Context, obj *model.QueueJob) (*time.Time, error)
@@ -803,6 +825,100 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.HealthQuery.Status(childComplexity), true
 
+	case "Integration.createdAt":
+		if e.ComplexityRoot.Integration.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Integration.CreatedAt(childComplexity), true
+	case "Integration.enabled":
+		if e.ComplexityRoot.Integration.Enabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Integration.Enabled(childComplexity), true
+	case "Integration.id":
+		if e.ComplexityRoot.Integration.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Integration.ID(childComplexity), true
+	case "Integration.name":
+		if e.ComplexityRoot.Integration.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Integration.Name(childComplexity), true
+	case "Integration.type":
+		if e.ComplexityRoot.Integration.Type == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Integration.Type(childComplexity), true
+	case "Integration.url":
+		if e.ComplexityRoot.Integration.URL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Integration.URL(childComplexity), true
+	case "Integration.updatedAt":
+		if e.ComplexityRoot.Integration.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Integration.UpdatedAt(childComplexity), true
+	case "Integration.username":
+		if e.ComplexityRoot.Integration.Username == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Integration.Username(childComplexity), true
+
+	case "IntegrationsMutation.create":
+		if e.ComplexityRoot.IntegrationsMutation.Create == nil {
+			break
+		}
+
+		args, err := ec.field_IntegrationsMutation_create_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.IntegrationsMutation.Create(childComplexity, args["input"].(gen.CreateIntegrationInput)), true
+	case "IntegrationsMutation.delete":
+		if e.ComplexityRoot.IntegrationsMutation.Delete == nil {
+			break
+		}
+
+		args, err := ec.field_IntegrationsMutation_delete_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.IntegrationsMutation.Delete(childComplexity, args["id"].(string)), true
+	case "IntegrationsMutation.sendTorrents":
+		if e.ComplexityRoot.IntegrationsMutation.SendTorrents == nil {
+			break
+		}
+
+		args, err := ec.field_IntegrationsMutation_sendTorrents_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.IntegrationsMutation.SendTorrents(childComplexity, args["integrationId"].(string), args["infoHashes"].([]protocol.ID)), true
+	case "IntegrationsMutation.update":
+		if e.ComplexityRoot.IntegrationsMutation.Update == nil {
+			break
+		}
+
+		args, err := ec.field_IntegrationsMutation_update_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.IntegrationsMutation.Update(childComplexity, args["id"].(string), args["input"].(gen.UpdateIntegrationInput)), true
+
 	case "LanguageAgg.count":
 		if e.ComplexityRoot.LanguageAgg.Count == nil {
 			break
@@ -854,6 +970,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.MetadataSource.Name(childComplexity), true
 
+	case "Mutation.integrations":
+		if e.ComplexityRoot.Mutation.Integrations == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Mutation.Integrations(childComplexity), true
 	case "Mutation.queue":
 		if e.ComplexityRoot.Mutation.Queue == nil {
 			break
@@ -873,6 +995,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.Health(childComplexity), true
+	case "Query.integrations":
+		if e.ComplexityRoot.Query.Integrations == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.Integrations(childComplexity), true
 
 	case "Query.queue":
 		if e.ComplexityRoot.Query.Queue == nil {
@@ -1950,6 +2078,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputContentTypeFacetInput,
+		ec.unmarshalInputCreateIntegrationInput,
 		ec.unmarshalInputGenreFacetInput,
 		ec.unmarshalInputLanguageFacetInput,
 		ec.unmarshalInputQueueEnqueueReprocessTorrentsBatchInput,
@@ -1972,6 +2101,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTorrentReprocessInput,
 		ec.unmarshalInputTorrentSourceFacetInput,
 		ec.unmarshalInputTorrentTagFacetInput,
+		ec.unmarshalInputUpdateIntegrationInput,
 		ec.unmarshalInputVideoResolutionFacetInput,
 		ec.unmarshalInputVideoSourceFacetInput,
 	)
@@ -2222,6 +2352,45 @@ enum QueueJobsOrderByField {
   priority
 }
 `, BuiltIn: false},
+	{Name: "../../graphql/schema/integrations.graphqls", Input: `enum IntegrationType {
+  qbittorrent
+}
+
+type Integration {
+  id: ID!
+  type: IntegrationType!
+  name: String!
+  enabled: Boolean!
+  url: String!
+  username: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateIntegrationInput {
+  type: IntegrationType!
+  name: String!
+  enabled: Boolean
+  url: String!
+  username: String
+  password: String
+}
+
+input UpdateIntegrationInput {
+  name: String
+  enabled: Boolean
+  url: String
+  username: String
+  password: String
+}
+
+type IntegrationsMutation {
+  create(input: CreateIntegrationInput!): Integration!
+  update(id: ID!, input: UpdateIntegrationInput!): Integration!
+  delete(id: ID!): Void
+  sendTorrents(integrationId: ID!, infoHashes: [Hash20!]!): Void
+}
+`, BuiltIn: false},
 	{Name: "../../graphql/schema/metrics.graphqls", Input: `enum MetricsBucketDuration {
   minute
   hour
@@ -2416,6 +2585,7 @@ type ContentCollection {
 	{Name: "../../graphql/schema/mutation.graphqls", Input: `type Mutation {
   torrent: TorrentMutation!
   queue: QueueMutation!
+  integrations: IntegrationsMutation!
 }
 
 type TorrentMutation {
@@ -2441,6 +2611,7 @@ input TorrentReprocessInput {
   queue: QueueQuery!
   torrent: TorrentQuery!
   torrentContent: TorrentContentQuery!
+  integrations: [Integration!]!
 }
 
 type TorrentQuery {
@@ -2976,6 +3147,42 @@ func (ec *executionContext) childFields_HealthQuery(ctx context.Context, field g
 		return ec.fieldContext_HealthQuery_checks(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type HealthQuery", field.Name)
+}
+
+func (ec *executionContext) childFields_Integration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Integration_id(ctx, field)
+	case "type":
+		return ec.fieldContext_Integration_type(ctx, field)
+	case "name":
+		return ec.fieldContext_Integration_name(ctx, field)
+	case "enabled":
+		return ec.fieldContext_Integration_enabled(ctx, field)
+	case "url":
+		return ec.fieldContext_Integration_url(ctx, field)
+	case "username":
+		return ec.fieldContext_Integration_username(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_Integration_createdAt(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_Integration_updatedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Integration", field.Name)
+}
+
+func (ec *executionContext) childFields_IntegrationsMutation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "create":
+		return ec.fieldContext_IntegrationsMutation_create(ctx, field)
+	case "update":
+		return ec.fieldContext_IntegrationsMutation_update(ctx, field)
+	case "delete":
+		return ec.fieldContext_IntegrationsMutation_delete(ctx, field)
+	case "sendTorrents":
+		return ec.fieldContext_IntegrationsMutation_sendTorrents(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IntegrationsMutation", field.Name)
 }
 
 func (ec *executionContext) childFields_LanguageAgg(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -3649,6 +3856,78 @@ func (ec *executionContext) childFields___Type(ctx context.Context, field graphq
 // endregion ************************** internal!.gotpl ***************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_IntegrationsMutation_create_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.CreateIntegrationInput, error) {
+			return ec.unmarshalNCreateIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateIntegrationInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_IntegrationsMutation_delete_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_IntegrationsMutation_sendTorrents_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "integrationId",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["integrationId"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "infoHashes",
+		func(ctx context.Context, v any) ([]protocol.ID, error) {
+			return ec.unmarshalNHash202ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋprotocolᚐIDᚄ(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["infoHashes"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_IntegrationsMutation_update_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.UpdateIntegrationInput, error) {
+			return ec.unmarshalNUpdateIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐUpdateIntegrationInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -5193,6 +5472,366 @@ func (ec *executionContext) fieldContext_HealthQuery_checks(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Integration_id(ctx context.Context, field graphql.CollectedField, obj *model.Integration) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Integration_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Integration_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _Integration_type(ctx context.Context, field graphql.CollectedField, obj *model.Integration) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Integration_type(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Type, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.IntegrationType) graphql.Marshaler {
+			return ec.marshalNIntegrationType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegrationType(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Integration_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type IntegrationType does not have child fields"))
+}
+
+func (ec *executionContext) _Integration_name(ctx context.Context, field graphql.CollectedField, obj *model.Integration) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Integration_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Integration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Integration_enabled(ctx context.Context, field graphql.CollectedField, obj *model.Integration) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Integration_enabled(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Enabled, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Integration_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _Integration_url(ctx context.Context, field graphql.CollectedField, obj *model.Integration) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Integration_url(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.URL, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Integration_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Integration_username(ctx context.Context, field graphql.CollectedField, obj *model.Integration) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Integration_username(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Username, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.NullString) graphql.Marshaler {
+			return ec.marshalOString2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullString(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Integration_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Integration_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Integration) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Integration_createdAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNDateTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Integration_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type DateTime does not have child fields"))
+}
+
+func (ec *executionContext) _Integration_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Integration) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Integration_updatedAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNDateTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Integration_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type DateTime does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationsMutation_create(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationsMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationsMutation_create(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Create(ctx, fc.Args["input"].(gen.CreateIntegrationInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.Integration) graphql.Marshaler {
+			return ec.marshalNIntegration2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegration(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationsMutation_create(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationsMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Integration(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_IntegrationsMutation_create_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationsMutation_update(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationsMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationsMutation_update(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Update(ctx, fc.Args["id"].(string), fc.Args["input"].(gen.UpdateIntegrationInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.Integration) graphql.Marshaler {
+			return ec.marshalNIntegration2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegration(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationsMutation_update(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationsMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Integration(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_IntegrationsMutation_update_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationsMutation_delete(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationsMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationsMutation_delete(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Delete(ctx, fc.Args["id"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationsMutation_delete(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationsMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Void does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_IntegrationsMutation_delete_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationsMutation_sendTorrents(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationsMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationsMutation_sendTorrents(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.SendTorrents(ctx, fc.Args["integrationId"].(string), fc.Args["infoHashes"].([]protocol.ID))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationsMutation_sendTorrents(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationsMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Void does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_IntegrationsMutation_sendTorrents_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LanguageAgg_value(ctx context.Context, field graphql.CollectedField, obj *gen.LanguageAgg) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5441,6 +6080,38 @@ func (ec *executionContext) fieldContext_Mutation_queue(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_integrations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_integrations(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Mutation().Integrations(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.IntegrationsMutation) graphql.Marshaler {
+			return ec.marshalNIntegrationsMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐIntegrationsMutation(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_integrations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_IntegrationsMutation(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_version(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5619,6 +6290,38 @@ func (ec *executionContext) fieldContext_Query_torrentContent(_ context.Context,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_TorrentContentQuery(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_integrations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_integrations(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().Integrations(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.Integration) graphql.Marshaler {
+			return ec.marshalNIntegration2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegrationᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_integrations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Integration(ctx, field)
 		},
 	}
 	return fc, nil
@@ -10927,6 +11630,71 @@ func (ec *executionContext) unmarshalInputContentTypeFacetInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Context, obj any) (gen.CreateIntegrationInput, error) {
+	var it gen.CreateIntegrationInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"type", "name", "enabled", "url", "username", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNIntegrationType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegrationType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "url":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URL = data
+		case "username":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = graphql.OmittableOf(data)
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputGenreFacetInput(ctx context.Context, obj any) (gen.GenreFacetInput, error) {
 	var it gen.GenreFacetInput
 	if obj == nil {
@@ -12100,6 +12868,64 @@ func (ec *executionContext) unmarshalInputTorrentTagFacetInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Context, obj any) (gen.UpdateIntegrationInput, error) {
+	var it gen.UpdateIntegrationInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "enabled", "url", "username", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = graphql.OmittableOf(data)
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "url":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("url"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.URL = graphql.OmittableOf(data)
+		case "username":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = graphql.OmittableOf(data)
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputVideoResolutionFacetInput(ctx context.Context, obj any) (gen.VideoResolutionFacetInput, error) {
 	var it gen.VideoResolutionFacetInput
 	if obj == nil {
@@ -12767,6 +13593,264 @@ func (ec *executionContext) _HealthQuery(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var integrationImplementors = []string{"Integration"}
+
+func (ec *executionContext) _Integration(ctx context.Context, sel ast.SelectionSet, obj *model.Integration) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Integration")
+		case "id":
+			out.Values[i] = ec._Integration_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Integration_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Integration_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._Integration_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "url":
+			out.Values[i] = ec._Integration_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "username":
+			out.Values[i] = ec._Integration_username(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._Integration_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Integration_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var integrationsMutationImplementors = []string{"IntegrationsMutation"}
+
+func (ec *executionContext) _IntegrationsMutation(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationsMutation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationsMutationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationsMutation")
+		case "create":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._IntegrationsMutation_create(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "update":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._IntegrationsMutation_update(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "delete":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._IntegrationsMutation_delete(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sendTorrents":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._IntegrationsMutation_sendTorrents(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var languageAggImplementors = []string{"LanguageAgg"}
 
 func (ec *executionContext) _LanguageAgg(ctx context.Context, sel ast.SelectionSet, obj *gen.LanguageAgg) graphql.Marshaler {
@@ -12940,6 +14024,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "integrations":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_integrations(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13101,6 +14192,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_torrentContent(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "integrations":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_integrations(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -16113,6 +17226,11 @@ func (ec *executionContext) marshalNContentTypeAgg2githubᚗcomᚋbitmagnetᚑio
 	return ec._ContentTypeAgg(ctx, sel, &v)
 }
 
+func (ec *executionContext) unmarshalNCreateIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateIntegrationInput(ctx context.Context, v any) (gen.CreateIntegrationInput, error) {
+	res, err := ec.unmarshalInputCreateIntegrationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -16306,6 +17424,47 @@ func (ec *executionContext) marshalNInt2uint(ctx context.Context, sel ast.Select
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNIntegration2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegration(ctx context.Context, sel ast.SelectionSet, v model.Integration) graphql.Marshaler {
+	return ec._Integration(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNIntegration2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegrationᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Integration) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNIntegration2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegration(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNIntegrationType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegrationType(ctx context.Context, v any) (model.IntegrationType, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := model.IntegrationType(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNIntegrationType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegrationType(ctx context.Context, sel ast.SelectionSet, v model.IntegrationType) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalNIntegrationsMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐIntegrationsMutation(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationsMutation) graphql.Marshaler {
+	return ec._IntegrationsMutation(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNLanguage2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐLanguage(ctx context.Context, v any) (model.Language, error) {
@@ -16763,6 +17922,11 @@ func (ec *executionContext) marshalNTorrentSuggestTagsResult2githubᚗcomᚋbitm
 
 func (ec *executionContext) marshalNTorrentTagAgg2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTorrentTagAgg(ctx context.Context, sel ast.SelectionSet, v gen.TorrentTagAgg) graphql.Marshaler {
 	return ec._TorrentTagAgg(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNUpdateIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐUpdateIntegrationInput(ctx context.Context, v any) (gen.UpdateIntegrationInput, error) {
+	res, err := ec.unmarshalInputUpdateIntegrationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNVideoResolutionAgg2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐVideoResolutionAgg(ctx context.Context, sel ast.SelectionSet, v gen.VideoResolutionAgg) graphql.Marshaler {

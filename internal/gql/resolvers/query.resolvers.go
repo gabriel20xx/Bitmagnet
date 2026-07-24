@@ -106,6 +106,11 @@ func (r *queryResolver) TorrentContent(ctx context.Context) (gqlmodel.TorrentCon
 	}, nil
 }
 
+// Integrations is the resolver for the integrations field.
+func (r *queryResolver) Integrations(ctx context.Context) ([]model.Integration, error) {
+	return r.IntegrationsManager.List(ctx)
+}
+
 // Files is the resolver for the files field.
 func (r *torrentQueryResolver) Files(ctx context.Context, obj *gqlmodel.TorrentQuery, input gqlmodel.TorrentFilesQueryInput) (query.GenericResult[model.TorrentFile], error) {
 	return gqlmodel.TorrentQuery{

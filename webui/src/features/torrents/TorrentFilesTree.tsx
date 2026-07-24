@@ -117,11 +117,10 @@ function buildTree(
   return root
 }
 
-// Root-level folders are expanded by default; deeper folders are collapsed by default.
-// `toggled` records paths whose expansion differs from that default, so no reset is needed on data reload.
-function isNodeExpanded(path: string, depth: number, toggled: Set<string>): boolean {
-  const defaultExpanded = depth === 0
-  return toggled.has(path) ? !defaultExpanded : defaultExpanded
+// All folders are collapsed by default.
+// `toggled` records paths that have been explicitly expanded, so no reset is needed on data reload.
+function isNodeExpanded(path: string, toggled: Set<string>): boolean {
+  return toggled.has(path)
 }
 
 interface VisibleRow {
@@ -135,7 +134,7 @@ function flattenVisibleRows(children: TreeNode[], depth: number, toggled: Set<st
   const rows: VisibleRow[] = []
   for (const child of children) {
     rows.push({ node: child, depth })
-    if (child.kind === 'folder' && isNodeExpanded(child.path, depth, toggled)) {
+    if (child.kind === 'folder' && isNodeExpanded(child.path, toggled)) {
       rows.push(...flattenVisibleRows(child.children, depth + 1, toggled))
     }
   }
@@ -193,7 +192,7 @@ function FolderRow({
   onToggle: (path: string) => void
 }) {
   const { t, i18n } = useTranslation()
-  const isExpanded = isNodeExpanded(node.path, depth, toggled)
+  const isExpanded = isNodeExpanded(node.path, toggled)
 
   return (
     <button

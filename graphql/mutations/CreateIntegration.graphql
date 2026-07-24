@@ -1,0 +1,9 @@
+#import "../fragments/Integration"
+
+mutation CreateIntegration($input: CreateIntegrationInput!) {
+  integrations {
+    create(input: $input) {
+      ...Integration
+    }
+  }
+}

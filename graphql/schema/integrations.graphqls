@@ -1,0 +1,38 @@
+enum IntegrationType {
+  qbittorrent
+}
+
+type Integration {
+  id: ID!
+  type: IntegrationType!
+  name: String!
+  enabled: Boolean!
+  url: String!
+  username: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateIntegrationInput {
+  type: IntegrationType!
+  name: String!
+  enabled: Boolean
+  url: String!
+  username: String
+  password: String
+}
+
+input UpdateIntegrationInput {
+  name: String
+  enabled: Boolean
+  url: String
+  username: String
+  password: String
+}
+
+type IntegrationsMutation {
+  create(input: CreateIntegrationInput!): Integration!
+  update(id: ID!, input: UpdateIntegrationInput!): Integration!
+  delete(id: ID!): Void
+  sendTorrents(integrationId: ID!, infoHashes: [Hash20!]!): Void
+}

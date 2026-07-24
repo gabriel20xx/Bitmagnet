@@ -10,6 +10,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/httpserver"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/resolvers"
 	"github.com/bitmagnet-io/bitmagnet/internal/health"
+	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
@@ -74,6 +75,10 @@ func New() fx.Option {
 						if err != nil {
 							return nil, err
 						}
+						im, err := p.IntegrationsManager.Get()
+						if err != nil {
+							return nil, err
+						}
 						return &resolvers.Resolver{
 							Dao:                  d,
 							Search:               s,
@@ -83,6 +88,7 @@ func New() fx.Option {
 							TorrentMetricsClient: tm,
 							Processor:            pr,
 							BlockingManager:      bm,
+							IntegrationsManager:  im,
 						}, nil
 					}),
 				}
@@ -111,6 +117,7 @@ type Params struct {
 	TorrentMetricsClient lazy.Lazy[torrentmetrics.Client]
 	Processor            lazy.Lazy[processor.Processor]
 	BlockingManager      lazy.Lazy[blocking.Manager]
+	IntegrationsManager  lazy.Lazy[integrations.Manager]
 }
 
 type Result struct {

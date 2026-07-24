@@ -5,6 +5,7 @@ type Query {
   queue: QueueQuery!
   torrent: TorrentQuery!
   torrentContent: TorrentContentQuery!
+  integrations: [Integration!]!
 }
 
 type TorrentQuery {

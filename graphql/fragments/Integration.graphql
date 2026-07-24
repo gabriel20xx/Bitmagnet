@@ -1,0 +1,10 @@
+fragment Integration on Integration {
+  id
+  type
+  name
+  enabled
+  url
+  username
+  createdAt
+  updatedAt
+}

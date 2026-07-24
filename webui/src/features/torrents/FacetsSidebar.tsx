@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CircleSlash, HardDrive } from 'lucide-react'
+import { CircleSlash, HardDrive, Shapes } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Checkbox } from '@/components/ui/checkbox'
 import { formatIntEstimate } from '@/lib/utils/intEstimate'
@@ -84,7 +84,10 @@ export function FacetsSidebar({
     <div className="w-64 shrink-0 space-y-1 border-r border-border p-3">
       <div className="border-b border-border">
         <div className="flex items-center justify-between gap-2 py-3 text-sm font-medium">
-          {t('facets.content_type')}
+          <span className="flex items-center gap-2">
+            <Shapes className="size-4" />
+            {t('facets.content_type')}
+          </span>
         </div>
         <div className="pb-3">
           <ul className="space-y-0.5">

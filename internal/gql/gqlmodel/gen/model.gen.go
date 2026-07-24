@@ -28,6 +28,15 @@ type ContentTypeFacetInput struct {
 	Filter    graphql.Omittable[[]*model.ContentType] `json:"filter,omitempty"`
 }
 
+type CreateIntegrationInput struct {
+	Type     model.IntegrationType      `json:"type"`
+	Name     string                     `json:"name"`
+	Enabled  graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	URL      string                     `json:"url"`
+	Username graphql.Omittable[*string] `json:"username,omitempty"`
+	Password graphql.Omittable[*string] `json:"password,omitempty"`
+}
+
 type GenreAgg struct {
 	Value      string `json:"value"`
 	Label      string `json:"label"`
@@ -231,6 +240,14 @@ type TorrentTagFacetInput struct {
 	Aggregate graphql.Omittable[*bool]             `json:"aggregate,omitempty"`
 	Logic     graphql.Omittable[*model.FacetLogic] `json:"logic,omitempty"`
 	Filter    graphql.Omittable[[]string]          `json:"filter,omitempty"`
+}
+
+type UpdateIntegrationInput struct {
+	Name     graphql.Omittable[*string] `json:"name,omitempty"`
+	Enabled  graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	URL      graphql.Omittable[*string] `json:"url,omitempty"`
+	Username graphql.Omittable[*string] `json:"username,omitempty"`
+	Password graphql.Omittable[*string] `json:"password,omitempty"`
 }
 
 type VideoResolutionAgg struct {

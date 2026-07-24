@@ -1,0 +1,9 @@
+#import "../fragments/Integration"
+
+mutation UpdateIntegration($id: ID!, $input: UpdateIntegrationInput!) {
+  integrations {
+    update(id: $id, input: $input) {
+      ...Integration
+    }
+  }
+}

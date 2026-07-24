@@ -1,0 +1,5 @@
+mutation SendTorrentsToIntegration($integrationId: ID!, $infoHashes: [Hash20!]!) {
+  integrations {
+    sendTorrents(integrationId: $integrationId, infoHashes: $infoHashes)
+  }
+}

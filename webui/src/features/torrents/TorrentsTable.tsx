@@ -6,6 +6,7 @@ import { SimpleTooltip } from '@/components/ui/tooltip'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { formatTimeAgo } from '@/lib/dates/format'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
+import { TorrentSendIcon } from '@/features/integrations/TorrentSendIcon'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { contentTypeInfo } from './contentTypes'
 import { TorrentChips } from './TorrentChips'
@@ -154,6 +155,7 @@ export function TorrentsTable({
                   {displayedColumns.includes('magnet') && (
                     <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-2">
+                        <TorrentSendIcon infoHash={item.infoHash} />
                         <a href={item.torrent.magnetUri} title={t('torrents.magnet')}>
                           <Magnet className="size-4 text-primary" />
                         </a>

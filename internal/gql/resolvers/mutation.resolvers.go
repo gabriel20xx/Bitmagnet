@@ -26,6 +26,11 @@ func (r *mutationResolver) Queue(ctx context.Context) (gqlmodel.QueueMutation, e
 	return gqlmodel.QueueMutation{QueueManager: r.QueueManager}, nil
 }
 
+// Integrations is the resolver for the integrations field.
+func (r *mutationResolver) Integrations(ctx context.Context) (gqlmodel.IntegrationsMutation, error) {
+	return gqlmodel.IntegrationsMutation{Manager: r.IntegrationsManager, Dao: r.Dao}, nil
+}
+
 // Delete is the resolver for the delete field.
 func (r *torrentMutationResolver) Delete(ctx context.Context, obj *gqlmodel.TorrentMutation, infoHashes []protocol.ID) (*string, error) {
 	err := r.BlockingManager.Block(ctx, infoHashes, true)

@@ -6,6 +6,7 @@ import { formatFilesize } from '@/lib/utils/filesize'
 import { formatTimeAgo } from '@/lib/dates/format'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import { addError } from '@/lib/toast/store'
+import { TorrentSendIcon } from '@/features/integrations/TorrentSendIcon'
 import { TorrentContentSearchDocument } from '@/lib/graphql/generated'
 
 export function TorrentDuplicatesRow({ infoHash, colSpan }: { infoHash: string; colSpan: number }) {
@@ -38,6 +39,7 @@ export function TorrentDuplicatesRow({ infoHash, colSpan }: { infoHash: string; 
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                <TorrentSendIcon infoHash={dup.infoHash} />
                 <a href={dup.torrent.magnetUri} title={t('torrents.magnet')}>
                   <Magnet className="size-4 text-primary" />
                 </a>

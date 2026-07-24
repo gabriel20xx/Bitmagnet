@@ -109,9 +109,11 @@
     "clear": "Clear",
     "dismiss": "Dismiss",
     "error": "Error",
+    "delete": "Delete",
     "none": "None",
     "page_not_found": "Page not found",
     "refresh": "Refresh",
+    "save": "Save",
     "status": "Status"
   },
   "health": {
@@ -142,6 +144,20 @@
       "http_server": "HTTP server",
       "queue_server": "Queue server"
     }
+  },
+  "integrations": {
+    "add_integration": "Add integration",
+    "confirm_delete": "Are you sure you want to delete \"{{name}}\"?",
+    "delete_integration": "Delete integration",
+    "edit_integration": "Edit integration",
+    "enabled": "Enabled",
+    "name": "Name",
+    "none_configured": "No integrations configured",
+    "password": "Password",
+    "password_unchanged": "Leave blank to keep unchanged",
+    "type": "Type",
+    "url": "URL",
+    "username": "Username"
   },
   "languages": {
     "af": "Afrikaans",
@@ -229,6 +245,7 @@
     "admin": "Admin",
     "dashboard": "Dashboard",
     "home": "Home",
+    "integrations": "Integrations",
     "jobs": "Jobs",
     "torrents": "Torrents",
     "visualize": "Visualize"
@@ -291,6 +308,8 @@
     "search": "Search",
     "seeders": "Seeders",
     "select_all": "Select All",
+    "send_to_integration": "Send to {{name}}",
+    "send_to_integration_prompt": "Send to...",
     "showing_x_of_y_files": "Showing {{x}} of {{y}} files",
     "size": "Size",
     "size_max": "Max size",

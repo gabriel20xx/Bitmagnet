@@ -168,7 +168,7 @@ export function MediaPreviewModal({
             <DialogHeader>
               <DialogTitle className="truncate">{node.name}</DialogTitle>
             </DialogHeader>
-            <div className="flex h-[80vh] items-center justify-center overflow-hidden">
+            <div className="flex aspect-video w-full items-center justify-center overflow-hidden bg-black/5 dark:bg-white/5">
               <MediaPreviewBody key={node.index} node={node} url={resolveTorrentFileStreamUrl(infoHash, node.index)} />
             </div>
           </>

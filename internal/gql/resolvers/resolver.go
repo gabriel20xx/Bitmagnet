@@ -5,6 +5,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
 	"github.com/bitmagnet-io/bitmagnet/internal/health"
+	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/processor"
@@ -26,4 +27,5 @@ type Resolver struct {
 	TorrentMetricsClient torrentmetrics.Client
 	Processor            processor.Processor
 	BlockingManager      blocking.Manager
+	IntegrationsManager  integrations.Manager
 }

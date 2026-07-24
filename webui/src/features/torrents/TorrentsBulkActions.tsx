@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import { useCopyFeedback } from '@/lib/hooks/useCopyFeedback'
+import { SendToIntegrationButtons } from '@/features/integrations/SendToIntegrationButtons'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 
 export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentContentFragment[] }) {
@@ -29,6 +30,7 @@ export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentC
 
   return (
     <div className="flex flex-wrap gap-2">
+      <SendToIntegrationButtons infoHashes={infoHashes} />
       <SimpleTooltip label={t(magnetsCopied ? 'torrents.copied' : 'torrents.copy_to_clipboard')}>
         <Button
           type="button"
