@@ -1,7 +1,15 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { LayoutDashboard, ListTree, Magnet, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import {
+  LayoutDashboard,
+  LineChart,
+  ListChecks,
+  Magnet,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Wrench,
+} from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { Button } from '@/components/ui/button'
 import { SimpleTooltip } from '@/components/ui/tooltip'
@@ -37,9 +45,21 @@ export function DashboardLayout() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/dashboard/queues" className={navItemClass}>
-                <ListTree className="size-4" />
-                {t('routes.queues')}
+              <NavLink to="/dashboard/visualize" className={navItemClass}>
+                <LineChart className="size-4" />
+                {t('routes.visualize')}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/dashboard/jobs" className={navItemClass}>
+                <ListChecks className="size-4" />
+                {t('routes.jobs')}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/dashboard/admin" className={navItemClass}>
+                <Wrench className="size-4" />
+                {t('routes.admin')}
               </NavLink>
             </li>
             <li>

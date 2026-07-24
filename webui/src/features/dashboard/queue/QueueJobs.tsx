@@ -18,7 +18,7 @@ import { jobsTableColumns } from './queueConstants'
 export function QueueJobs() {
   const { t, i18n } = useTranslation()
   const isDesktop = useIsDesktop()
-  useDocumentTitle(t('routes.jobs'), t('routes.queues'), t('routes.dashboard'))
+  useDocumentTitle(t('routes.jobs'), t('routes.dashboard'))
 
   const [controls, updateControls] = useQueueJobsControls()
   const { result, loading, refresh } = useQueueJobs(controls)

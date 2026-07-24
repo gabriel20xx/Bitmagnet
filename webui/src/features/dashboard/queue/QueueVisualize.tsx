@@ -36,7 +36,7 @@ import { buildQueueTimelineChart, buildQueueTotalsChart } from './queueChartAdap
 
 export function QueueVisualize() {
   const { t, i18n } = useTranslation()
-  useDocumentTitle(t('routes.visualize'), t('routes.queues'), t('routes.dashboard'))
+  useDocumentTitle(t('routes.visualize'), t('routes.dashboard'))
 
   const m = useQueueMetrics({
     buckets: { duration: 'AUTO', multiplier: 'AUTO', timeframe: 'all' },

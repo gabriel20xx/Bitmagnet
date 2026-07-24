@@ -9,7 +9,7 @@ import { EnqueueReprocessBatchDialog } from './EnqueueReprocessBatchDialog'
 
 export function QueueAdmin() {
   const { t } = useTranslation()
-  useDocumentTitle(t('routes.admin'), t('routes.queues'), t('routes.dashboard'))
+  useDocumentTitle(t('routes.admin'), t('routes.dashboard'))
 
   const [purgeOpen, setPurgeOpen] = useState(false)
   const [enqueueOpen, setEnqueueOpen] = useState(false)

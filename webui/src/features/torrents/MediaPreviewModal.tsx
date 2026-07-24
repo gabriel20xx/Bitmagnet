@@ -44,7 +44,7 @@ function TextPreview({ url, onError }: { url: string; onError: () => void }) {
 
   return (
     <div className="w-full text-left">
-      <pre className="max-h-[70vh] overflow-auto whitespace-pre-wrap break-words rounded bg-surface p-4 text-sm">
+      <pre className="max-h-[85vh] overflow-auto whitespace-pre-wrap break-words rounded bg-surface p-4 text-sm">
         {state.text}
       </pre>
       {state.truncated && <p className="mt-2 text-xs text-muted-fg">{t('torrents.preview_truncated')}</p>}
@@ -128,7 +128,7 @@ function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string })
       <img
         src={url}
         alt={node.name}
-        className="max-h-[70vh] w-full object-contain"
+        className="max-h-[85vh] w-full object-contain"
         onError={() => setPlaybackFailed(true)}
       />
     )
@@ -138,7 +138,7 @@ function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string })
     return <audio controls autoPlay src={url} className="w-full" onError={() => setPlaybackFailed(true)} />
   }
 
-  return <video controls autoPlay src={url} className="max-h-[70vh] w-full" onError={() => setPlaybackFailed(true)} />
+  return <video controls autoPlay src={url} className="max-h-[85vh] w-full" onError={() => setPlaybackFailed(true)} />
 }
 
 export function MediaPreviewModal({
@@ -152,7 +152,7 @@ export function MediaPreviewModal({
 }) {
   return (
     <Dialog open={node != null} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-6xl">
         {node && (
           <>
             <DialogHeader>

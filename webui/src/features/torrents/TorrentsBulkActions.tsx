@@ -37,9 +37,13 @@ export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentC
           onClick={() => copyMagnets(selectedItems.map((i) => i.torrent.magnetUri).join('\n'))}
         >
           {magnetsCopied ? <Check className="size-4" /> : <Magnet className="size-4" />}
-          {t('torrents.magnet_links')}
+          {t('torrents.copy')} {t('torrents.magnet_links')}
         </Button>
       </SimpleTooltip>
+      <Button type="button" variant="outline" disabled={!hasSelection} onClick={downloadTorrents}>
+        <Download className="size-4" />
+        {t('torrents.download_torrents')}
+      </Button>
       <SimpleTooltip label={t(infoHashesCopied ? 'torrents.copied' : 'torrents.copy_to_clipboard')}>
         <Button
           type="button"
@@ -48,13 +52,9 @@ export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentC
           onClick={() => copyInfoHashes(infoHashes.join('\n'))}
         >
           {infoHashesCopied ? <Check className="size-4" /> : <Fingerprint className="size-4" />}
-          {t('torrents.info_hashes')}
+          {t('torrents.copy')} {t('torrents.info_hashes')}
         </Button>
       </SimpleTooltip>
-      <Button type="button" variant="outline" disabled={!hasSelection} onClick={downloadTorrents}>
-        <Download className="size-4" />
-        {t('torrents.download_torrents')}
-      </Button>
     </div>
   )
 }

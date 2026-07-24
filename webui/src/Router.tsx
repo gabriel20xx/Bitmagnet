@@ -2,7 +2,6 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router'
 import { RootLayout } from '@/features/layout/RootLayout'
 import { DashboardLayout } from '@/features/dashboard/DashboardLayout'
 import { DashboardHome } from '@/features/dashboard/DashboardHome'
-import { QueueDashboardLayout } from '@/features/dashboard/QueueDashboardLayout'
 import { QueueVisualize } from '@/features/dashboard/queue/QueueVisualize'
 import { QueueJobs } from '@/features/dashboard/queue/QueueJobs'
 import { QueueAdmin } from '@/features/dashboard/queue/QueueAdmin'
@@ -30,16 +29,9 @@ const router = createBrowserRouter(
           element: <DashboardLayout />,
           children: [
             { index: true, element: <DashboardHome /> },
-            {
-              path: 'queues',
-              element: <QueueDashboardLayout />,
-              children: [
-                { index: true, element: <Navigate to="visualize" replace /> },
-                { path: 'visualize', element: <QueueVisualize /> },
-                { path: 'jobs', element: <QueueJobs /> },
-                { path: 'admin', element: <QueueAdmin /> },
-              ],
-            },
+            { path: 'visualize', element: <QueueVisualize /> },
+            { path: 'jobs', element: <QueueJobs /> },
+            { path: 'admin', element: <QueueAdmin /> },
             { path: 'torrents', element: <TorrentMetrics /> },
           ],
         },
