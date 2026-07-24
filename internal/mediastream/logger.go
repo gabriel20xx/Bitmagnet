@@ -25,7 +25,11 @@ func (h filteringLogHandler) Handle(r log.Record) {
 }
 
 func newClientLogger() log.Logger {
-	l := log.NewLogger("mediastream")
+	// anacrolix/dht logs a Debug line for every query it sends (including routine, expected
+	// find_node timeouts during normal routing table maintenance), which floods the console at
+	// default verbosity. WithFilterLevel propagates to loggers derived from this one - including
+	// the DHT server's, named via WithNames("dht", ...) - so this also silences that.
+	l := log.NewLogger("mediastream").WithFilterLevel(log.Info)
 	l.SetHandlers(filteringLogHandler{next: log.DefaultHandler})
 
 	return l

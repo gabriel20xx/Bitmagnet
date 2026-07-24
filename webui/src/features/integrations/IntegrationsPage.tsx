@@ -28,57 +28,59 @@ export function IntegrationsPage() {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-bg">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">
-          <Plug className="size-5" />
-          {t('routes.integrations')}
-        </h2>
-        <Button type="button" size="sm" onClick={() => setEditing(null)}>
-          <Plus className="size-4" />
-          {t('integrations.add_integration')}
-        </Button>
-      </div>
-      <div className="p-4">
-        {!loading && integrations.length === 0 ? (
-          <p className="text-sm text-muted-fg">{t('integrations.none_configured')}</p>
-        ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="text-muted-fg">
-                <th className="py-2 font-medium">{t('integrations.status')}</th>
-                <th className="py-2 font-medium">{t('integrations.name')}</th>
-                <th className="py-2 font-medium">{t('integrations.type')}</th>
-                <th className="py-2 font-medium">{t('integrations.url')}</th>
-                <th className="py-2 text-right font-medium" />
-              </tr>
-            </thead>
-            <tbody>
-              {integrations.map((integration) => (
-                <IntegrationRow
-                  key={integration.id}
-                  integration={integration}
-                  onToggleEnabled={toggleEnabled}
-                  onEdit={setEditing}
-                  onDelete={setDeleting}
-                />
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+    <div className="p-4">
+      <div className="rounded-lg border border-border bg-bg">
+        <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
+            <Plug className="size-5" />
+            {t('routes.integrations')}
+          </h2>
+          <Button type="button" size="sm" onClick={() => setEditing(null)}>
+            <Plus className="size-4" />
+            {t('integrations.add_integration')}
+          </Button>
+        </div>
+        <div className="p-4">
+          {!loading && integrations.length === 0 ? (
+            <p className="text-sm text-muted-fg">{t('integrations.none_configured')}</p>
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-muted-fg">
+                  <th className="py-2 font-medium">{t('integrations.status')}</th>
+                  <th className="py-2 font-medium">{t('integrations.name')}</th>
+                  <th className="py-2 font-medium">{t('integrations.type')}</th>
+                  <th className="py-2 font-medium">{t('integrations.url')}</th>
+                  <th className="py-2 text-right font-medium" />
+                </tr>
+              </thead>
+              <tbody>
+                {integrations.map((integration) => (
+                  <IntegrationRow
+                    key={integration.id}
+                    integration={integration}
+                    onToggleEnabled={toggleEnabled}
+                    onEdit={setEditing}
+                    onDelete={setDeleting}
+                  />
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
 
-      <IntegrationDialog
-        open={editing !== undefined}
-        onOpenChange={(open) => !open && setEditing(undefined)}
-        integration={editing}
-        onSaved={() => refetch()}
-      />
-      <DeleteIntegrationDialog
-        integration={deleting}
-        onOpenChange={(open) => !open && setDeleting(null)}
-        onDeleted={() => refetch()}
-      />
+        <IntegrationDialog
+          open={editing !== undefined}
+          onOpenChange={(open) => !open && setEditing(undefined)}
+          integration={editing}
+          onSaved={() => refetch()}
+        />
+        <DeleteIntegrationDialog
+          integration={deleting}
+          onOpenChange={(open) => !open && setDeleting(null)}
+          onDeleted={() => refetch()}
+        />
+      </div>
     </div>
   )
 }

@@ -520,7 +520,7 @@ export function MetricsPage() {
         </div>
       )}
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 p-4">
         <SimpleTooltip label={t('torrents.toggle_drawer')}>
           <Button variant="ghost" size="icon" className="mb-3" onClick={() => setDrawerOpen((o) => !o)}>
             {drawerOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}

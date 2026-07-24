@@ -49,3 +49,19 @@ func TestFilteringLogHandler(t *testing.T) {
 		})
 	}
 }
+
+func TestClientLoggerFiltersDebugLevel(t *testing.T) {
+	inner := &recordingHandler{}
+	l := log.NewLogger("mediastream").WithFilterLevel(log.Info)
+	l.SetHandlers(inner)
+
+	// anacrolix/torrent derives the DHT server's logger via WithNames("dht", addr) - the filter
+	// level must survive that derivation for it to actually silence the DHT's per-query debug spam.
+	dhtLogger := l.WithNames("dht", "0.0.0.0:42069")
+
+	dhtLogger.Levelf(log.Debug, "Query(find_node) returned after 2s")
+	assert.Empty(t, inner.handled, "debug-level messages should be filtered out")
+
+	dhtLogger.Levelf(log.Warning, "something worth seeing")
+	assert.Len(t, inner.handled, 1, "warning-level messages should still be forwarded")
+}
