@@ -6,6 +6,12 @@ type Query {
   torrent: TorrentQuery!
   torrentContent: TorrentContentQuery!
   integrations: [Integration!]!
+  databaseStats: DatabaseStatsQuery!
+}
+
+type DatabaseStatsQuery {
+  torrentsCount: Int!
+  sizeBytes: Int!
 }
 
 type TorrentQuery {

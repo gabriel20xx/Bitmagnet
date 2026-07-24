@@ -1,0 +1,6 @@
+query DatabaseStats {
+  databaseStats {
+    torrentsCount
+    sizeBytes
+  }
+}

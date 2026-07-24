@@ -1,6 +1,6 @@
 import { NavLink, Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Activity, LayoutDashboard, LineChart, ListChecks, Magnet, Plug, Wrench, type LucideIcon } from 'lucide-react'
+import { LayoutDashboard, LineChart, ListChecks, Magnet, Plug, Wrench, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
@@ -23,8 +23,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { to: '/torrents', icon: Magnet, labelKey: 'routes.torrents' },
-  { to: '/dashboard/torrents', icon: Activity, labelKey: 'routes.torrent_metrics' },
-  { to: '/dashboard/visualize', icon: LineChart, labelKey: 'routes.visualize' },
+  { to: '/dashboard/metrics', icon: LineChart, labelKey: 'routes.metrics' },
   { to: '/dashboard/jobs', icon: ListChecks, labelKey: 'routes.jobs' },
   { to: '/dashboard/integrations', icon: Plug, labelKey: 'routes.integrations' },
   { to: '/dashboard/admin', icon: Wrench, labelKey: 'routes.admin' },

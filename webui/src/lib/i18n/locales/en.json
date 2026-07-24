@@ -27,6 +27,11 @@
     }
   },
   "dashboard": {
+    "database": {
+      "entries": "Torrents indexed",
+      "size": "Database size",
+      "title": "Database"
+    },
     "event": {
       "created": "Created",
       "failed": "Failed",
@@ -63,6 +68,7 @@
       "created_at": "Created at",
       "enqueue_jobs": "Enqueue jobs",
       "enqueue_torrent_processing_batch": "Enqueue Torrent Processing Batch",
+      "enqueue_torrent_processing_batch_description": "Re-run classification and metadata matching across torrents already in the database, in batches. Use this to re-classify existing torrents after changing classifier rules, or to fetch content metadata that wasn't available on first import.",
       "failed": "Failed",
       "jobs_enqueued": "Jobs enqueued",
       "latency": "Latency",
@@ -73,6 +79,7 @@
       "processed": "Processed",
       "purge_jobs": "Purge jobs",
       "purge_queue_jobs": "Purge queue jobs",
+      "purge_queue_jobs_description": "Permanently delete jobs from the processing queue, optionally limited to specific queues and statuses. Use this to clear a stuck backlog or drop jobs that keep failing.",
       "queue": "Queue",
       "queue_purged": "Queue purged",
       "queues": "Queues",
@@ -260,7 +267,8 @@
     "home": "Status",
     "integrations": "Integrations",
     "jobs": "Jobs",
-    "torrent_metrics": "Metrics",
+    "metrics": "Metrics",
+    "torrent_metrics": "Torrents",
     "torrents": "Torrents",
     "visualize": "Visualize"
   },

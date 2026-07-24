@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { LayoutDashboard } from 'lucide-react'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { HealthCard } from '@/features/health/HealthCard'
+import { DatabaseStatsCard } from './DatabaseStatsCard'
 
 export function DashboardHome() {
   const { t } = useTranslation()
@@ -13,7 +14,8 @@ export function DashboardHome() {
         <LayoutDashboard className="size-5" />
         <h2 className="text-lg font-semibold">{t('routes.dashboard')}</h2>
       </div>
-      <div className="p-4">
+      <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-2">
+        <DatabaseStatsCard />
         <HealthCard />
       </div>
     </div>

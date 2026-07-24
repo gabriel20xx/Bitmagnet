@@ -111,6 +111,11 @@ func (r *queryResolver) Integrations(ctx context.Context) ([]model.Integration, 
 	return r.IntegrationsManager.List(ctx)
 }
 
+// DatabaseStats is the resolver for the databaseStats field.
+func (r *queryResolver) DatabaseStats(ctx context.Context) (gqlmodel.DatabaseStatsQuery, error) {
+	return gqlmodel.DatabaseStatsQuery{Dao: r.Dao}, nil
+}
+
 // Files is the resolver for the files field.
 func (r *torrentQueryResolver) Files(ctx context.Context, obj *gqlmodel.TorrentQuery, input gqlmodel.TorrentFilesQueryInput) (query.GenericResult[model.TorrentFile], error) {
 	return gqlmodel.TorrentQuery{

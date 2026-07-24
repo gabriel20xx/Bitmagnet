@@ -1,5 +1,14 @@
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/utils/cn'
 import type { HealthResult } from './useHealth'
+
+const statusColor: Record<string, string> = {
+  up: 'text-success',
+  started: 'text-success',
+  inactive: 'text-muted-fg',
+  down: 'text-danger',
+  unknown: 'text-muted-fg',
+}
 
 export function HealthSummary({ health }: { health: HealthResult }) {
   const { t } = useTranslation()
@@ -27,28 +36,31 @@ export function HealthSummary({ health }: { health: HealthResult }) {
       <tbody>
         {health.checks.map((check) => (
           <tr key={check.key} className="border-t border-border">
-            <td className="py-1.5">
+            <td className={cn('py-1.5', statusColor[check.status])}>
               <check.icon className="size-4" />
             </td>
             <th scope="row" className="py-1.5 font-normal">
               {t(`health.components.${check.key}`)}
             </th>
-            <td className="py-1.5">{t(`health.statuses.${check.status}`)}</td>
+            <td className={cn('py-1.5', statusColor[check.status])}>{t(`health.statuses.${check.status}`)}</td>
             {showError && <td className="py-1.5 text-danger">{check.error}</td>}
           </tr>
         ))}
-        {health.workers.map((worker) => (
-          <tr key={worker.key} className="border-t border-border">
-            <td className="py-1.5">
-              <worker.icon className="size-4" />
-            </td>
-            <th scope="row" className="py-1.5 font-normal">
-              {t('health.worker')}: {t(`health.workers.${worker.key}`)}
-            </th>
-            <td className="py-1.5">{t(`health.statuses.${worker.started ? 'started' : 'inactive'}`)}</td>
-            {showError && <td className="py-1.5" />}
-          </tr>
-        ))}
+        {health.workers.map((worker) => {
+          const workerStatus = worker.started ? 'started' : 'inactive'
+          return (
+            <tr key={worker.key} className="border-t border-border">
+              <td className={cn('py-1.5', statusColor[workerStatus])}>
+                <worker.icon className="size-4" />
+              </td>
+              <th scope="row" className="py-1.5 font-normal">
+                {t('health.worker')}: {t(`health.workers.${worker.key}`)}
+              </th>
+              <td className={cn('py-1.5', statusColor[workerStatus])}>{t(`health.statuses.${workerStatus}`)}</td>
+              {showError && <td className="py-1.5" />}
+            </tr>
+          )
+        })}
       </tbody>
     </table>
   )

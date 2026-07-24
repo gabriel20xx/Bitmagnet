@@ -27,7 +27,6 @@ import '@/lib/charting/chartSetup'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SimpleTooltip } from '@/components/ui/tooltip'
-import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { cn } from '@/lib/utils/cn'
 import {
   autoRefreshIntervalNames,
@@ -41,7 +40,6 @@ import { buildQueueTimelineChart, buildQueueTotalsChart } from './queueChartAdap
 
 export function QueueVisualize() {
   const { t, i18n } = useTranslation()
-  useDocumentTitle(t('routes.visualize'), t('routes.dashboard'))
 
   const m = useQueueMetrics({
     buckets: { duration: 'AUTO', multiplier: 'AUTO', timeframe: 'all' },

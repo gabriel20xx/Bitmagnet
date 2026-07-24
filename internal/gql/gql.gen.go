@@ -102,6 +102,11 @@ type ComplexityRoot struct {
 		Value      func(childComplexity int) int
 	}
 
+	DatabaseStatsQuery struct {
+		SizeBytes     func(childComplexity int) int
+		TorrentsCount func(childComplexity int) int
+	}
+
 	Episodes struct {
 		Label   func(childComplexity int) int
 		Seasons func(childComplexity int) int
@@ -175,6 +180,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		DatabaseStats  func(childComplexity int) int
 		Health         func(childComplexity int) int
 		Integrations   func(childComplexity int) int
 		Queue          func(childComplexity int) int
@@ -466,6 +472,7 @@ type QueryResolver interface {
 	Torrent(ctx context.Context) (gqlmodel.TorrentQuery, error)
 	TorrentContent(ctx context.Context) (gqlmodel.TorrentContentQuery, error)
 	Integrations(ctx context.Context) ([]model.Integration, error)
+	DatabaseStats(ctx context.Context) (gqlmodel.DatabaseStatsQuery, error)
 }
 type QueueJobResolver interface {
 	RanAt(ctx context.Context, obj *model.QueueJob) (*time.Time, error)
@@ -737,6 +744,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ContentTypeAgg.Value(childComplexity), true
+
+	case "DatabaseStatsQuery.sizeBytes":
+		if e.ComplexityRoot.DatabaseStatsQuery.SizeBytes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DatabaseStatsQuery.SizeBytes(childComplexity), true
+	case "DatabaseStatsQuery.torrentsCount":
+		if e.ComplexityRoot.DatabaseStatsQuery.TorrentsCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DatabaseStatsQuery.TorrentsCount(childComplexity), true
 
 	case "Episodes.label":
 		if e.ComplexityRoot.Episodes.Label == nil {
@@ -1013,6 +1033,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.Torrent(childComplexity), true
 
+	case "Query.databaseStats":
+		if e.ComplexityRoot.Query.DatabaseStats == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.DatabaseStats(childComplexity), true
 	case "Query.health":
 		if e.ComplexityRoot.Query.Health == nil {
 			break
@@ -2649,6 +2675,12 @@ input TorrentReprocessInput {
   torrent: TorrentQuery!
   torrentContent: TorrentContentQuery!
   integrations: [Integration!]!
+  databaseStats: DatabaseStatsQuery!
+}
+
+type DatabaseStatsQuery {
+  torrentsCount: Int!
+  sizeBytes: Int!
 }
 
 type TorrentQuery {
@@ -3126,6 +3158,16 @@ func (ec *executionContext) childFields_ContentTypeAgg(ctx context.Context, fiel
 		return ec.fieldContext_ContentTypeAgg_isEstimate(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ContentTypeAgg", field.Name)
+}
+
+func (ec *executionContext) childFields_DatabaseStatsQuery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "torrentsCount":
+		return ec.fieldContext_DatabaseStatsQuery_torrentsCount(ctx, field)
+	case "sizeBytes":
+		return ec.fieldContext_DatabaseStatsQuery_sizeBytes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DatabaseStatsQuery", field.Name)
 }
 
 func (ec *executionContext) childFields_Episodes(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -5192,6 +5234,52 @@ func (ec *executionContext) fieldContext_ContentTypeAgg_isEstimate(_ context.Con
 	return graphql.NewScalarFieldContext("ContentTypeAgg", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
+func (ec *executionContext) _DatabaseStatsQuery_torrentsCount(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DatabaseStatsQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_DatabaseStatsQuery_torrentsCount(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TorrentsCount(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_DatabaseStatsQuery_torrentsCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("DatabaseStatsQuery", field, true, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _DatabaseStatsQuery_sizeBytes(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DatabaseStatsQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_DatabaseStatsQuery_sizeBytes(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SizeBytes(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_DatabaseStatsQuery_sizeBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("DatabaseStatsQuery", field, true, false, errors.New("field of type Int does not have child fields"))
+}
+
 func (ec *executionContext) _Episodes_label(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episodes) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6479,6 +6567,38 @@ func (ec *executionContext) fieldContext_Query_integrations(_ context.Context, f
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Integration(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_databaseStats(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_databaseStats(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().DatabaseStats(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.DatabaseStatsQuery) graphql.Marshaler {
+			return ec.marshalNDatabaseStatsQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐDatabaseStatsQuery(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_databaseStats(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_DatabaseStatsQuery(ctx, field)
 		},
 	}
 	return fc, nil
@@ -13587,6 +13707,115 @@ func (ec *executionContext) _ContentTypeAgg(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var databaseStatsQueryImplementors = []string{"DatabaseStatsQuery"}
+
+func (ec *executionContext) _DatabaseStatsQuery(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DatabaseStatsQuery) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, databaseStatsQueryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DatabaseStatsQuery")
+		case "torrentsCount":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DatabaseStatsQuery_torrentsCount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "sizeBytes":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DatabaseStatsQuery_sizeBytes(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var episodesImplementors = []string{"Episodes"}
 
 func (ec *executionContext) _Episodes(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Episodes) graphql.Marshaler {
@@ -14519,6 +14748,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_integrations(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "databaseStats":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_databaseStats(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -17534,6 +17785,10 @@ func (ec *executionContext) marshalNContentTypeAgg2githubᚗcomᚋbitmagnetᚑio
 func (ec *executionContext) unmarshalNCreateIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateIntegrationInput(ctx context.Context, v any) (gen.CreateIntegrationInput, error) {
 	res, err := ec.unmarshalInputCreateIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDatabaseStatsQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐDatabaseStatsQuery(ctx context.Context, sel ast.SelectionSet, v gqlmodel.DatabaseStatsQuery) graphql.Marshaler {
+	return ec._DatabaseStatsQuery(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
