@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Activity, Boxes } from 'lucide-react'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { QueueVisualize } from '../queue/QueueVisualize'
 import { TorrentMetrics } from '../torrents/TorrentMetrics'
@@ -9,17 +9,21 @@ export function MetricsPage() {
   useDocumentTitle(t('routes.metrics'), t('routes.dashboard'))
 
   return (
-    <Tabs defaultValue="queue">
-      <TabsList>
-        <TabsTrigger value="queue">{t('dashboard.queues.queue')}</TabsTrigger>
-        <TabsTrigger value="torrents">{t('routes.torrent_metrics')}</TabsTrigger>
-      </TabsList>
-      <TabsContent value="queue">
+    <div className="space-y-6">
+      <section>
+        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
+          <Boxes className="size-5" />
+          {t('dashboard.queues.queue')}
+        </h3>
         <QueueVisualize />
-      </TabsContent>
-      <TabsContent value="torrents">
+      </section>
+      <section>
+        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
+          <Activity className="size-5" />
+          {t('routes.torrent_metrics')}
+        </h3>
         <TorrentMetrics />
-      </TabsContent>
-    </Tabs>
+      </section>
+    </div>
   )
 }
