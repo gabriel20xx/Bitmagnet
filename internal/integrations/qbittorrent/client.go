@@ -3,7 +3,6 @@ package qbittorrent
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -19,9 +18,16 @@ type Client struct {
 }
 
 func New(baseURL, username, password string) *Client {
+	trimmedURL := strings.TrimRight(baseURL, "/")
+
 	return &Client{
+		// qBittorrent's WebUI validates Referer/Origin against the request host on every API
+		// call (CSRF protection, on by default since v4.1) and returns 403 - not an auth
+		// error - when they're missing, regardless of whether the credentials are correct.
 		resty: resty.New().
-			SetBaseURL(strings.TrimRight(baseURL, "/")).
+			SetBaseURL(trimmedURL).
+			SetHeader("Referer", trimmedURL).
+			SetHeader("Origin", trimmedURL).
 			SetTimeout(15 * time.Second),
 		username: username,
 		password: password,
@@ -77,8 +83,12 @@ func (c *Client) doLogin(ctx context.Context) error {
 		return fmt.Errorf("qbittorrent unreachable: %w", err)
 	}
 
-	if !res.IsSuccess() || string(res.Body()) != "Ok." {
-		return errors.New("qbittorrent rejected the credentials")
+	if !res.IsSuccess() {
+		return fmt.Errorf("qbittorrent login request failed: HTTP %s", res.Status())
+	}
+
+	if body := strings.TrimSpace(string(res.Body())); body != "Ok." {
+		return fmt.Errorf("qbittorrent rejected the credentials: %s", body)
 	}
 
 	return nil
