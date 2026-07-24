@@ -20,7 +20,7 @@ func (m manager) Send(ctx context.Context, integrationID string, magnetURIs []st
 		return ErrIntegrationDisabled
 	}
 
-	client, clientErr := newClient(integration)
+	client, clientErr := newClient(integrationConnectionDetails(integration))
 	if clientErr != nil {
 		return clientErr
 	}
@@ -28,13 +28,22 @@ func (m manager) Send(ctx context.Context, integrationID string, magnetURIs []st
 	return client.Send(ctx, magnetURIs)
 }
 
-// newClient builds the Client implementation for integration's type. Adding a new supported
+func integrationConnectionDetails(integration model.Integration) ConnectionDetails {
+	return ConnectionDetails{
+		Type:     integration.Type,
+		URL:      integration.URL,
+		Username: integration.Username.String,
+		Password: integration.Password.String,
+	}
+}
+
+// newClient builds the Client implementation for details.Type. Adding a new supported
 // BitTorrent client only requires a new case here and an implementation of the Client interface.
-func newClient(integration model.Integration) (Client, error) {
-	switch integration.Type {
+func newClient(details ConnectionDetails) (Client, error) {
+	switch details.Type {
 	case model.IntegrationTypeQbittorrent:
-		return qbittorrent.New(integration.URL, integration.Username.String, integration.Password.String), nil
+		return qbittorrent.New(details.URL, details.Username, details.Password), nil
 	default:
-		return nil, fmt.Errorf("unsupported integration type: %s", integration.Type)
+		return nil, fmt.Errorf("unsupported integration type: %s", details.Type)
 	}
 }

@@ -30,9 +30,18 @@ input UpdateIntegrationInput {
   password: String
 }
 
+input TestIntegrationInput {
+  type: IntegrationType!
+  url: String!
+  username: String
+  password: String
+}
+
 type IntegrationsMutation {
   create(input: CreateIntegrationInput!): Integration!
   update(id: ID!, input: UpdateIntegrationInput!): Integration!
   delete(id: ID!): Void
   sendTorrents(integrationId: ID!, infoHashes: [Hash20!]!): Void
+  test(input: TestIntegrationInput!): Boolean!
+  testSaved(id: ID!): Boolean!
 }

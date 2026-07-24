@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@apollo/client/react'
+import { Check, Loader2, PlugZap, X } from 'lucide-react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -13,6 +14,14 @@ import {
   type IntegrationType,
 } from '@/lib/graphql/generated'
 import { integrationTypeLabels, integrationTypeList } from './integrationTypes'
+import { useTestConnection } from './useTestConnection'
+
+const testStatusIcon = {
+  idle: <PlugZap className="size-4" />,
+  testing: <Loader2 className="size-4 animate-spin" />,
+  success: <Check className="size-4 text-primary" />,
+  error: <X className="size-4 text-danger" />,
+}
 
 const inputClass =
   'h-9 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring'
@@ -41,6 +50,7 @@ export function IntegrationDialog({
   const [create, { loading: creating }] = useMutation(CreateIntegrationDocument)
   const [update, { loading: updating }] = useMutation(UpdateIntegrationDocument)
   const saving = creating || updating
+  const { status: testStatus, test, testSaved } = useTestConnection()
 
   useEffect(() => {
     if (!open) return
@@ -53,6 +63,20 @@ export function IntegrationDialog({
   }, [open, integration])
 
   const canSave = name.trim().length > 0 && url.trim().length > 0
+  const canTest = url.trim().length > 0
+
+  const handleTest = () => {
+    if (!canTest || testStatus === 'testing') return
+
+    // A blank password field means "keep the existing one" in edit mode - since that real
+    // password never reaches the client, test the saved integration's own credentials instead.
+    if (isEdit && password.length === 0) {
+      testSaved(integration.id)
+      return
+    }
+
+    test({ type, url, username, password })
+  }
 
   const handleSave = () => {
     if (!canSave || saving) return
@@ -152,6 +176,10 @@ export function IntegrationDialog({
         </div>
 
         <DialogFooter>
+          <Button type="button" variant="outline" disabled={!canTest} onClick={handleTest}>
+            {testStatusIcon[testStatus]}
+            {t('integrations.test_connection')}
+          </Button>
           <Button type="button" disabled={!canSave || saving} onClick={handleSave}>
             {t('general.save')}
           </Button>

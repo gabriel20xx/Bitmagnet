@@ -58,16 +58,27 @@ func (c *Client) login(ctx context.Context) error {
 		return nil
 	}
 
+	return c.doLogin(ctx)
+}
+
+// TestConnection checks that qBittorrent's WebUI is reachable and, if credentials are
+// configured, that they're accepted - unlike login, it always makes the request rather than
+// skipping it when no credentials are set, so it also catches an unreachable/wrong URL.
+func (c *Client) TestConnection(ctx context.Context) error {
+	return c.doLogin(ctx)
+}
+
+func (c *Client) doLogin(ctx context.Context) error {
 	res, err := c.resty.R().
 		SetContext(ctx).
 		SetFormData(map[string]string{"username": c.username, "password": c.password}).
 		Post("/api/v2/auth/login")
 	if err != nil {
-		return err
+		return fmt.Errorf("qbittorrent unreachable: %w", err)
 	}
 
 	if !res.IsSuccess() || string(res.Body()) != "Ok." {
-		return errors.New("invalid credentials")
+		return errors.New("qbittorrent rejected the credentials")
 	}
 
 	return nil

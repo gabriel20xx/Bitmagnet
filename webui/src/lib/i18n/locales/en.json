@@ -155,6 +155,7 @@
     "none_configured": "No integrations configured",
     "password": "Password",
     "password_unchanged": "Leave blank to keep unchanged",
+    "test_connection": "Test connection",
     "type": "Type",
     "url": "URL",
     "username": "Username"

@@ -1,0 +1,5 @@
+mutation TestIntegration($input: TestIntegrationInput!) {
+  integrations {
+    test(input: $input)
+  }
+}

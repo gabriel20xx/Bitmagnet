@@ -9,6 +9,15 @@ import (
 // Client sends magnet links to a configured external BitTorrent client for download.
 type Client interface {
 	Send(ctx context.Context, magnetURIs []string) error
+	// TestConnection checks that the client is reachable and its credentials are accepted.
+	TestConnection(ctx context.Context) error
+}
+
+type ConnectionDetails struct {
+	Type     model.IntegrationType
+	URL      string
+	Username string
+	Password string
 }
 
 type CreateRequest struct {
@@ -38,4 +47,8 @@ type Manager interface {
 	Delete(ctx context.Context, id string) error
 	// Send delivers magnetURIs to the named integration's configured client.
 	Send(ctx context.Context, integrationID string, magnetURIs []string) error
+	// TestConnection checks connectivity using the given (possibly not yet saved) details.
+	TestConnection(ctx context.Context, details ConnectionDetails) error
+	// TestSavedConnection checks connectivity using an already-configured integration's stored details.
+	TestSavedConnection(ctx context.Context, id string) error
 }

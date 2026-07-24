@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@apollo/client/react'
-import { Plug, Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plug, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { addError } from '@/lib/toast/store'
 import { UpdateIntegrationDocument, type IntegrationFragment } from '@/lib/graphql/generated'
 import { useIntegrations } from './useIntegrations'
-import { integrationTypeLabels } from './integrationTypes'
+import { IntegrationRow } from './IntegrationRow'
 import { IntegrationDialog } from './IntegrationDialog'
 import { DeleteIntegrationDialog } from './DeleteIntegrationDialog'
 
@@ -57,26 +56,13 @@ export function IntegrationsPage() {
             </thead>
             <tbody>
               {integrations.map((integration) => (
-                <tr key={integration.id} className="border-t border-border">
-                  <td className="py-2 font-medium">{integration.name}</td>
-                  <td className="py-2 text-muted-fg">{integrationTypeLabels[integration.type]}</td>
-                  <td className="py-2 text-muted-fg">{integration.url}</td>
-                  <td className="py-2 text-center">
-                    <Checkbox
-                      className="mx-auto"
-                      checked={integration.enabled}
-                      onCheckedChange={() => toggleEnabled(integration)}
-                    />
-                  </td>
-                  <td className="py-2 text-right">
-                    <Button type="button" variant="ghost" size="icon" onClick={() => setEditing(integration)}>
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => setDeleting(integration)}>
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </td>
-                </tr>
+                <IntegrationRow
+                  key={integration.id}
+                  integration={integration}
+                  onToggleEnabled={toggleEnabled}
+                  onEdit={setEditing}
+                  onDelete={setDeleting}
+                />
               ))}
             </tbody>
           </table>

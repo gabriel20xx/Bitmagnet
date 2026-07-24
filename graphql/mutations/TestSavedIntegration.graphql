@@ -1,0 +1,5 @@
+mutation TestSavedIntegration($id: ID!) {
+  integrations {
+    testSaved(id: $id)
+  }
+}

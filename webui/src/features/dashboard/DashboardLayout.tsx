@@ -64,15 +64,15 @@ export function DashboardLayout() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/dashboard/admin" className={navItemClass}>
-                <Wrench className="size-4" />
-                {t('routes.admin')}
-              </NavLink>
-            </li>
-            <li>
               <NavLink to="/dashboard/integrations" className={navItemClass}>
                 <Plug className="size-4" />
                 {t('routes.integrations')}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/dashboard/admin" className={navItemClass}>
+                <Wrench className="size-4" />
+                {t('routes.admin')}
               </NavLink>
             </li>
           </ul>

@@ -146,6 +146,13 @@ type SuggestTagsQueryInput struct {
 	Exclusions graphql.Omittable[[]string] `json:"exclusions,omitempty"`
 }
 
+type TestIntegrationInput struct {
+	Type     model.IntegrationType      `json:"type"`
+	URL      string                     `json:"url"`
+	Username graphql.Omittable[*string] `json:"username,omitempty"`
+	Password graphql.Omittable[*string] `json:"password,omitempty"`
+}
+
 type TorrentContentAggregations struct {
 	ContentType     []ContentTypeAgg     `json:"contentType,omitempty"`
 	TorrentSource   []TorrentSourceAgg   `json:"torrentSource,omitempty"`

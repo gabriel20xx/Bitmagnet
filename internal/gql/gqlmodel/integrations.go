@@ -91,3 +91,32 @@ func (m IntegrationsMutation) SendTorrents(ctx context.Context, integrationID st
 
 	return nil, m.Manager.Send(ctx, integrationID, magnetURIs)
 }
+
+func (m IntegrationsMutation) Test(ctx context.Context, input gen.TestIntegrationInput) (bool, error) {
+	details := integrations.ConnectionDetails{
+		Type: input.Type,
+		URL:  input.URL,
+	}
+
+	if username, ok := input.Username.ValueOK(); ok && username != nil {
+		details.Username = *username
+	}
+
+	if password, ok := input.Password.ValueOK(); ok && password != nil {
+		details.Password = *password
+	}
+
+	if err := m.Manager.TestConnection(ctx, details); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (m IntegrationsMutation) TestSaved(ctx context.Context, id string) (bool, error) {
+	if err := m.Manager.TestSavedConnection(ctx, id); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
