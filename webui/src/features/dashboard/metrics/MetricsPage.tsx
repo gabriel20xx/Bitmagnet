@@ -40,7 +40,6 @@ import {
 import { useQueueMetrics } from '../queue/useQueueMetrics'
 import { buildQueueTimelineChart, buildQueueTotalsChart } from '../queue/queueChartAdapters'
 import {
-  defaultBucketParams,
   eventNames as torrentEventNames,
   timeframeNames,
   type TimeframeName,
@@ -62,7 +61,7 @@ export function MetricsPage() {
     autoRefresh: 'seconds_30',
   })
   const tm = useTorrentMetrics({
-    buckets: { ...defaultBucketParams, timeframe: initialTimeframe },
+    buckets: { duration: 'AUTO', multiplier: 'AUTO', timeframe: initialTimeframe },
     autoRefresh: 'seconds_30',
   })
 
@@ -416,11 +415,7 @@ export function MetricsPage() {
                       className={cn(tm.params.source === source && 'text-primary')}
                       onClick={() => tm.setSource(source)}
                     >
-                      {tm.params.source === source ? (
-                        <CircleDot className="size-4" />
-                      ) : (
-                        <Circle className="size-4" />
-                      )}
+                      {tm.params.source === source ? <CircleDot className="size-4" /> : <Circle className="size-4" />}
                     </Button>
                   </SimpleTooltip>
                 ))}
