@@ -1,6 +1,9 @@
 package mediastream
 
 import (
+	"context"
+	"errors"
+	"log/slog"
 	"strings"
 
 	"github.com/anacrolix/log"
@@ -17,11 +20,36 @@ type filteringLogHandler struct {
 }
 
 func (h filteringLogHandler) Handle(r log.Record) {
-	if r.Level == log.Error && strings.Contains(r.String(), cancellationNoise) {
+	if r.Level == log.Error && (strings.Contains(r.String(), cancellationNoise) || hasCanceledErrAttr(r)) {
 		return
 	}
 
 	h.next.Handle(r)
+}
+
+// anacrolix/torrent's reader logs these via slog (e.g. r.slogger().Error("initial read failed",
+// "err", err)), which puts the cancellation reason in a structured attribute rather than the
+// message text - Record.String() only ever returns the bare message ("initial read failed"), never
+// the attached "err" value, so the plain substring check above can never see "context canceled"
+// for these. Inspecting the underlying slog.Record's attributes directly catches them too.
+func hasCanceledErrAttr(r log.Record) bool {
+	slogRecord := r.SlogRecord()
+	if !slogRecord.Ok {
+		return false
+	}
+
+	found := false
+	slogRecord.Value.Attrs(func(attr slog.Attr) bool {
+		if err, ok := attr.Value.Any().(error); ok && errors.Is(err, context.Canceled) {
+			found = true
+
+			return false
+		}
+
+		return true
+	})
+
+	return found
 }
 
 func newClientLogger() log.Logger {
