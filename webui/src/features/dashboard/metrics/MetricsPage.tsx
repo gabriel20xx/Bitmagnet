@@ -126,7 +126,7 @@ export function MetricsPage() {
   }
 
   return (
-    <div className="flex min-h-full">
+    <div className="flex flex-1">
       {drawerOpen && (
         <div className="w-64 shrink-0 space-y-1 border-r border-border p-3">
           <div className="border-b border-border">

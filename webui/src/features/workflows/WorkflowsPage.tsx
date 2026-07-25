@@ -97,7 +97,7 @@ export function WorkflowsPage() {
   }))
 
   return (
-    <div className="flex min-h-full">
+    <div className="flex flex-1">
       {drawerOpen && (
         <FilterSidebar>
           <FilterSidebarSection

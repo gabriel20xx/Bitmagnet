@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ArrowDown, ArrowUp } from 'lucide-react'
+import { ArrowDown, ArrowUp, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SimpleTooltip } from '@/components/ui/tooltip'
@@ -44,13 +44,47 @@ const orderByFieldLabelKey: Record<IntegrationActiveTorrentOrderByField, string>
   size: 'torrents.size',
 }
 
+function compareByField(
+  a: { name: string; progress: number; state: string; downloadSpeed: number; eta: number; size: number },
+  b: typeof a,
+  field: IntegrationActiveTorrentOrderByField,
+): number {
+  switch (field) {
+    case 'progress':
+      return a.progress - b.progress
+    case 'state':
+      return a.state.localeCompare(b.state)
+    case 'downloadSpeed':
+      return a.downloadSpeed - b.downloadSpeed
+    case 'eta':
+      return a.eta - b.eta
+    case 'size':
+      return a.size - b.size
+    case 'name':
+    default:
+      return a.name.localeCompare(b.name)
+  }
+}
+
 export function IntegrationActiveTorrentsPanel({ integrationId }: { integrationId: string }) {
   const { t, i18n } = useTranslation()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
   const [orderBy, setOrderBy] = useState<ActiveTorrentsOrderBy>({ field: 'progress', descending: true })
 
-  const { totalCount, torrents, loading, error } = useIntegrationActiveTorrents(integrationId, page, pageSize, orderBy)
+  const { torrents: allTorrents, loading, error, refresh } = useIntegrationActiveTorrents(integrationId)
+
+  const sorted = useMemo(() => {
+    const items = [...allTorrents].sort((a, b) => compareByField(a, b, orderBy.field))
+    if (orderBy.descending) items.reverse()
+    return items
+  }, [allTorrents, orderBy])
+
+  const totalCount = sorted.length
+  const torrents = useMemo(
+    () => sorted.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize),
+    [sorted, page, pageSize],
+  )
 
   return (
     <div className="space-y-2">
@@ -84,6 +118,11 @@ export function IntegrationActiveTorrentsPanel({ integrationId }: { integrationI
             }}
           >
             {orderBy.descending ? <ArrowDown className="size-4" /> : <ArrowUp className="size-4" />}
+          </Button>
+        </SimpleTooltip>
+        <SimpleTooltip label={t('torrents.refresh')}>
+          <Button type="button" variant="ghost" size="icon" onClick={refresh}>
+            <RefreshCw className="size-4" />
           </Button>
         </SimpleTooltip>
       </div>

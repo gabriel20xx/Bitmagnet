@@ -6,30 +6,22 @@ export interface ActiveTorrentsOrderBy {
   descending: boolean
 }
 
-export function useIntegrationActiveTorrents(
-  integrationId: string | null,
-  page: number,
-  pageSize: number,
-  orderBy: ActiveTorrentsOrderBy,
-) {
+// Fetches the integration client's full active-torrents list once per integration (qBittorrent
+// has no server-side pagination anyway - the backend already fetches everything from it in one
+// call). Sorting and pagination are then done client-side in the panel, so paging/sorting through
+// an open panel is instant instead of round-tripping to the backend (and from there to
+// qBittorrent) on every click.
+export function useIntegrationActiveTorrents(integrationId: string | null) {
   const { data, loading, error, refetch } = useQuery(IntegrationActiveTorrentsDocument, {
-    variables: {
-      id: integrationId ?? '',
-      input: {
-        page,
-        limit: pageSize,
-        orderBy: { field: orderBy.field, descending: orderBy.descending },
-      },
-    },
+    variables: { id: integrationId ?? '' },
     skip: integrationId == null,
     fetchPolicy: 'network-only',
   })
 
   return {
-    totalCount: data?.integrationActiveTorrents.totalCount ?? 0,
     torrents: data?.integrationActiveTorrents.items ?? [],
     loading,
     error,
-    refetch,
+    refresh: () => void refetch(),
   }
 }

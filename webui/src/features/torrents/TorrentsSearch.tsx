@@ -78,7 +78,7 @@ export function TorrentsSearch() {
   }, [queryInput, updateControls])
 
   return (
-    <div className="flex min-h-full">
+    <div className="flex flex-1">
       {drawerOpen && <FacetsSidebar controls={controls} result={result} onUpdate={updateControls} />}
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
