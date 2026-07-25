@@ -163,7 +163,6 @@
     }
   },
   "integrations": {
-    "active_torrents_title": "Currently processing — {{name}}",
     "add_integration": "Add integration",
     "api_key": "API key",
     "auth_api_key": "API key",
@@ -280,7 +279,6 @@
   "routes": {
     "admin": "Admin",
     "dashboard": "Dashboard",
-    "home": "Status",
     "integrations": "Integrations",
     "jobs": "Jobs",
     "metrics": "Metrics",

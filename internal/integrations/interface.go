@@ -25,6 +25,36 @@ type ActiveTorrent struct {
 	Size          int64
 }
 
+// ListActiveTorrentsOrderByField is a field ActiveTorrent results can be sorted by.
+type ListActiveTorrentsOrderByField string
+
+const (
+	ListActiveTorrentsOrderByName          ListActiveTorrentsOrderByField = "name"
+	ListActiveTorrentsOrderByProgress      ListActiveTorrentsOrderByField = "progress"
+	ListActiveTorrentsOrderByState         ListActiveTorrentsOrderByField = "state"
+	ListActiveTorrentsOrderByDownloadSpeed ListActiveTorrentsOrderByField = "downloadSpeed"
+	ListActiveTorrentsOrderByETA           ListActiveTorrentsOrderByField = "eta"
+	ListActiveTorrentsOrderBySize          ListActiveTorrentsOrderByField = "size"
+)
+
+// ListActiveTorrentsRequest paginates and sorts a ListActiveTorrents call. Since the integration's
+// own client (e.g. qBittorrent) always returns its full current list in one call and has no
+// concept of bitmagnet's own paging, sorting/paging is applied on the fetched snapshot here rather
+// than passed through to the client.
+type ListActiveTorrentsRequest struct {
+	// Limit caps the number of items returned; 0 means unlimited.
+	Limit uint
+	// Page is 1-indexed; 0 is treated the same as 1.
+	Page       uint
+	OrderBy    ListActiveTorrentsOrderByField
+	Descending bool
+}
+
+type ListActiveTorrentsResult struct {
+	TotalCount uint
+	Items      []ActiveTorrent
+}
+
 type ConnectionDetails struct {
 	Type     model.IntegrationType
 	URL      string
@@ -68,7 +98,11 @@ type Manager interface {
 	Send(ctx context.Context, integrationID string, magnetURIs []string) error
 	// ListActiveTorrents returns what the named integration's own client currently reports as
 	// downloading, not a locally-tracked record.
-	ListActiveTorrents(ctx context.Context, integrationID string) ([]ActiveTorrent, error)
+	ListActiveTorrents(
+		ctx context.Context,
+		integrationID string,
+		req ListActiveTorrentsRequest,
+	) (ListActiveTorrentsResult, error)
 	// TestConnection checks connectivity using the given (possibly not yet saved) details.
 	TestConnection(ctx context.Context, details ConnectionDetails) error
 	// TestSavedConnection checks connectivity using an already-configured integration's stored details.

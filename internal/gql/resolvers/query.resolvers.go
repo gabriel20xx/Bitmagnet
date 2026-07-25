@@ -113,8 +113,28 @@ func (r *queryResolver) Integrations(ctx context.Context) ([]model.Integration, 
 }
 
 // IntegrationActiveTorrents is the resolver for the integrationActiveTorrents field.
-func (r *queryResolver) IntegrationActiveTorrents(ctx context.Context, id string) ([]integrations.ActiveTorrent, error) {
-	return r.IntegrationsManager.ListActiveTorrents(ctx, id)
+func (r *queryResolver) IntegrationActiveTorrents(ctx context.Context, id string, input *gen.IntegrationActiveTorrentsQueryInput) (integrations.ListActiveTorrentsResult, error) {
+	var req integrations.ListActiveTorrentsRequest
+
+	if input != nil {
+		if limit, ok := input.Limit.ValueOK(); ok && limit != nil && *limit > 0 {
+			req.Limit = uint(*limit)
+		}
+
+		if page, ok := input.Page.ValueOK(); ok && page != nil && *page > 0 {
+			req.Page = uint(*page)
+		}
+
+		if orderBy, ok := input.OrderBy.ValueOK(); ok && orderBy != nil {
+			req.OrderBy = integrations.ListActiveTorrentsOrderByField(orderBy.Field)
+
+			if descending, ok := orderBy.Descending.ValueOK(); ok && descending != nil {
+				req.Descending = *descending
+			}
+		}
+	}
+
+	return r.IntegrationsManager.ListActiveTorrents(ctx, id, req)
 }
 
 // Workflows is the resolver for the workflows field.

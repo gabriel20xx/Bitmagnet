@@ -76,6 +76,17 @@ type HealthQuery struct {
 	Checks []HealthCheck `json:"checks"`
 }
 
+type IntegrationActiveTorrentsOrderByInput struct {
+	Field      IntegrationActiveTorrentOrderByField `json:"field"`
+	Descending graphql.Omittable[*bool]             `json:"descending,omitempty"`
+}
+
+type IntegrationActiveTorrentsQueryInput struct {
+	Limit   graphql.Omittable[*int]                                   `json:"limit,omitempty"`
+	Page    graphql.Omittable[*int]                                   `json:"page,omitempty"`
+	OrderBy graphql.Omittable[*IntegrationActiveTorrentsOrderByInput] `json:"orderBy,omitempty"`
+}
+
 type LanguageAgg struct {
 	Value      model.Language `json:"value"`
 	Label      string         `json:"label"`
@@ -397,6 +408,69 @@ func (e *HealthStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e HealthStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type IntegrationActiveTorrentOrderByField string
+
+const (
+	IntegrationActiveTorrentOrderByFieldName          IntegrationActiveTorrentOrderByField = "name"
+	IntegrationActiveTorrentOrderByFieldProgress      IntegrationActiveTorrentOrderByField = "progress"
+	IntegrationActiveTorrentOrderByFieldState         IntegrationActiveTorrentOrderByField = "state"
+	IntegrationActiveTorrentOrderByFieldDownloadSpeed IntegrationActiveTorrentOrderByField = "downloadSpeed"
+	IntegrationActiveTorrentOrderByFieldEta           IntegrationActiveTorrentOrderByField = "eta"
+	IntegrationActiveTorrentOrderByFieldSize          IntegrationActiveTorrentOrderByField = "size"
+)
+
+var AllIntegrationActiveTorrentOrderByField = []IntegrationActiveTorrentOrderByField{
+	IntegrationActiveTorrentOrderByFieldName,
+	IntegrationActiveTorrentOrderByFieldProgress,
+	IntegrationActiveTorrentOrderByFieldState,
+	IntegrationActiveTorrentOrderByFieldDownloadSpeed,
+	IntegrationActiveTorrentOrderByFieldEta,
+	IntegrationActiveTorrentOrderByFieldSize,
+}
+
+func (e IntegrationActiveTorrentOrderByField) IsValid() bool {
+	switch e {
+	case IntegrationActiveTorrentOrderByFieldName, IntegrationActiveTorrentOrderByFieldProgress, IntegrationActiveTorrentOrderByFieldState, IntegrationActiveTorrentOrderByFieldDownloadSpeed, IntegrationActiveTorrentOrderByFieldEta, IntegrationActiveTorrentOrderByFieldSize:
+		return true
+	}
+	return false
+}
+
+func (e IntegrationActiveTorrentOrderByField) String() string {
+	return string(e)
+}
+
+func (e *IntegrationActiveTorrentOrderByField) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IntegrationActiveTorrentOrderByField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IntegrationActiveTorrentOrderByField", str)
+	}
+	return nil
+}
+
+func (e IntegrationActiveTorrentOrderByField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *IntegrationActiveTorrentOrderByField) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e IntegrationActiveTorrentOrderByField) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

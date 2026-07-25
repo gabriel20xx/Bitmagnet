@@ -10,7 +10,6 @@ import { useIntegrations } from './useIntegrations'
 import { IntegrationRow } from './IntegrationRow'
 import { IntegrationDialog } from './IntegrationDialog'
 import { DeleteIntegrationDialog } from './DeleteIntegrationDialog'
-import { IntegrationActiveTorrentsDialog } from './IntegrationActiveTorrentsDialog'
 
 export function IntegrationsPage() {
   const { t } = useTranslation()
@@ -21,7 +20,11 @@ export function IntegrationsPage() {
 
   const [editing, setEditing] = useState<IntegrationFragment | null | undefined>(undefined)
   const [deleting, setDeleting] = useState<IntegrationFragment | null>(null)
-  const [viewingActiveTorrents, setViewingActiveTorrents] = useState<IntegrationFragment | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  const toggleExpanded = (integration: IntegrationFragment) => {
+    setExpandedId((prev) => (prev === integration.id ? null : integration.id))
+  }
 
   const toggleEnabled = (integration: IntegrationFragment) => {
     updateIntegration({ variables: { id: integration.id, input: { enabled: !integration.enabled } } })
@@ -61,10 +64,11 @@ export function IntegrationsPage() {
                   <IntegrationRow
                     key={integration.id}
                     integration={integration}
+                    expanded={expandedId === integration.id}
+                    onToggleExpanded={toggleExpanded}
                     onToggleEnabled={toggleEnabled}
                     onEdit={setEditing}
                     onDelete={setDeleting}
-                    onShowActiveTorrents={setViewingActiveTorrents}
                   />
                 ))}
               </tbody>
@@ -82,10 +86,6 @@ export function IntegrationsPage() {
           integration={deleting}
           onOpenChange={(open) => !open && setDeleting(null)}
           onDeleted={() => refetch()}
-        />
-        <IntegrationActiveTorrentsDialog
-          integration={viewingActiveTorrents}
-          onOpenChange={(open) => !open && setViewingActiveTorrents(null)}
         />
       </div>
     </div>

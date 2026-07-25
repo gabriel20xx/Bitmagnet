@@ -173,6 +173,11 @@ type ComplexityRoot struct {
 		State         func(childComplexity int) int
 	}
 
+	IntegrationActiveTorrentsResult struct {
+		Items      func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
 	IntegrationsMutation struct {
 		Create       func(childComplexity int, input gen.CreateIntegrationInput) int
 		Delete       func(childComplexity int, id string) int
@@ -212,7 +217,7 @@ type ComplexityRoot struct {
 		DatabaseStats             func(childComplexity int) int
 		FavoritesLists            func(childComplexity int) int
 		Health                    func(childComplexity int) int
-		IntegrationActiveTorrents func(childComplexity int, id string) int
+		IntegrationActiveTorrents func(childComplexity int, id string, input *gen.IntegrationActiveTorrentsQueryInput) int
 		Integrations              func(childComplexity int) int
 		Queue                     func(childComplexity int) int
 		Tmdb                      func(childComplexity int) int
@@ -557,7 +562,7 @@ type QueryResolver interface {
 	Torrent(ctx context.Context) (gqlmodel.TorrentQuery, error)
 	TorrentContent(ctx context.Context) (gqlmodel.TorrentContentQuery, error)
 	Integrations(ctx context.Context) ([]model.Integration, error)
-	IntegrationActiveTorrents(ctx context.Context, id string) ([]integrations.ActiveTorrent, error)
+	IntegrationActiveTorrents(ctx context.Context, id string, input *gen.IntegrationActiveTorrentsQueryInput) (integrations.ListActiveTorrentsResult, error)
 	Workflows(ctx context.Context) ([]model.Workflow, error)
 	FavoritesLists(ctx context.Context) ([]model.FavoritesList, error)
 	DatabaseStats(ctx context.Context) (gqlmodel.DatabaseStatsQuery, error)
@@ -1109,6 +1114,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.IntegrationActiveTorrent.State(childComplexity), true
 
+	case "IntegrationActiveTorrentsResult.items":
+		if e.ComplexityRoot.IntegrationActiveTorrentsResult.Items == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrentsResult.Items(childComplexity), true
+	case "IntegrationActiveTorrentsResult.totalCount":
+		if e.ComplexityRoot.IntegrationActiveTorrentsResult.TotalCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrentsResult.TotalCount(childComplexity), true
+
 	case "IntegrationsMutation.create":
 		if e.ComplexityRoot.IntegrationsMutation.Create == nil {
 			break
@@ -1292,7 +1310,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.IntegrationActiveTorrents(childComplexity, args["id"].(string)), true
+		return e.ComplexityRoot.Query.IntegrationActiveTorrents(childComplexity, args["id"].(string), args["input"].(*gen.IntegrationActiveTorrentsQueryInput)), true
 	case "Query.integrations":
 		if e.ComplexityRoot.Query.Integrations == nil {
 			break
@@ -2609,6 +2627,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateIntegrationInput,
 		ec.unmarshalInputCreateWorkflowInput,
 		ec.unmarshalInputGenreFacetInput,
+		ec.unmarshalInputIntegrationActiveTorrentsOrderByInput,
+		ec.unmarshalInputIntegrationActiveTorrentsQueryInput,
 		ec.unmarshalInputLanguageFacetInput,
 		ec.unmarshalInputQueueEnqueueReprocessTorrentsBatchInput,
 		ec.unmarshalInputQueueJobQueueFacetInput,
@@ -2981,6 +3001,31 @@ type IntegrationActiveTorrent {
   size: Int!
 }
 
+enum IntegrationActiveTorrentOrderByField {
+  name
+  progress
+  state
+  downloadSpeed
+  eta
+  size
+}
+
+input IntegrationActiveTorrentsOrderByInput {
+  field: IntegrationActiveTorrentOrderByField!
+  descending: Boolean
+}
+
+input IntegrationActiveTorrentsQueryInput {
+  limit: Int
+  page: Int
+  orderBy: IntegrationActiveTorrentsOrderByInput
+}
+
+type IntegrationActiveTorrentsResult {
+  totalCount: Int!
+  items: [IntegrationActiveTorrent!]!
+}
+
 type IntegrationsMutation {
   create(input: CreateIntegrationInput!): Integration!
   update(id: ID!, input: UpdateIntegrationInput!): Integration!
@@ -3219,7 +3264,7 @@ input TorrentReprocessInput {
   integrationActiveTorrents queries the integration's own client for what it currently reports
   as downloading. This is a live call to the external client, not a cached value.
   """
-  integrationActiveTorrents(id: ID!): [IntegrationActiveTorrent!]!
+  integrationActiveTorrents(id: ID!, input: IntegrationActiveTorrentsQueryInput): IntegrationActiveTorrentsResult!
   workflows: [Workflow!]!
   favoritesLists: [FavoritesList!]!
   databaseStats: DatabaseStatsQuery!
@@ -3961,6 +4006,16 @@ func (ec *executionContext) childFields_IntegrationActiveTorrent(ctx context.Con
 		return ec.fieldContext_IntegrationActiveTorrent_size(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type IntegrationActiveTorrent", field.Name)
+}
+
+func (ec *executionContext) childFields_IntegrationActiveTorrentsResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "totalCount":
+		return ec.fieldContext_IntegrationActiveTorrentsResult_totalCount(ctx, field)
+	case "items":
+		return ec.fieldContext_IntegrationActiveTorrentsResult_items(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IntegrationActiveTorrentsResult", field.Name)
 }
 
 func (ec *executionContext) childFields_IntegrationsMutation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -4954,6 +5009,14 @@ func (ec *executionContext) field_Query_integrationActiveTorrents_args(ctx conte
 		return nil, err
 	}
 	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (*gen.IntegrationActiveTorrentsQueryInput, error) {
+			return ec.unmarshalOIntegrationActiveTorrentsQueryInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐIntegrationActiveTorrentsQueryInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -7267,6 +7330,61 @@ func (ec *executionContext) fieldContext_IntegrationActiveTorrent_size(_ context
 	return graphql.NewScalarFieldContext("IntegrationActiveTorrent", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _IntegrationActiveTorrentsResult_totalCount(ctx context.Context, field graphql.CollectedField, obj *integrations.ListActiveTorrentsResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrentsResult_totalCount(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TotalCount, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v uint) graphql.Marshaler {
+			return ec.marshalNInt2uint(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrentsResult_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("IntegrationActiveTorrentsResult", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationActiveTorrentsResult_items(ctx context.Context, field graphql.CollectedField, obj *integrations.ListActiveTorrentsResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrentsResult_items(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []integrations.ActiveTorrent) graphql.Marshaler {
+			return ec.marshalNIntegrationActiveTorrent2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐActiveTorrentᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrentsResult_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationActiveTorrentsResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_IntegrationActiveTorrent(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _IntegrationsMutation_create(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationsMutation) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -8132,11 +8250,11 @@ func (ec *executionContext) _Query_integrationActiveTorrents(ctx context.Context
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().IntegrationActiveTorrents(ctx, fc.Args["id"].(string))
+			return ec.Resolvers.Query().IntegrationActiveTorrents(ctx, fc.Args["id"].(string), fc.Args["input"].(*gen.IntegrationActiveTorrentsQueryInput))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []integrations.ActiveTorrent) graphql.Marshaler {
-			return ec.marshalNIntegrationActiveTorrent2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐActiveTorrentᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v integrations.ListActiveTorrentsResult) graphql.Marshaler {
+			return ec.marshalNIntegrationActiveTorrentsResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐListActiveTorrentsResult(ctx, selections, v)
 		},
 		true,
 		true,
@@ -8149,7 +8267,7 @@ func (ec *executionContext) fieldContext_Query_integrationActiveTorrents(ctx con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_IntegrationActiveTorrent(ctx, field)
+			return ec.childFields_IntegrationActiveTorrentsResult(ctx, field)
 		},
 	}
 	defer func() {
@@ -14644,6 +14762,87 @@ func (ec *executionContext) unmarshalInputGenreFacetInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputIntegrationActiveTorrentsOrderByInput(ctx context.Context, obj any) (gen.IntegrationActiveTorrentsOrderByInput, error) {
+	var it gen.IntegrationActiveTorrentsOrderByInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "descending"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNIntegrationActiveTorrentOrderByField2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐIntegrationActiveTorrentOrderByField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "descending":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("descending"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Descending = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputIntegrationActiveTorrentsQueryInput(ctx context.Context, obj any) (gen.IntegrationActiveTorrentsQueryInput, error) {
+	var it gen.IntegrationActiveTorrentsQueryInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"limit", "page", "orderBy"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "limit":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Limit = graphql.OmittableOf(data)
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = graphql.OmittableOf(data)
+		case "orderBy":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+			data, err := ec.unmarshalOIntegrationActiveTorrentsOrderByInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐIntegrationActiveTorrentsOrderByInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OrderBy = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLanguageFacetInput(ctx context.Context, obj any) (gen.LanguageFacetInput, error) {
 	var it gen.LanguageFacetInput
 	if obj == nil {
@@ -17334,6 +17533,49 @@ func (ec *executionContext) _IntegrationActiveTorrent(ctx context.Context, sel a
 			}
 		case "size":
 			out.Values[i] = ec._IntegrationActiveTorrent_size(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var integrationActiveTorrentsResultImplementors = []string{"IntegrationActiveTorrentsResult"}
+
+func (ec *executionContext) _IntegrationActiveTorrentsResult(ctx context.Context, sel ast.SelectionSet, obj *integrations.ListActiveTorrentsResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationActiveTorrentsResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationActiveTorrentsResult")
+		case "totalCount":
+			out.Values[i] = ec._IntegrationActiveTorrentsResult_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "items":
+			out.Values[i] = ec._IntegrationActiveTorrentsResult_items(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -22019,6 +22261,20 @@ func (ec *executionContext) marshalNIntegrationActiveTorrent2ᚕgithubᚗcomᚋb
 	return ret
 }
 
+func (ec *executionContext) unmarshalNIntegrationActiveTorrentOrderByField2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐIntegrationActiveTorrentOrderByField(ctx context.Context, v any) (gen.IntegrationActiveTorrentOrderByField, error) {
+	var res gen.IntegrationActiveTorrentOrderByField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNIntegrationActiveTorrentOrderByField2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐIntegrationActiveTorrentOrderByField(ctx context.Context, sel ast.SelectionSet, v gen.IntegrationActiveTorrentOrderByField) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNIntegrationActiveTorrentsResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐListActiveTorrentsResult(ctx context.Context, sel ast.SelectionSet, v integrations.ListActiveTorrentsResult) graphql.Marshaler {
+	return ec._IntegrationActiveTorrentsResult(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalNIntegrationType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegrationType(ctx context.Context, v any) (model.IntegrationType, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := model.IntegrationType(tmp)
@@ -23318,6 +23574,24 @@ func (ec *executionContext) marshalOInt2ᚕintᚄ(ctx context.Context, sel ast.S
 	return ret
 }
 
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalInt(*v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOInt2ᚖuint(ctx context.Context, v any) (*uint, error) {
 	if v == nil {
 		return nil, nil
@@ -23352,6 +23626,22 @@ func (ec *executionContext) marshalOInt2ᚖuint64(ctx context.Context, sel ast.S
 	_ = ctx
 	res := graphql.MarshalUint64(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOIntegrationActiveTorrentsOrderByInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐIntegrationActiveTorrentsOrderByInput(ctx context.Context, v any) (*gen.IntegrationActiveTorrentsOrderByInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputIntegrationActiveTorrentsOrderByInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOIntegrationActiveTorrentsQueryInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐIntegrationActiveTorrentsQueryInput(ctx context.Context, v any) (*gen.IntegrationActiveTorrentsQueryInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputIntegrationActiveTorrentsQueryInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOLanguage2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐLanguageᚄ(ctx context.Context, v any) ([]model.Language, error) {

@@ -55,6 +55,31 @@ type IntegrationActiveTorrent {
   size: Int!
 }
 
+enum IntegrationActiveTorrentOrderByField {
+  name
+  progress
+  state
+  downloadSpeed
+  eta
+  size
+}
+
+input IntegrationActiveTorrentsOrderByInput {
+  field: IntegrationActiveTorrentOrderByField!
+  descending: Boolean
+}
+
+input IntegrationActiveTorrentsQueryInput {
+  limit: Int
+  page: Int
+  orderBy: IntegrationActiveTorrentsOrderByInput
+}
+
+type IntegrationActiveTorrentsResult {
+  totalCount: Int!
+  items: [IntegrationActiveTorrent!]!
+}
+
 type IntegrationsMutation {
   create(input: CreateIntegrationInput!): Integration!
   update(id: ID!, input: UpdateIntegrationInput!): Integration!

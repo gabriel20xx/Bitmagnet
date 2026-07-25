@@ -1,11 +1,14 @@
-query IntegrationActiveTorrents($id: ID!) {
-  integrationActiveTorrents(id: $id) {
-    hash
-    name
-    progress
-    state
-    downloadSpeed
-    eta
-    size
+query IntegrationActiveTorrents($id: ID!, $input: IntegrationActiveTorrentsQueryInput) {
+  integrationActiveTorrents(id: $id, input: $input) {
+    totalCount
+    items {
+      hash
+      name
+      progress
+      state
+      downloadSpeed
+      eta
+      size
+    }
   }
 }
