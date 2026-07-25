@@ -68,7 +68,7 @@ export function IntegrationsPage() {
   ]
 
   return (
-    <div className="flex">
+    <div className="flex min-h-full">
       {drawerOpen && (
         <FilterSidebar>
           <FilterSidebarSection
