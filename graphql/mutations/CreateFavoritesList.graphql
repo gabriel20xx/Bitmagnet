@@ -1,0 +1,9 @@
+#import "../fragments/FavoritesList"
+
+mutation CreateFavoritesList($input: CreateFavoritesListInput!) {
+  favorites {
+    createList(input: $input) {
+      ...FavoritesList
+    }
+  }
+}

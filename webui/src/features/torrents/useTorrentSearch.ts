@@ -21,6 +21,7 @@ export const emptyResult: TorrentContentSearchResultFragment = {
     contentType: null,
     torrentSource: null,
     torrentTag: null,
+    favoritesList: null,
     torrentFileType: null,
     language: null,
     genre: null,

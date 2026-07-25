@@ -13,6 +13,18 @@ type Client interface {
 	TestConnection(ctx context.Context) error
 }
 
+// ActiveTorrent is a torrent an integration's own client currently reports as downloading -
+// i.e. what it's actively processing right now, not a record bitmagnet itself tracks.
+type ActiveTorrent struct {
+	Hash          string
+	Name          string
+	Progress      float64
+	State         string
+	DownloadSpeed int64
+	ETA           int64
+	Size          int64
+}
+
 type ConnectionDetails struct {
 	Type     model.IntegrationType
 	URL      string
@@ -54,6 +66,9 @@ type Manager interface {
 	Delete(ctx context.Context, id string) error
 	// Send delivers magnetURIs to the named integration's configured client.
 	Send(ctx context.Context, integrationID string, magnetURIs []string) error
+	// ListActiveTorrents returns what the named integration's own client currently reports as
+	// downloading, not a locally-tracked record.
+	ListActiveTorrents(ctx context.Context, integrationID string) ([]ActiveTorrent, error)
 	// TestConnection checks connectivity using the given (possibly not yet saved) details.
 	TestConnection(ctx context.Context, details ConnectionDetails) error
 	// TestSavedConnection checks connectivity using an already-configured integration's stored details.

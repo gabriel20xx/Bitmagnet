@@ -26,6 +26,7 @@ var (
 	QueueJob                 *queueJob
 	Torrent                  *torrent
 	TorrentContent           *torrentContent
+	TorrentFavorite          *torrentFavorite
 	TorrentFile              *torrentFile
 	TorrentHint              *torrentHint
 	TorrentPieces            *torrentPieces
@@ -45,6 +46,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	QueueJob = &Q.QueueJob
 	Torrent = &Q.Torrent
 	TorrentContent = &Q.TorrentContent
+	TorrentFavorite = &Q.TorrentFavorite
 	TorrentFile = &Q.TorrentFile
 	TorrentHint = &Q.TorrentHint
 	TorrentPieces = &Q.TorrentPieces
@@ -65,6 +67,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		QueueJob:                 newQueueJob(db, opts...),
 		Torrent:                  newTorrent(db, opts...),
 		TorrentContent:           newTorrentContent(db, opts...),
+		TorrentFavorite:          newTorrentFavorite(db, opts...),
 		TorrentFile:              newTorrentFile(db, opts...),
 		TorrentHint:              newTorrentHint(db, opts...),
 		TorrentPieces:            newTorrentPieces(db, opts...),
@@ -86,6 +89,7 @@ type Query struct {
 	QueueJob                 queueJob
 	Torrent                  torrent
 	TorrentContent           torrentContent
+	TorrentFavorite          torrentFavorite
 	TorrentFile              torrentFile
 	TorrentHint              torrentHint
 	TorrentPieces            torrentPieces
@@ -110,6 +114,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		QueueJob:                 q.QueueJob.clone(db),
 		Torrent:                  q.Torrent.clone(db),
 		TorrentContent:           q.TorrentContent.clone(db),
+		TorrentFavorite:          q.TorrentFavorite.clone(db),
 		TorrentFile:              q.TorrentFile.clone(db),
 		TorrentHint:              q.TorrentHint.clone(db),
 		TorrentPieces:            q.TorrentPieces.clone(db),
@@ -139,6 +144,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		QueueJob:                 q.QueueJob.replaceDB(db),
 		Torrent:                  q.Torrent.replaceDB(db),
 		TorrentContent:           q.TorrentContent.replaceDB(db),
+		TorrentFavorite:          q.TorrentFavorite.replaceDB(db),
 		TorrentFile:              q.TorrentFile.replaceDB(db),
 		TorrentHint:              q.TorrentHint.replaceDB(db),
 		TorrentPieces:            q.TorrentPieces.replaceDB(db),
@@ -158,6 +164,7 @@ type queryCtx struct {
 	QueueJob                 IQueueJobDo
 	Torrent                  ITorrentDo
 	TorrentContent           ITorrentContentDo
+	TorrentFavorite          ITorrentFavoriteDo
 	TorrentFile              ITorrentFileDo
 	TorrentHint              ITorrentHintDo
 	TorrentPieces            ITorrentPiecesDo
@@ -177,6 +184,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		QueueJob:                 q.QueueJob.WithContext(ctx),
 		Torrent:                  q.Torrent.WithContext(ctx),
 		TorrentContent:           q.TorrentContent.WithContext(ctx),
+		TorrentFavorite:          q.TorrentFavorite.WithContext(ctx),
 		TorrentFile:              q.TorrentFile.WithContext(ctx),
 		TorrentHint:              q.TorrentHint.WithContext(ctx),
 		TorrentPieces:            q.TorrentPieces.WithContext(ctx),

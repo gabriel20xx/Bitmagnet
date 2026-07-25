@@ -14,10 +14,11 @@ type WorkflowsMutation struct {
 
 func (m WorkflowsMutation) Create(ctx context.Context, input gen.CreateWorkflowInput) (model.Workflow, error) {
 	req := workflows.CreateRequest{
-		Name:          input.Name,
-		Enabled:       true,
-		IntegrationID: input.IntegrationID,
-		Criteria:      input.Criteria,
+		Name:            input.Name,
+		Enabled:         true,
+		IntegrationID:   input.IntegrationID.Value(),
+		FavoritesListID: input.FavoritesListID.Value(),
+		Criteria:        input.Criteria,
 	}
 
 	if enabled, ok := input.Enabled.ValueOK(); ok && enabled != nil {
@@ -46,9 +47,11 @@ func (m WorkflowsMutation) Update(
 		req.Enabled = enabled
 	}
 
-	if integrationID, ok := input.IntegrationID.ValueOK(); ok {
-		req.IntegrationID = integrationID
-	}
+	// Unlike the other fields, IntegrationID/FavoritesListID are always applied (see the comment
+	// on workflows.manager.Update) rather than gated on ValueOK, since nil is itself meaningful
+	// here (clear that action) and WorkflowDialog always submits the full current form state.
+	req.IntegrationID = input.IntegrationID.Value()
+	req.FavoritesListID = input.FavoritesListID.Value()
 
 	if matchOnRematch, ok := input.MatchOnRematch.ValueOK(); ok {
 		req.MatchOnRematch = matchOnRematch

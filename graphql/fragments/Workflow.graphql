@@ -3,6 +3,7 @@ fragment Workflow on Workflow {
   name
   enabled
   integrationId
+  favoritesListId
   matchOnRematch
   criteria {
     contentTypes

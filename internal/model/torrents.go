@@ -184,6 +184,18 @@ func (t Torrent) TagNames() []string {
 	return tagNames
 }
 
+// FavoritesListID returns the id of the favorites list this torrent belongs to, or nil if it
+// hasn't been favorited.
+func (t Torrent) FavoritesListID() *string {
+	if t.Favorite.FavoritesListID == "" {
+		return nil
+	}
+
+	id := t.Favorite.FavoritesListID
+
+	return &id
+}
+
 // alignToRuneBoundary walks a byte offset backward, if necessary, until it no longer splits
 // a UTF-8 encoded rune. Cutting a Go string at an arbitrary byte offset (as the heuristics
 // below do, to find word/prefix/suffix boundaries) can otherwise land inside a multi-byte

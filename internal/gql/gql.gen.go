@@ -18,6 +18,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel/gen"
+	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
@@ -117,6 +118,21 @@ type ComplexityRoot struct {
 		URL            func(childComplexity int) int
 	}
 
+	FavoritesList struct {
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+	}
+
+	FavoritesMutation struct {
+		CreateList func(childComplexity int, input gen.CreateFavoritesListInput) int
+		DeleteList func(childComplexity int, id string) int
+		Remove     func(childComplexity int, infoHash protocol.ID) int
+		RenameList func(childComplexity int, id string, input gen.RenameFavoritesListInput) int
+		Set        func(childComplexity int, input gen.SetFavoriteInput) int
+	}
+
 	GenreAgg struct {
 		Count      func(childComplexity int) int
 		IsEstimate func(childComplexity int) int
@@ -147,6 +163,16 @@ type ComplexityRoot struct {
 		Username  func(childComplexity int) int
 	}
 
+	IntegrationActiveTorrent struct {
+		DownloadSpeed func(childComplexity int) int
+		ETA           func(childComplexity int) int
+		Hash          func(childComplexity int) int
+		Name          func(childComplexity int) int
+		Progress      func(childComplexity int) int
+		Size          func(childComplexity int) int
+		State         func(childComplexity int) int
+	}
+
 	IntegrationsMutation struct {
 		Create       func(childComplexity int, input gen.CreateIntegrationInput) int
 		Delete       func(childComplexity int, id string) int
@@ -174,6 +200,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		Favorites    func(childComplexity int) int
 		Integrations func(childComplexity int) int
 		Queue        func(childComplexity int) int
 		Tmdb         func(childComplexity int) int
@@ -182,16 +209,18 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		DatabaseStats  func(childComplexity int) int
-		Health         func(childComplexity int) int
-		Integrations   func(childComplexity int) int
-		Queue          func(childComplexity int) int
-		Tmdb           func(childComplexity int) int
-		Torrent        func(childComplexity int) int
-		TorrentContent func(childComplexity int) int
-		Version        func(childComplexity int) int
-		Workers        func(childComplexity int) int
-		Workflows      func(childComplexity int) int
+		DatabaseStats             func(childComplexity int) int
+		FavoritesLists            func(childComplexity int) int
+		Health                    func(childComplexity int) int
+		IntegrationActiveTorrents func(childComplexity int, id string) int
+		Integrations              func(childComplexity int) int
+		Queue                     func(childComplexity int) int
+		Tmdb                      func(childComplexity int) int
+		Torrent                   func(childComplexity int) int
+		TorrentContent            func(childComplexity int) int
+		Version                   func(childComplexity int) int
+		Workers                   func(childComplexity int) int
+		Workflows                 func(childComplexity int) int
 	}
 
 	QueueJob struct {
@@ -282,24 +311,25 @@ type ComplexityRoot struct {
 	}
 
 	Torrent struct {
-		CreatedAt    func(childComplexity int) int
-		Extension    func(childComplexity int) int
-		FileType     func(childComplexity int) int
-		FileTypes    func(childComplexity int) int
-		Files        func(childComplexity int) int
-		FilesCount   func(childComplexity int) int
-		FilesStatus  func(childComplexity int) int
-		HasFilesInfo func(childComplexity int) int
-		InfoHash     func(childComplexity int) int
-		Leechers     func(childComplexity int) int
-		MagnetURI    func(childComplexity int) int
-		Name         func(childComplexity int) int
-		Seeders      func(childComplexity int) int
-		SingleFile   func(childComplexity int) int
-		Size         func(childComplexity int) int
-		Sources      func(childComplexity int) int
-		TagNames     func(childComplexity int) int
-		UpdatedAt    func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Extension       func(childComplexity int) int
+		FavoritesListID func(childComplexity int) int
+		FileType        func(childComplexity int) int
+		FileTypes       func(childComplexity int) int
+		Files           func(childComplexity int) int
+		FilesCount      func(childComplexity int) int
+		FilesStatus     func(childComplexity int) int
+		HasFilesInfo    func(childComplexity int) int
+		InfoHash        func(childComplexity int) int
+		Leechers        func(childComplexity int) int
+		MagnetURI       func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Seeders         func(childComplexity int) int
+		SingleFile      func(childComplexity int) int
+		Size            func(childComplexity int) int
+		Sources         func(childComplexity int) int
+		TagNames        func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
 	}
 
 	TorrentContent struct {
@@ -330,6 +360,7 @@ type ComplexityRoot struct {
 
 	TorrentContentAggregations struct {
 		ContentType     func(childComplexity int) int
+		FavoritesList   func(childComplexity int) int
 		Genre           func(childComplexity int) int
 		Language        func(childComplexity int) int
 		ReleaseYear     func(childComplexity int) int
@@ -350,6 +381,13 @@ type ComplexityRoot struct {
 		Items                func(childComplexity int) int
 		TotalCount           func(childComplexity int) int
 		TotalCountIsEstimate func(childComplexity int) int
+	}
+
+	TorrentFavoritesListAgg struct {
+		Count      func(childComplexity int) int
+		IsEstimate func(childComplexity int) int
+		Label      func(childComplexity int) int
+		Value      func(childComplexity int) int
 	}
 
 	TorrentFile struct {
@@ -465,14 +503,15 @@ type ComplexityRoot struct {
 	}
 
 	Workflow struct {
-		CreatedAt      func(childComplexity int) int
-		Criteria       func(childComplexity int) int
-		Enabled        func(childComplexity int) int
-		ID             func(childComplexity int) int
-		IntegrationID  func(childComplexity int) int
-		MatchOnRematch func(childComplexity int) int
-		Name           func(childComplexity int) int
-		UpdatedAt      func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Criteria        func(childComplexity int) int
+		Enabled         func(childComplexity int) int
+		FavoritesListID func(childComplexity int) int
+		ID              func(childComplexity int) int
+		IntegrationID   func(childComplexity int) int
+		MatchOnRematch  func(childComplexity int) int
+		Name            func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
 	}
 
 	WorkflowCriteria struct {
@@ -507,6 +546,7 @@ type MutationResolver interface {
 	Queue(ctx context.Context) (gqlmodel.QueueMutation, error)
 	Integrations(ctx context.Context) (gqlmodel.IntegrationsMutation, error)
 	Workflows(ctx context.Context) (gqlmodel.WorkflowsMutation, error)
+	Favorites(ctx context.Context) (gqlmodel.FavoritesMutation, error)
 	Tmdb(ctx context.Context) (gqlmodel.TmdbMutation, error)
 }
 type QueryResolver interface {
@@ -517,7 +557,9 @@ type QueryResolver interface {
 	Torrent(ctx context.Context) (gqlmodel.TorrentQuery, error)
 	TorrentContent(ctx context.Context) (gqlmodel.TorrentContentQuery, error)
 	Integrations(ctx context.Context) ([]model.Integration, error)
+	IntegrationActiveTorrents(ctx context.Context, id string) ([]integrations.ActiveTorrent, error)
 	Workflows(ctx context.Context) ([]model.Workflow, error)
+	FavoritesLists(ctx context.Context) ([]model.FavoritesList, error)
 	DatabaseStats(ctx context.Context) (gqlmodel.DatabaseStatsQuery, error)
 	Tmdb(ctx context.Context) (gqlmodel.TmdbQuery, error)
 }
@@ -831,6 +873,87 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ExternalLink.URL(childComplexity), true
 
+	case "FavoritesList.createdAt":
+		if e.ComplexityRoot.FavoritesList.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.FavoritesList.CreatedAt(childComplexity), true
+	case "FavoritesList.id":
+		if e.ComplexityRoot.FavoritesList.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.FavoritesList.ID(childComplexity), true
+	case "FavoritesList.name":
+		if e.ComplexityRoot.FavoritesList.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.FavoritesList.Name(childComplexity), true
+	case "FavoritesList.updatedAt":
+		if e.ComplexityRoot.FavoritesList.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.FavoritesList.UpdatedAt(childComplexity), true
+
+	case "FavoritesMutation.createList":
+		if e.ComplexityRoot.FavoritesMutation.CreateList == nil {
+			break
+		}
+
+		args, err := ec.field_FavoritesMutation_createList_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.FavoritesMutation.CreateList(childComplexity, args["input"].(gen.CreateFavoritesListInput)), true
+	case "FavoritesMutation.deleteList":
+		if e.ComplexityRoot.FavoritesMutation.DeleteList == nil {
+			break
+		}
+
+		args, err := ec.field_FavoritesMutation_deleteList_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.FavoritesMutation.DeleteList(childComplexity, args["id"].(string)), true
+	case "FavoritesMutation.remove":
+		if e.ComplexityRoot.FavoritesMutation.Remove == nil {
+			break
+		}
+
+		args, err := ec.field_FavoritesMutation_remove_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.FavoritesMutation.Remove(childComplexity, args["infoHash"].(protocol.ID)), true
+	case "FavoritesMutation.renameList":
+		if e.ComplexityRoot.FavoritesMutation.RenameList == nil {
+			break
+		}
+
+		args, err := ec.field_FavoritesMutation_renameList_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.FavoritesMutation.RenameList(childComplexity, args["id"].(string), args["input"].(gen.RenameFavoritesListInput)), true
+	case "FavoritesMutation.set":
+		if e.ComplexityRoot.FavoritesMutation.Set == nil {
+			break
+		}
+
+		args, err := ec.field_FavoritesMutation_set_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.FavoritesMutation.Set(childComplexity, args["input"].(gen.SetFavoriteInput)), true
+
 	case "GenreAgg.count":
 		if e.ComplexityRoot.GenreAgg.Count == nil {
 			break
@@ -942,6 +1065,49 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Integration.Username(childComplexity), true
+
+	case "IntegrationActiveTorrent.downloadSpeed":
+		if e.ComplexityRoot.IntegrationActiveTorrent.DownloadSpeed == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrent.DownloadSpeed(childComplexity), true
+	case "IntegrationActiveTorrent.eta":
+		if e.ComplexityRoot.IntegrationActiveTorrent.ETA == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrent.ETA(childComplexity), true
+	case "IntegrationActiveTorrent.hash":
+		if e.ComplexityRoot.IntegrationActiveTorrent.Hash == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrent.Hash(childComplexity), true
+	case "IntegrationActiveTorrent.name":
+		if e.ComplexityRoot.IntegrationActiveTorrent.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrent.Name(childComplexity), true
+	case "IntegrationActiveTorrent.progress":
+		if e.ComplexityRoot.IntegrationActiveTorrent.Progress == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrent.Progress(childComplexity), true
+	case "IntegrationActiveTorrent.size":
+		if e.ComplexityRoot.IntegrationActiveTorrent.Size == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrent.Size(childComplexity), true
+	case "IntegrationActiveTorrent.state":
+		if e.ComplexityRoot.IntegrationActiveTorrent.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IntegrationActiveTorrent.State(childComplexity), true
 
 	case "IntegrationsMutation.create":
 		if e.ComplexityRoot.IntegrationsMutation.Create == nil {
@@ -1061,6 +1227,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.MetadataSource.Name(childComplexity), true
 
+	case "Mutation.favorites":
+		if e.ComplexityRoot.Mutation.Favorites == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Mutation.Favorites(childComplexity), true
 	case "Mutation.integrations":
 		if e.ComplexityRoot.Mutation.Integrations == nil {
 			break
@@ -1098,12 +1270,29 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.DatabaseStats(childComplexity), true
+	case "Query.favoritesLists":
+		if e.ComplexityRoot.Query.FavoritesLists == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.FavoritesLists(childComplexity), true
 	case "Query.health":
 		if e.ComplexityRoot.Query.Health == nil {
 			break
 		}
 
 		return e.ComplexityRoot.Query.Health(childComplexity), true
+	case "Query.integrationActiveTorrents":
+		if e.ComplexityRoot.Query.IntegrationActiveTorrents == nil {
+			break
+		}
+
+		args, err := ec.field_Query_integrationActiveTorrents_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.IntegrationActiveTorrents(childComplexity, args["id"].(string)), true
 	case "Query.integrations":
 		if e.ComplexityRoot.Query.Integrations == nil {
 			break
@@ -1475,6 +1664,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Torrent.Extension(childComplexity), true
+	case "Torrent.favoritesListId":
+		if e.ComplexityRoot.Torrent.FavoritesListID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Torrent.FavoritesListID(childComplexity), true
 	case "Torrent.fileType":
 		if e.ComplexityRoot.Torrent.FileType == nil {
 			break
@@ -1717,6 +1912,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TorrentContentAggregations.ContentType(childComplexity), true
+	case "TorrentContentAggregations.favoritesList":
+		if e.ComplexityRoot.TorrentContentAggregations.FavoritesList == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TorrentContentAggregations.FavoritesList(childComplexity), true
 	case "TorrentContentAggregations.genre":
 		if e.ComplexityRoot.TorrentContentAggregations.Genre == nil {
 			break
@@ -1808,6 +2009,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TorrentContentSearchResult.TotalCountIsEstimate(childComplexity), true
+
+	case "TorrentFavoritesListAgg.count":
+		if e.ComplexityRoot.TorrentFavoritesListAgg.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TorrentFavoritesListAgg.Count(childComplexity), true
+	case "TorrentFavoritesListAgg.isEstimate":
+		if e.ComplexityRoot.TorrentFavoritesListAgg.IsEstimate == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TorrentFavoritesListAgg.IsEstimate(childComplexity), true
+	case "TorrentFavoritesListAgg.label":
+		if e.ComplexityRoot.TorrentFavoritesListAgg.Label == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TorrentFavoritesListAgg.Label(childComplexity), true
+	case "TorrentFavoritesListAgg.value":
+		if e.ComplexityRoot.TorrentFavoritesListAgg.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TorrentFavoritesListAgg.Value(childComplexity), true
 
 	case "TorrentFile.createdAt":
 		if e.ComplexityRoot.TorrentFile.CreatedAt == nil {
@@ -2233,6 +2459,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Workflow.Enabled(childComplexity), true
+	case "Workflow.favoritesListId":
+		if e.ComplexityRoot.Workflow.FavoritesListID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.FavoritesListID(childComplexity), true
 	case "Workflow.id":
 		if e.ComplexityRoot.Workflow.ID == nil {
 			break
@@ -2373,6 +2605,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputContentTypeFacetInput,
+		ec.unmarshalInputCreateFavoritesListInput,
 		ec.unmarshalInputCreateIntegrationInput,
 		ec.unmarshalInputCreateWorkflowInput,
 		ec.unmarshalInputGenreFacetInput,
@@ -2386,11 +2619,14 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputQueueMetricsQueryInput,
 		ec.unmarshalInputQueuePurgeJobsInput,
 		ec.unmarshalInputReleaseYearFacetInput,
+		ec.unmarshalInputRenameFavoritesListInput,
+		ec.unmarshalInputSetFavoriteInput,
 		ec.unmarshalInputSuggestTagsQueryInput,
 		ec.unmarshalInputTestIntegrationInput,
 		ec.unmarshalInputTorrentContentFacetsInput,
 		ec.unmarshalInputTorrentContentOrderByInput,
 		ec.unmarshalInputTorrentContentSearchQueryInput,
+		ec.unmarshalInputTorrentFavoritesListFacetInput,
 		ec.unmarshalInputTorrentFileTypeFacetInput,
 		ec.unmarshalInputTorrentFilesOrderByInput,
 		ec.unmarshalInputTorrentFilesQueryInput,
@@ -2651,6 +2887,43 @@ enum QueueJobsOrderByField {
   priority
 }
 `, BuiltIn: false},
+	{Name: "../../graphql/schema/favorites.graphqls", Input: `"""
+FavoritesList is a user-defined, named collection that torrents can be favorited into.
+"""
+type FavoritesList {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateFavoritesListInput {
+  name: String!
+}
+
+input RenameFavoritesListInput {
+  name: String!
+}
+
+input SetFavoriteInput {
+  infoHash: Hash20!
+  favoritesListId: ID!
+}
+
+type FavoritesMutation {
+  createList(input: CreateFavoritesListInput!): FavoritesList!
+  renameList(id: ID!, input: RenameFavoritesListInput!): FavoritesList!
+  deleteList(id: ID!): Void
+  """
+  set assigns a torrent to a favorites list, replacing any existing assignment.
+  """
+  set(input: SetFavoriteInput!): Void
+  """
+  remove un-favorites a torrent, if it's currently favorited.
+  """
+  remove(infoHash: Hash20!): Void
+}
+`, BuiltIn: false},
 	{Name: "../../graphql/schema/integrations.graphqls", Input: `enum IntegrationType {
   qbittorrent
 }
@@ -2691,6 +2964,21 @@ input TestIntegrationInput {
   username: String
   password: String
   apiKey: String
+}
+
+"""
+IntegrationActiveTorrent is a torrent an integration's own client (e.g. qBittorrent) currently
+reports as downloading - a live snapshot of what it's processing right now, not something
+bitmagnet itself tracks.
+"""
+type IntegrationActiveTorrent {
+  hash: String!
+  name: String!
+  progress: Float!
+  state: String!
+  downloadSpeed: Int!
+  eta: Int!
+  size: Int!
 }
 
 type IntegrationsMutation {
@@ -2763,6 +3051,7 @@ input TorrentMetricsQueryInput {
   seeders: Int
   leechers: Int
   tagNames: [String!]!
+  favoritesListId: ID
   magnetUri: String!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -2898,6 +3187,7 @@ type ContentCollection {
   queue: QueueMutation!
   integrations: IntegrationsMutation!
   workflows: WorkflowsMutation!
+  favorites: FavoritesMutation!
   tmdb: TmdbMutation!
 }
 
@@ -2925,7 +3215,13 @@ input TorrentReprocessInput {
   torrent: TorrentQuery!
   torrentContent: TorrentContentQuery!
   integrations: [Integration!]!
+  """
+  integrationActiveTorrents queries the integration's own client for what it currently reports
+  as downloading. This is a live call to the external client, not a cached value.
+  """
+  integrationActiveTorrents(id: ID!): [IntegrationActiveTorrent!]!
   workflows: [Workflow!]!
+  favoritesLists: [FavoritesList!]!
   databaseStats: DatabaseStatsQuery!
   tmdb: TmdbQuery!
 }
@@ -3161,6 +3457,12 @@ input TorrentTagFacetInput {
   filter: [String!]
 }
 
+input TorrentFavoritesListFacetInput {
+  aggregate: Boolean
+  logic: FacetLogic
+  filter: [ID!]
+}
+
 input TorrentFileTypeFacetInput {
   aggregate: Boolean
   logic: FacetLogic
@@ -3197,6 +3499,7 @@ input TorrentContentFacetsInput {
   contentType: ContentTypeFacetInput
   torrentSource: TorrentSourceFacetInput
   torrentTag: TorrentTagFacetInput
+  favoritesList: TorrentFavoritesListFacetInput
   torrentFileType: TorrentFileTypeFacetInput
   language: LanguageFacetInput
   genre: GenreFacetInput
@@ -3221,6 +3524,13 @@ type TorrentSourceAgg {
 
 type TorrentTagAgg {
   value: String!
+  label: String!
+  count: Int!
+  isEstimate: Boolean!
+}
+
+type TorrentFavoritesListAgg {
+  value: ID!
   label: String!
   count: Int!
   isEstimate: Boolean!
@@ -3272,6 +3582,7 @@ type TorrentContentAggregations {
   contentType: [ContentTypeAgg!]
   torrentSource: [TorrentSourceAgg!]
   torrentTag: [TorrentTagAgg!]
+  favoritesList: [TorrentFavoritesListAgg!]
   torrentFileType: [TorrentFileTypeAgg!]
   language: [LanguageAgg!]
   genre: [GenreAgg!]
@@ -3356,7 +3667,16 @@ type Workflow {
   id: ID!
   name: String!
   enabled: Boolean!
-  integrationId: ID!
+  """
+  integrationId, when set, sends matching torrents to this integration. A workflow needs at
+  least one of integrationId or favoritesListId set.
+  """
+  integrationId: ID
+  """
+  favoritesListId, when set, adds matching torrents to this favorites list. A workflow needs at
+  least one of integrationId or favoritesListId set.
+  """
+  favoritesListId: ID
   """
   matchOnRematch, when true, also evaluates this workflow when an already-known torrent is
   reclassified (e.g. reprocessed or rematched) - by default a workflow only fires the first time
@@ -3371,7 +3691,8 @@ type Workflow {
 input CreateWorkflowInput {
   name: String!
   enabled: Boolean
-  integrationId: ID!
+  integrationId: ID
+  favoritesListId: ID
   matchOnRematch: Boolean
   criteria: WorkflowCriteriaInput!
 }
@@ -3380,6 +3701,7 @@ input UpdateWorkflowInput {
   name: String
   enabled: Boolean
   integrationId: ID
+  favoritesListId: ID
   matchOnRematch: Boolean
   criteria: WorkflowCriteriaInput
 }
@@ -3531,6 +3853,36 @@ func (ec *executionContext) childFields_ExternalLink(ctx context.Context, field 
 	return nil, fmt.Errorf("no field named %q was found under type ExternalLink", field.Name)
 }
 
+func (ec *executionContext) childFields_FavoritesList(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_FavoritesList_id(ctx, field)
+	case "name":
+		return ec.fieldContext_FavoritesList_name(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_FavoritesList_createdAt(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_FavoritesList_updatedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type FavoritesList", field.Name)
+}
+
+func (ec *executionContext) childFields_FavoritesMutation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "createList":
+		return ec.fieldContext_FavoritesMutation_createList(ctx, field)
+	case "renameList":
+		return ec.fieldContext_FavoritesMutation_renameList(ctx, field)
+	case "deleteList":
+		return ec.fieldContext_FavoritesMutation_deleteList(ctx, field)
+	case "set":
+		return ec.fieldContext_FavoritesMutation_set(ctx, field)
+	case "remove":
+		return ec.fieldContext_FavoritesMutation_remove(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type FavoritesMutation", field.Name)
+}
+
 func (ec *executionContext) childFields_GenreAgg(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "value":
@@ -3589,6 +3941,26 @@ func (ec *executionContext) childFields_Integration(ctx context.Context, field g
 		return ec.fieldContext_Integration_updatedAt(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Integration", field.Name)
+}
+
+func (ec *executionContext) childFields_IntegrationActiveTorrent(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "hash":
+		return ec.fieldContext_IntegrationActiveTorrent_hash(ctx, field)
+	case "name":
+		return ec.fieldContext_IntegrationActiveTorrent_name(ctx, field)
+	case "progress":
+		return ec.fieldContext_IntegrationActiveTorrent_progress(ctx, field)
+	case "state":
+		return ec.fieldContext_IntegrationActiveTorrent_state(ctx, field)
+	case "downloadSpeed":
+		return ec.fieldContext_IntegrationActiveTorrent_downloadSpeed(ctx, field)
+	case "eta":
+		return ec.fieldContext_IntegrationActiveTorrent_eta(ctx, field)
+	case "size":
+		return ec.fieldContext_IntegrationActiveTorrent_size(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IntegrationActiveTorrent", field.Name)
 }
 
 func (ec *executionContext) childFields_IntegrationsMutation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -3849,6 +4221,8 @@ func (ec *executionContext) childFields_Torrent(ctx context.Context, field graph
 		return ec.fieldContext_Torrent_leechers(ctx, field)
 	case "tagNames":
 		return ec.fieldContext_Torrent_tagNames(ctx, field)
+	case "favoritesListId":
+		return ec.fieldContext_Torrent_favoritesListId(ctx, field)
 	case "magnetUri":
 		return ec.fieldContext_Torrent_magnetUri(ctx, field)
 	case "createdAt":
@@ -3919,6 +4293,8 @@ func (ec *executionContext) childFields_TorrentContentAggregations(ctx context.C
 		return ec.fieldContext_TorrentContentAggregations_torrentSource(ctx, field)
 	case "torrentTag":
 		return ec.fieldContext_TorrentContentAggregations_torrentTag(ctx, field)
+	case "favoritesList":
+		return ec.fieldContext_TorrentContentAggregations_favoritesList(ctx, field)
 	case "torrentFileType":
 		return ec.fieldContext_TorrentContentAggregations_torrentFileType(ctx, field)
 	case "language":
@@ -3957,6 +4333,20 @@ func (ec *executionContext) childFields_TorrentContentSearchResult(ctx context.C
 		return ec.fieldContext_TorrentContentSearchResult_aggregations(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type TorrentContentSearchResult", field.Name)
+}
+
+func (ec *executionContext) childFields_TorrentFavoritesListAgg(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "value":
+		return ec.fieldContext_TorrentFavoritesListAgg_value(ctx, field)
+	case "label":
+		return ec.fieldContext_TorrentFavoritesListAgg_label(ctx, field)
+	case "count":
+		return ec.fieldContext_TorrentFavoritesListAgg_count(ctx, field)
+	case "isEstimate":
+		return ec.fieldContext_TorrentFavoritesListAgg_isEstimate(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TorrentFavoritesListAgg", field.Name)
 }
 
 func (ec *executionContext) childFields_TorrentFile(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -4193,6 +4583,8 @@ func (ec *executionContext) childFields_Workflow(ctx context.Context, field grap
 		return ec.fieldContext_Workflow_enabled(ctx, field)
 	case "integrationId":
 		return ec.fieldContext_Workflow_integrationId(ctx, field)
+	case "favoritesListId":
+		return ec.fieldContext_Workflow_favoritesListId(ctx, field)
 	case "matchOnRematch":
 		return ec.fieldContext_Workflow_matchOnRematch(ctx, field)
 	case "criteria":
@@ -4359,6 +4751,84 @@ func (ec *executionContext) childFields___Type(ctx context.Context, field graphq
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_FavoritesMutation_createList_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.CreateFavoritesListInput, error) {
+			return ec.unmarshalNCreateFavoritesListInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateFavoritesListInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_FavoritesMutation_deleteList_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_FavoritesMutation_remove_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "infoHash",
+		func(ctx context.Context, v any) (protocol.ID, error) {
+			return ec.unmarshalNHash202githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋprotocolᚐID(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["infoHash"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_FavoritesMutation_renameList_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.RenameFavoritesListInput, error) {
+			return ec.unmarshalNRenameFavoritesListInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐRenameFavoritesListInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_FavoritesMutation_set_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.SetFavoriteInput, error) {
+			return ec.unmarshalNSetFavoriteInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐSetFavoriteInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_IntegrationsMutation_create_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -4470,6 +4940,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_integrationActiveTorrents_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -5887,6 +6371,318 @@ func (ec *executionContext) fieldContext_ExternalLink_url(_ context.Context, fie
 	return graphql.NewScalarFieldContext("ExternalLink", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _FavoritesList_id(ctx context.Context, field graphql.CollectedField, obj *model.FavoritesList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesList_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesList_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("FavoritesList", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _FavoritesList_name(ctx context.Context, field graphql.CollectedField, obj *model.FavoritesList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesList_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesList_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("FavoritesList", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _FavoritesList_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.FavoritesList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesList_createdAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNDateTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesList_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("FavoritesList", field, false, false, errors.New("field of type DateTime does not have child fields"))
+}
+
+func (ec *executionContext) _FavoritesList_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.FavoritesList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesList_updatedAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNDateTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesList_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("FavoritesList", field, false, false, errors.New("field of type DateTime does not have child fields"))
+}
+
+func (ec *executionContext) _FavoritesMutation_createList(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FavoritesMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesMutation_createList(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.CreateList(ctx, fc.Args["input"].(gen.CreateFavoritesListInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.FavoritesList) graphql.Marshaler {
+			return ec.marshalNFavoritesList2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFavoritesList(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesMutation_createList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FavoritesMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_FavoritesList(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FavoritesMutation_createList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FavoritesMutation_renameList(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FavoritesMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesMutation_renameList(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.RenameList(ctx, fc.Args["id"].(string), fc.Args["input"].(gen.RenameFavoritesListInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.FavoritesList) graphql.Marshaler {
+			return ec.marshalNFavoritesList2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFavoritesList(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesMutation_renameList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FavoritesMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_FavoritesList(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FavoritesMutation_renameList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FavoritesMutation_deleteList(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FavoritesMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesMutation_deleteList(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.DeleteList(ctx, fc.Args["id"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesMutation_deleteList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FavoritesMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Void does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FavoritesMutation_deleteList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FavoritesMutation_set(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FavoritesMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesMutation_set(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Set(ctx, fc.Args["input"].(gen.SetFavoriteInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesMutation_set(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FavoritesMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Void does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FavoritesMutation_set_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FavoritesMutation_remove(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.FavoritesMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_FavoritesMutation_remove(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Remove(ctx, fc.Args["infoHash"].(protocol.ID))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_FavoritesMutation_remove(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FavoritesMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Void does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_FavoritesMutation_remove_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GenreAgg_value(ctx context.Context, field graphql.CollectedField, obj *gen.GenreAgg) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6308,6 +7104,167 @@ func (ec *executionContext) _Integration_updatedAt(ctx context.Context, field gr
 }
 func (ec *executionContext) fieldContext_Integration_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Integration", field, false, false, errors.New("field of type DateTime does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationActiveTorrent_hash(ctx context.Context, field graphql.CollectedField, obj *integrations.ActiveTorrent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrent_hash(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Hash, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrent_hash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("IntegrationActiveTorrent", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationActiveTorrent_name(ctx context.Context, field graphql.CollectedField, obj *integrations.ActiveTorrent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrent_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrent_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("IntegrationActiveTorrent", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationActiveTorrent_progress(ctx context.Context, field graphql.CollectedField, obj *integrations.ActiveTorrent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrent_progress(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Progress, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrent_progress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("IntegrationActiveTorrent", field, false, false, errors.New("field of type Float does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationActiveTorrent_state(ctx context.Context, field graphql.CollectedField, obj *integrations.ActiveTorrent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrent_state(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrent_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("IntegrationActiveTorrent", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationActiveTorrent_downloadSpeed(ctx context.Context, field graphql.CollectedField, obj *integrations.ActiveTorrent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrent_downloadSpeed(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DownloadSpeed, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int64) graphql.Marshaler {
+			return ec.marshalNInt2int64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrent_downloadSpeed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("IntegrationActiveTorrent", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationActiveTorrent_eta(ctx context.Context, field graphql.CollectedField, obj *integrations.ActiveTorrent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrent_eta(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ETA, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int64) graphql.Marshaler {
+			return ec.marshalNInt2int64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrent_eta(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("IntegrationActiveTorrent", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _IntegrationActiveTorrent_size(ctx context.Context, field graphql.CollectedField, obj *integrations.ActiveTorrent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_IntegrationActiveTorrent_size(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Size, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int64) graphql.Marshaler {
+			return ec.marshalNInt2int64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_IntegrationActiveTorrent_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("IntegrationActiveTorrent", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _IntegrationsMutation_create(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationsMutation) (ret graphql.Marshaler) {
@@ -6886,6 +7843,38 @@ func (ec *executionContext) fieldContext_Mutation_workflows(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_favorites(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_favorites(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Mutation().Favorites(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.FavoritesMutation) graphql.Marshaler {
+			return ec.marshalNFavoritesMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐFavoritesMutation(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_favorites(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_FavoritesMutation(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_tmdb(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -7133,6 +8122,50 @@ func (ec *executionContext) fieldContext_Query_integrations(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_integrationActiveTorrents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_integrationActiveTorrents(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Query().IntegrationActiveTorrents(ctx, fc.Args["id"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []integrations.ActiveTorrent) graphql.Marshaler {
+			return ec.marshalNIntegrationActiveTorrent2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐActiveTorrentᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_integrationActiveTorrents(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_IntegrationActiveTorrent(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_integrationActiveTorrents_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_workflows(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -7160,6 +8193,38 @@ func (ec *executionContext) fieldContext_Query_workflows(_ context.Context, fiel
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Workflow(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_favoritesLists(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_favoritesLists(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().FavoritesLists(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.FavoritesList) graphql.Marshaler {
+			return ec.marshalNFavoritesList2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFavoritesListᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_favoritesLists(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_FavoritesList(ctx, field)
 		},
 	}
 	return fc, nil
@@ -8853,6 +9918,29 @@ func (ec *executionContext) fieldContext_Torrent_tagNames(_ context.Context, fie
 	return graphql.NewScalarFieldContext("Torrent", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _Torrent_favoritesListId(ctx context.Context, field graphql.CollectedField, obj *model.Torrent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Torrent_favoritesListId(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.FavoritesListID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Torrent_favoritesListId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Torrent", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
 func (ec *executionContext) _Torrent_magnetUri(ctx context.Context, field graphql.CollectedField, obj *model.Torrent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9592,6 +10680,38 @@ func (ec *executionContext) fieldContext_TorrentContentAggregations_torrentTag(_
 	return fc, nil
 }
 
+func (ec *executionContext) _TorrentContentAggregations_favoritesList(ctx context.Context, field graphql.CollectedField, obj *gen.TorrentContentAggregations) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TorrentContentAggregations_favoritesList(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.FavoritesList, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []gen.TorrentFavoritesListAgg) graphql.Marshaler {
+			return ec.marshalOTorrentFavoritesListAgg2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTorrentFavoritesListAggᚄ(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_TorrentContentAggregations_favoritesList(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TorrentContentAggregations",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TorrentFavoritesListAgg(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TorrentContentAggregations_torrentFileType(ctx context.Context, field graphql.CollectedField, obj *gen.TorrentContentAggregations) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9959,6 +11079,98 @@ func (ec *executionContext) fieldContext_TorrentContentSearchResult_aggregations
 		},
 	}
 	return fc, nil
+}
+
+func (ec *executionContext) _TorrentFavoritesListAgg_value(ctx context.Context, field graphql.CollectedField, obj *gen.TorrentFavoritesListAgg) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TorrentFavoritesListAgg_value(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Value, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TorrentFavoritesListAgg_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TorrentFavoritesListAgg", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _TorrentFavoritesListAgg_label(ctx context.Context, field graphql.CollectedField, obj *gen.TorrentFavoritesListAgg) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TorrentFavoritesListAgg_label(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Label, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TorrentFavoritesListAgg_label(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TorrentFavoritesListAgg", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TorrentFavoritesListAgg_count(ctx context.Context, field graphql.CollectedField, obj *gen.TorrentFavoritesListAgg) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TorrentFavoritesListAgg_count(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TorrentFavoritesListAgg_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TorrentFavoritesListAgg", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TorrentFavoritesListAgg_isEstimate(ctx context.Context, field graphql.CollectedField, obj *gen.TorrentFavoritesListAgg) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TorrentFavoritesListAgg_isEstimate(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.IsEstimate, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TorrentFavoritesListAgg_isEstimate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TorrentFavoritesListAgg", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _TorrentFile_infoHash(ctx context.Context, field graphql.CollectedField, obj *model.TorrentFile) (ret graphql.Marshaler) {
@@ -11607,14 +12819,37 @@ func (ec *executionContext) _Workflow_integrationId(ctx context.Context, field g
 			return obj.IntegrationID, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNID2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOID2ᚖstring(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_Workflow_integrationId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _Workflow_favoritesListId(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_favoritesListId(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.FavoritesListID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOID2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_favoritesListId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
@@ -13198,6 +14433,36 @@ func (ec *executionContext) unmarshalInputContentTypeFacetInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateFavoritesListInput(ctx context.Context, obj any) (gen.CreateFavoritesListInput, error) {
+	var it gen.CreateFavoritesListInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Context, obj any) (gen.CreateIntegrationInput, error) {
 	var it gen.CreateIntegrationInput
 	if obj == nil {
@@ -13281,7 +14546,7 @@ func (ec *executionContext) unmarshalInputCreateWorkflowInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "enabled", "integrationId", "matchOnRematch", "criteria"}
+	fieldsInOrder := [...]string{"name", "enabled", "integrationId", "favoritesListId", "matchOnRematch", "criteria"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13304,11 +14569,18 @@ func (ec *executionContext) unmarshalInputCreateWorkflowInput(ctx context.Contex
 			it.Enabled = graphql.OmittableOf(data)
 		case "integrationId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.IntegrationID = data
+			it.IntegrationID = graphql.OmittableOf(data)
+		case "favoritesListId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("favoritesListId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FavoritesListID = graphql.OmittableOf(data)
 		case "matchOnRematch":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchOnRematch"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -13863,6 +15135,73 @@ func (ec *executionContext) unmarshalInputReleaseYearFacetInput(ctx context.Cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRenameFavoritesListInput(ctx context.Context, obj any) (gen.RenameFavoritesListInput, error) {
+	var it gen.RenameFavoritesListInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSetFavoriteInput(ctx context.Context, obj any) (gen.SetFavoriteInput, error) {
+	var it gen.SetFavoriteInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"infoHash", "favoritesListId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "infoHash":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("infoHash"))
+			data, err := ec.unmarshalNHash202githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋprotocolᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.InfoHash = data
+		case "favoritesListId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("favoritesListId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FavoritesListID = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSuggestTagsQueryInput(ctx context.Context, obj any) (gen.SuggestTagsQueryInput, error) {
 	var it gen.SuggestTagsQueryInput
 	if obj == nil {
@@ -13969,7 +15308,7 @@ func (ec *executionContext) unmarshalInputTorrentContentFacetsInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"contentType", "torrentSource", "torrentTag", "torrentFileType", "language", "genre", "releaseYear", "videoResolution", "videoSource"}
+	fieldsInOrder := [...]string{"contentType", "torrentSource", "torrentTag", "favoritesList", "torrentFileType", "language", "genre", "releaseYear", "videoResolution", "videoSource"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13997,6 +15336,13 @@ func (ec *executionContext) unmarshalInputTorrentContentFacetsInput(ctx context.
 				return it, err
 			}
 			it.TorrentTag = graphql.OmittableOf(data)
+		case "favoritesList":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("favoritesList"))
+			data, err := ec.unmarshalOTorrentFavoritesListFacetInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTorrentFavoritesListFacetInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FavoritesList = graphql.OmittableOf(data)
 		case "torrentFileType":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("torrentFileType"))
 			data, err := ec.unmarshalOTorrentFileTypeFacetInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTorrentFileTypeFacetInput(ctx, v)
@@ -14197,6 +15543,50 @@ func (ec *executionContext) unmarshalInputTorrentContentSearchQueryInput(ctx con
 				return it, err
 			}
 			it.DuplicatesOf = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTorrentFavoritesListFacetInput(ctx context.Context, obj any) (gen.TorrentFavoritesListFacetInput, error) {
+	var it gen.TorrentFavoritesListFacetInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"aggregate", "logic", "filter"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "aggregate":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("aggregate"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Aggregate = graphql.OmittableOf(data)
+		case "logic":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logic"))
+			data, err := ec.unmarshalOFacetLogic2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFacetLogic(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Logic = graphql.OmittableOf(data)
+		case "filter":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Filter = graphql.OmittableOf(data)
 		}
 	}
 	return it, nil
@@ -14635,7 +16025,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkflowInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "enabled", "integrationId", "matchOnRematch", "criteria"}
+	fieldsInOrder := [...]string{"name", "enabled", "integrationId", "favoritesListId", "matchOnRematch", "criteria"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -14663,6 +16053,13 @@ func (ec *executionContext) unmarshalInputUpdateWorkflowInput(ctx context.Contex
 				return it, err
 			}
 			it.IntegrationID = graphql.OmittableOf(data)
+		case "favoritesListId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("favoritesListId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FavoritesListID = graphql.OmittableOf(data)
 		case "matchOnRematch":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchOnRematch"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -15395,6 +16792,282 @@ func (ec *executionContext) _ExternalLink(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var favoritesListImplementors = []string{"FavoritesList"}
+
+func (ec *executionContext) _FavoritesList(ctx context.Context, sel ast.SelectionSet, obj *model.FavoritesList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, favoritesListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FavoritesList")
+		case "id":
+			out.Values[i] = ec._FavoritesList_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._FavoritesList_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._FavoritesList_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._FavoritesList_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var favoritesMutationImplementors = []string{"FavoritesMutation"}
+
+func (ec *executionContext) _FavoritesMutation(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.FavoritesMutation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, favoritesMutationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FavoritesMutation")
+		case "createList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FavoritesMutation_createList(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "renameList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FavoritesMutation_renameList(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "deleteList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FavoritesMutation_deleteList(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "set":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FavoritesMutation_set(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "remove":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._FavoritesMutation_remove(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var genreAggImplementors = []string{"GenreAgg"}
 
 func (ec *executionContext) _GenreAgg(ctx context.Context, sel ast.SelectionSet, obj *gen.GenreAgg) graphql.Marshaler {
@@ -15593,6 +17266,74 @@ func (ec *executionContext) _Integration(ctx context.Context, sel ast.SelectionS
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Integration_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var integrationActiveTorrentImplementors = []string{"IntegrationActiveTorrent"}
+
+func (ec *executionContext) _IntegrationActiveTorrent(ctx context.Context, sel ast.SelectionSet, obj *integrations.ActiveTorrent) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationActiveTorrentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationActiveTorrent")
+		case "hash":
+			out.Values[i] = ec._IntegrationActiveTorrent_hash(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._IntegrationActiveTorrent_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "progress":
+			out.Values[i] = ec._IntegrationActiveTorrent_progress(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "state":
+			out.Values[i] = ec._IntegrationActiveTorrent_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "downloadSpeed":
+			out.Values[i] = ec._IntegrationActiveTorrent_downloadSpeed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "eta":
+			out.Values[i] = ec._IntegrationActiveTorrent_eta(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "size":
+			out.Values[i] = ec._IntegrationActiveTorrent_size(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -16065,6 +17806,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "favorites":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_favorites(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "tmdb":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_tmdb(ctx, field)
@@ -16267,6 +18015,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "integrationActiveTorrents":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_integrationActiveTorrents(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "workflows":
 			field := field
 
@@ -16277,6 +18047,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_workflows(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "favoritesLists":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_favoritesLists(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -17439,6 +19231,11 @@ func (ec *executionContext) _Torrent(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "favoritesListId":
+			out.Values[i] = ec._Torrent_favoritesListId(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "magnetUri":
 			out.Values[i] = ec._Torrent_magnetUri(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -17683,6 +19480,11 @@ func (ec *executionContext) _TorrentContentAggregations(ctx context.Context, sel
 			if out.Values[i] == graphql.RequiredNull {
 				out.Invalids++
 			}
+		case "favoritesList":
+			out.Values[i] = ec._TorrentContentAggregations_favoritesList(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
 		case "torrentFileType":
 			out.Values[i] = ec._TorrentContentAggregations_torrentFileType(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
@@ -17839,6 +19641,59 @@ func (ec *executionContext) _TorrentContentSearchResult(ctx context.Context, sel
 			}
 		case "aggregations":
 			out.Values[i] = ec._TorrentContentSearchResult_aggregations(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var torrentFavoritesListAggImplementors = []string{"TorrentFavoritesListAgg"}
+
+func (ec *executionContext) _TorrentFavoritesListAgg(ctx context.Context, sel ast.SelectionSet, obj *gen.TorrentFavoritesListAgg) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, torrentFavoritesListAggImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TorrentFavoritesListAgg")
+		case "value":
+			out.Values[i] = ec._TorrentFavoritesListAgg_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "label":
+			out.Values[i] = ec._TorrentFavoritesListAgg_label(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._TorrentFavoritesListAgg_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "isEstimate":
+			out.Values[i] = ec._TorrentFavoritesListAgg_isEstimate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -19073,7 +20928,12 @@ func (ec *executionContext) _Workflow(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "integrationId":
 			out.Values[i] = ec._Workflow_integrationId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "favoritesListId":
+			out.Values[i] = ec._Workflow_favoritesListId(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
 				out.Invalids++
 			}
 		case "matchOnRematch":
@@ -19849,6 +21709,11 @@ func (ec *executionContext) marshalNContentTypeAgg2githubᚗcomᚋbitmagnetᚑio
 	return ec._ContentTypeAgg(ctx, sel, &v)
 }
 
+func (ec *executionContext) unmarshalNCreateFavoritesListInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateFavoritesListInput(ctx context.Context, v any) (gen.CreateFavoritesListInput, error) {
+	res, err := ec.unmarshalInputCreateFavoritesListInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateIntegrationInput(ctx context.Context, v any) (gen.CreateIntegrationInput, error) {
 	res, err := ec.unmarshalInputCreateIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -19899,6 +21764,30 @@ func (ec *executionContext) marshalNExternalLink2ᚕgithubᚗcomᚋbitmagnetᚑi
 	return ret
 }
 
+func (ec *executionContext) marshalNFavoritesList2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFavoritesList(ctx context.Context, sel ast.SelectionSet, v model.FavoritesList) graphql.Marshaler {
+	return ec._FavoritesList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFavoritesList2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFavoritesListᚄ(ctx context.Context, sel ast.SelectionSet, v []model.FavoritesList) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNFavoritesList2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFavoritesList(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNFavoritesMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐFavoritesMutation(ctx context.Context, sel ast.SelectionSet, v gqlmodel.FavoritesMutation) graphql.Marshaler {
+	return ec._FavoritesMutation(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalNFileType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFileType(ctx context.Context, v any) (model.FileType, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := model.FileType(tmp)
@@ -19925,6 +21814,22 @@ func (ec *executionContext) unmarshalNFilesStatus2githubᚗcomᚋbitmagnetᚑio�
 func (ec *executionContext) marshalNFilesStatus2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFilesStatus(ctx context.Context, sel ast.SelectionSet, v model.FilesStatus) graphql.Marshaler {
 	_ = sel
 	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v any) (float64, error) {
+	res, err := graphql.UnmarshalFloat(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalFloat(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -20042,6 +21947,22 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2int64(ctx context.Context, v any) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalInt64(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNInt2uint(ctx context.Context, v any) (uint, error) {
 	res, err := graphql.UnmarshalUint(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -20067,6 +21988,26 @@ func (ec *executionContext) marshalNIntegration2ᚕgithubᚗcomᚋbitmagnetᚑio
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
 		return ec.marshalNIntegration2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegration(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNIntegrationActiveTorrent2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐActiveTorrent(ctx context.Context, sel ast.SelectionSet, v integrations.ActiveTorrent) graphql.Marshaler {
+	return ec._IntegrationActiveTorrent(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNIntegrationActiveTorrent2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐActiveTorrentᚄ(ctx context.Context, sel ast.SelectionSet, v []integrations.ActiveTorrent) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNIntegrationActiveTorrent2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐActiveTorrent(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -20263,6 +22204,11 @@ func (ec *executionContext) marshalNReleaseYearAgg2githubᚗcomᚋbitmagnetᚑio
 	return ec._ReleaseYearAgg(ctx, sel, &v)
 }
 
+func (ec *executionContext) unmarshalNRenameFavoritesListInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐRenameFavoritesListInput(ctx context.Context, v any) (gen.RenameFavoritesListInput, error) {
+	res, err := ec.unmarshalInputRenameFavoritesListInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNSeason2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐSeason(ctx context.Context, sel ast.SelectionSet, v model.Season) graphql.Marshaler {
 	return ec._Season(ctx, sel, &v)
 }
@@ -20281,6 +22227,11 @@ func (ec *executionContext) marshalNSeason2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbi
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNSetFavoriteInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐSetFavoriteInput(ctx context.Context, v any) (gen.SetFavoriteInput, error) {
+	res, err := ec.unmarshalInputSetFavoriteInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
@@ -20415,6 +22366,10 @@ func (ec *executionContext) unmarshalNTorrentContentSearchQueryInput2githubᚗco
 
 func (ec *executionContext) marshalNTorrentContentSearchResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTorrentContentSearchResult(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TorrentContentSearchResult) graphql.Marshaler {
 	return ec._TorrentContentSearchResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTorrentFavoritesListAgg2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTorrentFavoritesListAgg(ctx context.Context, sel ast.SelectionSet, v gen.TorrentFavoritesListAgg) graphql.Marshaler {
+	return ec._TorrentFavoritesListAgg(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNTorrentFile2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐTorrentFile(ctx context.Context, sel ast.SelectionSet, v model.TorrentFile) graphql.Marshaler {
@@ -21243,6 +23198,41 @@ func (ec *executionContext) marshalOHash202ᚕgithubᚗcomᚋbitmagnetᚑioᚋbi
 	return ret
 }
 
+func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	vSlice := graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v any) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -21714,6 +23704,33 @@ func (ec *executionContext) unmarshalOTorrentContentOrderByInput2ᚕgithubᚗcom
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) marshalOTorrentFavoritesListAgg2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTorrentFavoritesListAggᚄ(ctx context.Context, sel ast.SelectionSet, v []gen.TorrentFavoritesListAgg) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTorrentFavoritesListAgg2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTorrentFavoritesListAgg(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOTorrentFavoritesListFacetInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTorrentFavoritesListFacetInput(ctx context.Context, v any) (*gen.TorrentFavoritesListFacetInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTorrentFavoritesListFacetInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOTorrentFile2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐTorrentFileᚄ(ctx context.Context, sel ast.SelectionSet, v []model.TorrentFile) graphql.Marshaler {

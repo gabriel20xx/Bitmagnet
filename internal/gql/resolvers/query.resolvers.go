@@ -14,6 +14,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel/gen"
 	"github.com/bitmagnet-io/bitmagnet/internal/health"
+	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
 	"github.com/bitmagnet-io/bitmagnet/internal/version"
 )
@@ -111,9 +112,19 @@ func (r *queryResolver) Integrations(ctx context.Context) ([]model.Integration, 
 	return r.IntegrationsManager.List(ctx)
 }
 
+// IntegrationActiveTorrents is the resolver for the integrationActiveTorrents field.
+func (r *queryResolver) IntegrationActiveTorrents(ctx context.Context, id string) ([]integrations.ActiveTorrent, error) {
+	return r.IntegrationsManager.ListActiveTorrents(ctx, id)
+}
+
 // Workflows is the resolver for the workflows field.
 func (r *queryResolver) Workflows(ctx context.Context) ([]model.Workflow, error) {
 	return r.WorkflowManager.List(ctx)
+}
+
+// FavoritesLists is the resolver for the favoritesLists field.
+func (r *queryResolver) FavoritesLists(ctx context.Context) ([]model.FavoritesList, error) {
+	return r.FavoritesManager.ListLists(ctx)
 }
 
 // DatabaseStats is the resolver for the databaseStats field.

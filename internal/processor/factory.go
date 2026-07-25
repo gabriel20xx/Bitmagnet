@@ -5,6 +5,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/classifier"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
+	"github.com/bitmagnet-io/bitmagnet/internal/favorites"
 	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
 	"github.com/bitmagnet-io/bitmagnet/internal/workflows"
@@ -21,6 +22,7 @@ type Params struct {
 	BlockingManager     lazy.Lazy[blocking.Manager]
 	WorkflowManager     lazy.Lazy[workflows.Manager]
 	IntegrationsManager lazy.Lazy[integrations.Manager]
+	FavoritesManager    lazy.Lazy[favorites.Manager]
 	Logger              *zap.SugaredLogger
 }
 
@@ -56,6 +58,10 @@ func New(p Params) Result {
 			if err != nil {
 				return nil, err
 			}
+			fm, err := p.FavoritesManager.Get()
+			if err != nil {
+				return nil, err
+			}
 
 			return processor{
 				dao:                 d,
@@ -65,6 +71,7 @@ func New(p Params) Result {
 				defaultWorkflow:     p.ClassifierConfig.Workflow,
 				workflowManager:     wm,
 				integrationsManager: im,
+				favoritesManager:    fm,
 				logger:              p.Logger,
 			}, nil
 		}),

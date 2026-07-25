@@ -114,6 +114,12 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 		}),
 		createdAtReadOnly,
 	)
+	torrentFavorites := g.GenerateModel(
+		"torrent_favorites",
+		infoHashType,
+		infoHashReadOnly,
+		createdAtReadOnly,
+	)
 	torrents := g.GenerateModel(
 		"torrents",
 		gen.FieldRelate(
@@ -123,6 +129,16 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 				"torrent_hints",
 				infoHashType,
 			),
+			&field.RelateConfig{
+				GORMTag: field.GormTag{
+					gormTagForeignKey: foreignKeyInfoHash,
+				},
+			},
+		),
+		gen.FieldRelate(
+			field.HasOne,
+			"Favorite",
+			torrentFavorites,
 			&field.RelateConfig{
 				GORMTag: field.GormTag{
 					gormTagForeignKey: foreignKeyInfoHash,
@@ -446,6 +462,7 @@ func BuildGenerator(db *gorm.DB) *gen.Generator {
 		torrentsTorrentSources,
 		torrentPieces,
 		torrentTags,
+		torrentFavorites,
 		torrents,
 		metadataSources,
 		torrentContent,

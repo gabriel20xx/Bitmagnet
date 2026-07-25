@@ -1,0 +1,5 @@
+mutation RemoveFavorite($infoHash: Hash20!) {
+  favorites {
+    remove(infoHash: $infoHash)
+  }
+}

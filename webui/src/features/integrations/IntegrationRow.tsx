@@ -11,23 +11,28 @@ export function IntegrationRow({
   onToggleEnabled,
   onEdit,
   onDelete,
+  onShowActiveTorrents,
 }: {
   integration: IntegrationFragment
   onToggleEnabled: (integration: IntegrationFragment) => void
   onEdit: (integration: IntegrationFragment) => void
   onDelete: (integration: IntegrationFragment) => void
+  onShowActiveTorrents: (integration: IntegrationFragment) => void
 }) {
   const { t } = useTranslation()
 
   return (
-    <tr className="border-t border-border">
+    <tr
+      className="cursor-pointer border-t border-border hover:bg-surface-hover"
+      onClick={() => onShowActiveTorrents(integration)}
+    >
       <td className="py-2">
         <IntegrationStatusBadge integration={integration} />
       </td>
       <td className="py-2 font-medium">{integration.name}</td>
       <td className="py-2 text-muted-fg">{integrationTypeLabels[integration.type]}</td>
       <td className="py-2 text-muted-fg">{integration.url}</td>
-      <td className="py-2 text-right">
+      <td className="py-2 text-right" onClick={(e) => e.stopPropagation()}>
         <SimpleTooltip label={t(integration.enabled ? 'integrations.disable' : 'integrations.enable')}>
           <Button
             type="button"

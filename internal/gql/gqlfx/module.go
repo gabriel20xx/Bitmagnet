@@ -5,6 +5,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/blocking"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
+	"github.com/bitmagnet-io/bitmagnet/internal/favorites"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/config"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/httpserver"
@@ -86,6 +87,10 @@ func New() fx.Option {
 						if err != nil {
 							return nil, err
 						}
+						fm, err := p.FavoritesManager.Get()
+						if err != nil {
+							return nil, err
+						}
 						sm, err := p.SettingsManager.Get()
 						if err != nil {
 							return nil, err
@@ -105,6 +110,7 @@ func New() fx.Option {
 							BlockingManager:      bm,
 							IntegrationsManager:  im,
 							WorkflowManager:      wfm,
+							FavoritesManager:     fm,
 							SettingsManager:      sm,
 							TmdbClient:           tc,
 						}, nil
@@ -137,6 +143,7 @@ type Params struct {
 	BlockingManager      lazy.Lazy[blocking.Manager]
 	IntegrationsManager  lazy.Lazy[integrations.Manager]
 	WorkflowManager      lazy.Lazy[workflows.Manager]
+	FavoritesManager     lazy.Lazy[favorites.Manager]
 	SettingsManager      lazy.Lazy[settings.Manager]
 	TmdbClient           lazy.Lazy[tmdb.Client]
 }

@@ -1,0 +1,5 @@
+mutation SetFavorite($input: SetFavoriteInput!) {
+  favorites {
+    set(input: $input)
+  }
+}

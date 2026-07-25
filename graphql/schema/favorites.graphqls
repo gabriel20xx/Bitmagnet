@@ -1,0 +1,36 @@
+"""
+FavoritesList is a user-defined, named collection that torrents can be favorited into.
+"""
+type FavoritesList {
+  id: ID!
+  name: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateFavoritesListInput {
+  name: String!
+}
+
+input RenameFavoritesListInput {
+  name: String!
+}
+
+input SetFavoriteInput {
+  infoHash: Hash20!
+  favoritesListId: ID!
+}
+
+type FavoritesMutation {
+  createList(input: CreateFavoritesListInput!): FavoritesList!
+  renameList(id: ID!, input: RenameFavoritesListInput!): FavoritesList!
+  deleteList(id: ID!): Void
+  """
+  set assigns a torrent to a favorites list, replacing any existing assignment.
+  """
+  set(input: SetFavoriteInput!): Void
+  """
+  remove un-favorites a torrent, if it's currently favorited.
+  """
+  remove(infoHash: Hash20!): Void
+}

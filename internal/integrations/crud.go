@@ -29,9 +29,23 @@ func (m manager) Create(ctx context.Context, req CreateRequest) (model.Integrati
 		APIKey:   model.NewNullString(req.APIKey),
 	}
 
-	err := m.db.WithContext(ctx).Create(&integration).Error
+	if err := m.db.WithContext(ctx).Create(&integration).Error; err != nil {
+		return model.Integration{}, err
+	}
 
-	return integration, err
+	// GORM substitutes a field's `default` tag value whenever the Go value is that field's zero
+	// value - Enabled:false is indistinguishable from "not set" to it, so an explicit false gets
+	// silently replaced with the column's default (true). Patch it in separately: an explicit
+	// single-column Update isn't subject to that substitution.
+	if !req.Enabled {
+		if err := m.db.WithContext(ctx).Model(&integration).Update("enabled", false).Error; err != nil {
+			return model.Integration{}, err
+		}
+
+		integration.Enabled = false
+	}
+
+	return integration, nil
 }
 
 func (m manager) Update(ctx context.Context, id string, req UpdateRequest) (model.Integration, error) {

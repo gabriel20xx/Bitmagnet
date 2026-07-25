@@ -206,6 +206,10 @@ func torrentContentFacetsOption(input gen.TorrentContentFacetsInput) q.Option {
 		qFacets = append(qFacets, torrentTagFacet(*torrentTag))
 	}
 
+	if favoritesList, ok := input.FavoritesList.ValueOK(); ok {
+		qFacets = append(qFacets, torrentFavoritesListFacet(*favoritesList))
+	}
+
 	if torrentFileType, ok := input.TorrentFileType.ValueOK(); ok {
 		qFacets = append(qFacets, torrentFileTypeFacet(*torrentFileType))
 	}
@@ -272,6 +276,11 @@ func transformTorrentContentAggregations(aggs q.Aggregations) (gen.TorrentConten
 	}
 
 	result.TorrentTag, err = torrentTagAggs(aggs[search.TorrentTagFacetKey].Items)
+	if err != nil {
+		return result, err
+	}
+
+	result.FavoritesList, err = torrentFavoritesListAggs(aggs[search.TorrentFavoritesListFacetKey].Items)
 	if err != nil {
 		return result, err
 	}

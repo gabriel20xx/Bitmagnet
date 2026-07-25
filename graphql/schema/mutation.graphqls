@@ -3,6 +3,7 @@ type Mutation {
   queue: QueueMutation!
   integrations: IntegrationsMutation!
   workflows: WorkflowsMutation!
+  favorites: FavoritesMutation!
   tmdb: TmdbMutation!
 }
 

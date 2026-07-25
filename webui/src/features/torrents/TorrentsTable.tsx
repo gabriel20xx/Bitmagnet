@@ -1,20 +1,20 @@
 import { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Magnet, Download, HelpCircle, Copy, Star } from 'lucide-react'
+import { Magnet, Download, HelpCircle, Copy } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { SimpleTooltip } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils/cn'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { formatTimeAgo } from '@/lib/dates/format'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import { TorrentSendIcon } from '@/features/integrations/TorrentSendIcon'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { contentTypeInfo } from './contentTypes'
+import { FavoritesPicker } from './FavoritesPicker'
 import { SeedersLeechers } from './SeedersLeechers'
 import { TorrentChips } from './TorrentChips'
 import { TorrentDuplicatesRow } from './TorrentDuplicatesRow'
 import { TorrentFilesTree } from './TorrentFilesTree'
-import { useStarTorrents } from './useStarTorrents'
+import { useFavorite } from './useFavorite'
 import type { TorrentSearchControls } from './searchControls'
 
 export const allColumns = ['select', 'summary', 'size', 'publishedAt', 'peers', 'magnet'] as const
@@ -42,7 +42,7 @@ export function TorrentsTable({
   const isAllSelected = items.length > 0 && items.every((i) => selected.has(i.infoHash))
   const isIndeterminate = !isAllSelected && items.some((i) => selected.has(i.infoHash))
   const [expandedDuplicatesOf, setExpandedDuplicatesOf] = useState<string | null>(null)
-  const { isStarred, toggleStar } = useStarTorrents()
+  const { favoritesListId, assign, remove } = useFavorite()
 
   const toggleSelectedTorrent = (infoHash: string) => {
     onSelectControls((c) => ({
@@ -110,25 +110,11 @@ export function TorrentsTable({
                   {displayedColumns.includes('summary') && (
                     <td className="max-w-md py-2">
                       <div className="flex items-center gap-2">
-                        <SimpleTooltip label={t(isStarred(item) ? 'torrents.unstar' : 'torrents.star')}>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              toggleStar(item)
-                            }}
-                            className="shrink-0"
-                          >
-                            <Star
-                              className={cn(
-                                'size-4',
-                                isStarred(item)
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-muted-fg hover:text-yellow-400',
-                              )}
-                            />
-                          </button>
-                        </SimpleTooltip>
+                        <FavoritesPicker
+                          favoritesListId={favoritesListId(item)}
+                          onAssign={(listId) => assign(item, listId)}
+                          onRemove={() => remove(item)}
+                        />
                         <SimpleTooltip label={t(`content_types.singular.${item.contentType ?? 'null'}`)}>
                           <ContentTypeIcon className="size-4 shrink-0" />
                         </SimpleTooltip>

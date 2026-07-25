@@ -1,5 +1,0 @@
-mutation StarTorrent($infoHash: Hash20!) {
-  torrent {
-    putTags(infoHashes: [$infoHash], tagNames: ["starred"])
-  }
-}

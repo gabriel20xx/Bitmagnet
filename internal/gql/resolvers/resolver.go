@@ -4,6 +4,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/blocking"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
+	"github.com/bitmagnet-io/bitmagnet/internal/favorites"
 	"github.com/bitmagnet-io/bitmagnet/internal/health"
 	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
@@ -32,6 +33,7 @@ type Resolver struct {
 	BlockingManager      blocking.Manager
 	IntegrationsManager  integrations.Manager
 	WorkflowManager      workflows.Manager
+	FavoritesManager     favorites.Manager
 	SettingsManager      settings.Manager
 	TmdbClient           tmdb.Client
 }

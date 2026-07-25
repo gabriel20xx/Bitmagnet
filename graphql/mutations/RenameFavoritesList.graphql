@@ -1,0 +1,9 @@
+#import "../fragments/FavoritesList"
+
+mutation RenameFavoritesList($id: ID!, $input: RenameFavoritesListInput!) {
+  favorites {
+    renameList(id: $id, input: $input) {
+      ...FavoritesList
+    }
+  }
+}

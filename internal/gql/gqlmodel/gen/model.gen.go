@@ -28,6 +28,10 @@ type ContentTypeFacetInput struct {
 	Filter    graphql.Omittable[[]*model.ContentType] `json:"filter,omitempty"`
 }
 
+type CreateFavoritesListInput struct {
+	Name string `json:"name"`
+}
+
 type CreateIntegrationInput struct {
 	Type     model.IntegrationType      `json:"type"`
 	Name     string                     `json:"name"`
@@ -39,11 +43,12 @@ type CreateIntegrationInput struct {
 }
 
 type CreateWorkflowInput struct {
-	Name           string                   `json:"name"`
-	Enabled        graphql.Omittable[*bool] `json:"enabled,omitempty"`
-	IntegrationID  string                   `json:"integrationId"`
-	MatchOnRematch graphql.Omittable[*bool] `json:"matchOnRematch,omitempty"`
-	Criteria       model.WorkflowCriteria   `json:"criteria"`
+	Name            string                     `json:"name"`
+	Enabled         graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	IntegrationID   graphql.Omittable[*string] `json:"integrationId,omitempty"`
+	FavoritesListID graphql.Omittable[*string] `json:"favoritesListId,omitempty"`
+	MatchOnRematch  graphql.Omittable[*bool]   `json:"matchOnRematch,omitempty"`
+	Criteria        model.WorkflowCriteria     `json:"criteria"`
 }
 
 type GenreAgg struct {
@@ -150,6 +155,15 @@ type ReleaseYearFacetInput struct {
 	Filter    graphql.Omittable[[]*model.Year] `json:"filter,omitempty"`
 }
 
+type RenameFavoritesListInput struct {
+	Name string `json:"name"`
+}
+
+type SetFavoriteInput struct {
+	InfoHash        protocol.ID `json:"infoHash"`
+	FavoritesListID string      `json:"favoritesListId"`
+}
+
 type SuggestTagsQueryInput struct {
 	Prefix     graphql.Omittable[*string]  `json:"prefix,omitempty"`
 	Exclusions graphql.Omittable[[]string] `json:"exclusions,omitempty"`
@@ -164,32 +178,47 @@ type TestIntegrationInput struct {
 }
 
 type TorrentContentAggregations struct {
-	ContentType     []ContentTypeAgg     `json:"contentType,omitempty"`
-	TorrentSource   []TorrentSourceAgg   `json:"torrentSource,omitempty"`
-	TorrentTag      []TorrentTagAgg      `json:"torrentTag,omitempty"`
-	TorrentFileType []TorrentFileTypeAgg `json:"torrentFileType,omitempty"`
-	Language        []LanguageAgg        `json:"language,omitempty"`
-	Genre           []GenreAgg           `json:"genre,omitempty"`
-	ReleaseYear     []ReleaseYearAgg     `json:"releaseYear,omitempty"`
-	VideoResolution []VideoResolutionAgg `json:"videoResolution,omitempty"`
-	VideoSource     []VideoSourceAgg     `json:"videoSource,omitempty"`
+	ContentType     []ContentTypeAgg          `json:"contentType,omitempty"`
+	TorrentSource   []TorrentSourceAgg        `json:"torrentSource,omitempty"`
+	TorrentTag      []TorrentTagAgg           `json:"torrentTag,omitempty"`
+	FavoritesList   []TorrentFavoritesListAgg `json:"favoritesList,omitempty"`
+	TorrentFileType []TorrentFileTypeAgg      `json:"torrentFileType,omitempty"`
+	Language        []LanguageAgg             `json:"language,omitempty"`
+	Genre           []GenreAgg                `json:"genre,omitempty"`
+	ReleaseYear     []ReleaseYearAgg          `json:"releaseYear,omitempty"`
+	VideoResolution []VideoResolutionAgg      `json:"videoResolution,omitempty"`
+	VideoSource     []VideoSourceAgg          `json:"videoSource,omitempty"`
 }
 
 type TorrentContentFacetsInput struct {
-	ContentType     graphql.Omittable[*ContentTypeFacetInput]     `json:"contentType,omitempty"`
-	TorrentSource   graphql.Omittable[*TorrentSourceFacetInput]   `json:"torrentSource,omitempty"`
-	TorrentTag      graphql.Omittable[*TorrentTagFacetInput]      `json:"torrentTag,omitempty"`
-	TorrentFileType graphql.Omittable[*TorrentFileTypeFacetInput] `json:"torrentFileType,omitempty"`
-	Language        graphql.Omittable[*LanguageFacetInput]        `json:"language,omitempty"`
-	Genre           graphql.Omittable[*GenreFacetInput]           `json:"genre,omitempty"`
-	ReleaseYear     graphql.Omittable[*ReleaseYearFacetInput]     `json:"releaseYear,omitempty"`
-	VideoResolution graphql.Omittable[*VideoResolutionFacetInput] `json:"videoResolution,omitempty"`
-	VideoSource     graphql.Omittable[*VideoSourceFacetInput]     `json:"videoSource,omitempty"`
+	ContentType     graphql.Omittable[*ContentTypeFacetInput]          `json:"contentType,omitempty"`
+	TorrentSource   graphql.Omittable[*TorrentSourceFacetInput]        `json:"torrentSource,omitempty"`
+	TorrentTag      graphql.Omittable[*TorrentTagFacetInput]           `json:"torrentTag,omitempty"`
+	FavoritesList   graphql.Omittable[*TorrentFavoritesListFacetInput] `json:"favoritesList,omitempty"`
+	TorrentFileType graphql.Omittable[*TorrentFileTypeFacetInput]      `json:"torrentFileType,omitempty"`
+	Language        graphql.Omittable[*LanguageFacetInput]             `json:"language,omitempty"`
+	Genre           graphql.Omittable[*GenreFacetInput]                `json:"genre,omitempty"`
+	ReleaseYear     graphql.Omittable[*ReleaseYearFacetInput]          `json:"releaseYear,omitempty"`
+	VideoResolution graphql.Omittable[*VideoResolutionFacetInput]      `json:"videoResolution,omitempty"`
+	VideoSource     graphql.Omittable[*VideoSourceFacetInput]          `json:"videoSource,omitempty"`
 }
 
 type TorrentContentOrderByInput struct {
 	Field      TorrentContentOrderByField `json:"field"`
 	Descending graphql.Omittable[*bool]   `json:"descending,omitempty"`
+}
+
+type TorrentFavoritesListAgg struct {
+	Value      string `json:"value"`
+	Label      string `json:"label"`
+	Count      int    `json:"count"`
+	IsEstimate bool   `json:"isEstimate"`
+}
+
+type TorrentFavoritesListFacetInput struct {
+	Aggregate graphql.Omittable[*bool]             `json:"aggregate,omitempty"`
+	Logic     graphql.Omittable[*model.FacetLogic] `json:"logic,omitempty"`
+	Filter    graphql.Omittable[[]string]          `json:"filter,omitempty"`
 }
 
 type TorrentFileTypeAgg struct {
@@ -269,11 +298,12 @@ type UpdateIntegrationInput struct {
 }
 
 type UpdateWorkflowInput struct {
-	Name           graphql.Omittable[*string]                 `json:"name,omitempty"`
-	Enabled        graphql.Omittable[*bool]                   `json:"enabled,omitempty"`
-	IntegrationID  graphql.Omittable[*string]                 `json:"integrationId,omitempty"`
-	MatchOnRematch graphql.Omittable[*bool]                   `json:"matchOnRematch,omitempty"`
-	Criteria       graphql.Omittable[*model.WorkflowCriteria] `json:"criteria,omitempty"`
+	Name            graphql.Omittable[*string]                 `json:"name,omitempty"`
+	Enabled         graphql.Omittable[*bool]                   `json:"enabled,omitempty"`
+	IntegrationID   graphql.Omittable[*string]                 `json:"integrationId,omitempty"`
+	FavoritesListID graphql.Omittable[*string]                 `json:"favoritesListId,omitempty"`
+	MatchOnRematch  graphql.Omittable[*bool]                   `json:"matchOnRematch,omitempty"`
+	Criteria        graphql.Omittable[*model.WorkflowCriteria] `json:"criteria,omitempty"`
 }
 
 type VideoResolutionAgg struct {

@@ -1,0 +1,7 @@
+#import "../fragments/FavoritesList"
+
+query FavoritesLists {
+  favoritesLists {
+    ...FavoritesList
+  }
+}

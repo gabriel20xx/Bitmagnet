@@ -9,6 +9,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
+	"github.com/bitmagnet-io/bitmagnet/internal/favorites"
 	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
@@ -24,6 +25,7 @@ type Params struct {
 	Search              lazy.Lazy[search.Search]
 	WorkflowManager     lazy.Lazy[workflows.Manager]
 	IntegrationsManager lazy.Lazy[integrations.Manager]
+	FavoritesManager    lazy.Lazy[favorites.Manager]
 }
 
 type Result struct {
@@ -50,6 +52,11 @@ func New(p Params) Result {
 			}
 
 			im, err := p.IntegrationsManager.Get()
+			if err != nil {
+				return handler.Handler{}, err
+			}
+
+			fm, err := p.FavoritesManager.Get()
 			if err != nil {
 				return handler.Handler{}, err
 			}
@@ -89,13 +96,23 @@ func New(p Params) Result {
 					var magnetURIs []string
 
 					for _, item := range result.Items {
-						if wf.Criteria.Matches(item.Torrent, item.TorrentContent) {
+						if !wf.Criteria.Matches(item.Torrent, item.TorrentContent) {
+							continue
+						}
+
+						if wf.IntegrationID != nil {
 							magnetURIs = append(magnetURIs, item.Torrent.MagnetURI())
+						}
+
+						if wf.FavoritesListID != nil {
+							if favErr := fm.SetFavorite(ctx, item.Torrent.InfoHash, *wf.FavoritesListID); favErr != nil {
+								return favErr
+							}
 						}
 					}
 
-					if len(magnetURIs) > 0 {
-						if sendErr := im.Send(ctx, wf.IntegrationID, magnetURIs); sendErr != nil {
+					if len(magnetURIs) > 0 && wf.IntegrationID != nil {
+						if sendErr := im.Send(ctx, *wf.IntegrationID, magnetURIs); sendErr != nil {
 							return sendErr
 						}
 					}

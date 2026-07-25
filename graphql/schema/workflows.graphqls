@@ -36,7 +36,16 @@ type Workflow {
   id: ID!
   name: String!
   enabled: Boolean!
-  integrationId: ID!
+  """
+  integrationId, when set, sends matching torrents to this integration. A workflow needs at
+  least one of integrationId or favoritesListId set.
+  """
+  integrationId: ID
+  """
+  favoritesListId, when set, adds matching torrents to this favorites list. A workflow needs at
+  least one of integrationId or favoritesListId set.
+  """
+  favoritesListId: ID
   """
   matchOnRematch, when true, also evaluates this workflow when an already-known torrent is
   reclassified (e.g. reprocessed or rematched) - by default a workflow only fires the first time
@@ -51,7 +60,8 @@ type Workflow {
 input CreateWorkflowInput {
   name: String!
   enabled: Boolean
-  integrationId: ID!
+  integrationId: ID
+  favoritesListId: ID
   matchOnRematch: Boolean
   criteria: WorkflowCriteriaInput!
 }
@@ -60,6 +70,7 @@ input UpdateWorkflowInput {
   name: String
   enabled: Boolean
   integrationId: ID
+  favoritesListId: ID
   matchOnRematch: Boolean
   criteria: WorkflowCriteriaInput
 }

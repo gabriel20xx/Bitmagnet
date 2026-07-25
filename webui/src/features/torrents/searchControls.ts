@@ -1,4 +1,4 @@
-import { Album, Drama, FileText, Languages, Ratio, Share2, type LucideIcon } from 'lucide-react'
+import { Album, Drama, FileText, Languages, Ratio, Share2, Star, type LucideIcon } from 'lucide-react'
 import type { TFunction } from 'i18next'
 import type {
   ContentType,
@@ -32,6 +32,7 @@ export interface TorrentSearchFacets {
   torrentSource: FacetInput<string>
   videoResolution: FacetInput<VideoResolution>
   videoSource: FacetInput<VideoSource>
+  favoritesList: FacetInput<string>
 }
 
 export interface OrderBySelection {
@@ -68,6 +69,7 @@ export const initControls: TorrentSearchControls = {
     torrentSource: inactiveFacet,
     videoResolution: inactiveFacet,
     videoSource: inactiveFacet,
+    favoritesList: inactiveFacet,
   },
   sizeMin: undefined,
   sizeMax: undefined,
@@ -154,6 +156,16 @@ export const videoSourceFacet: FacetDefinition<VideoSource, true> = {
   resolveLabel: (agg) => (agg.value as string | undefined) ?? '?',
 }
 
+export const favoritesListFacet: FacetDefinition<string, false> = {
+  key: 'favorites_list',
+  icon: Star,
+  allowNull: false,
+  extractInput: (f) => f.favoritesList,
+  patchInput: (f, i) => ({ ...f, favoritesList: i }),
+  extractAggregations: (aggs) => aggs.favoritesList ?? [],
+  resolveLabel: (agg) => agg.label,
+}
+
 // The heterogeneous element types (each facet's T/AllowNull differ) can't be reconciled
 // into a single generic signature, so callers over this list necessarily operate on `any`.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -164,6 +176,7 @@ export const facets: FacetDefinition<any, any>[] = [
   genreFacet,
   videoResolutionFacet,
   videoSourceFacet,
+  favoritesListFacet,
 ]
 
 export const orderByOptions: OrderBySelection[] = [
@@ -222,6 +235,9 @@ export function controlsToQueryVariables(ctrl: TorrentSearchControls): TorrentCo
           : undefined,
         videoSource: ctrl.facets.videoSource.active
           ? { aggregate: true, filter: ctrl.facets.videoSource.filter }
+          : undefined,
+        favoritesList: ctrl.facets.favoritesList.active
+          ? { aggregate: true, filter: ctrl.facets.favoritesList.filter }
           : undefined,
       },
     },

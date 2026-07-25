@@ -26,6 +26,12 @@ fragment TorrentContentSearchResult on TorrentContentSearchResult {
       count
       isEstimate
     }
+    favoritesList {
+      value
+      label
+      count
+      isEstimate
+    }
     torrentFileType {
       value
       label

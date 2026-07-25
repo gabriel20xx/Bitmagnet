@@ -25,6 +25,7 @@ type Torrent struct {
 	FilesCount      NullUint                `gorm:"column:files_count" json:"filesCount"`
 	FileFingerprint []byte                  `gorm:"column:file_fingerprint" json:"fileFingerprint"`
 	Hint            TorrentHint             `gorm:"foreignKey:InfoHash" json:"hint"`
+	Favorite        TorrentFavorite         `gorm:"foreignKey:InfoHash" json:"favorite"`
 	Contents        []TorrentContent        `gorm:"foreignKey:InfoHash" json:"contents"`
 	Sources         []TorrentsTorrentSource `gorm:"foreignKey:InfoHash" json:"sources"`
 	Files           []TorrentFile           `gorm:"foreignKey:InfoHash" json:"files"`

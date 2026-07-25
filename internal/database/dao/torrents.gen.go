@@ -44,6 +44,12 @@ func newTorrent(db *gorm.DB, opts ...gen.DOOption) torrent {
 		RelationField: field.NewRelation("Hint", "model.TorrentHint"),
 	}
 
+	_torrent.Favorite = torrentHasOneFavorite{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Favorite", "model.TorrentFavorite"),
+	}
+
 	_torrent.Contents = torrentHasManyContents{
 		db: db.Session(&gorm.Session{}),
 
@@ -100,6 +106,8 @@ type torrent struct {
 	FileFingerprint field.Bytes
 	Hint            torrentHasOneHint
 
+	Favorite torrentHasOneFavorite
+
 	Contents torrentHasManyContents
 
 	Sources torrentHasManySources
@@ -151,7 +159,7 @@ func (t *torrent) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *torrent) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 16)
+	t.fieldMap = make(map[string]field.Expr, 17)
 	t.fieldMap["info_hash"] = t.InfoHash
 	t.fieldMap["name"] = t.Name
 	t.fieldMap["size"] = t.Size
@@ -169,6 +177,8 @@ func (t torrent) clone(db *gorm.DB) torrent {
 	t.torrentDo.ReplaceConnPool(db.Statement.ConnPool)
 	t.Hint.db = db.Session(&gorm.Session{Initialized: true})
 	t.Hint.db.Statement.ConnPool = db.Statement.ConnPool
+	t.Favorite.db = db.Session(&gorm.Session{Initialized: true})
+	t.Favorite.db.Statement.ConnPool = db.Statement.ConnPool
 	t.Contents.db = db.Session(&gorm.Session{Initialized: true})
 	t.Contents.db.Statement.ConnPool = db.Statement.ConnPool
 	t.Sources.db = db.Session(&gorm.Session{Initialized: true})
@@ -185,6 +195,7 @@ func (t torrent) clone(db *gorm.DB) torrent {
 func (t torrent) replaceDB(db *gorm.DB) torrent {
 	t.torrentDo.ReplaceDB(db)
 	t.Hint.db = db.Session(&gorm.Session{})
+	t.Favorite.db = db.Session(&gorm.Session{})
 	t.Contents.db = db.Session(&gorm.Session{})
 	t.Sources.db = db.Session(&gorm.Session{})
 	t.Files.db = db.Session(&gorm.Session{})
@@ -270,6 +281,87 @@ func (a torrentHasOneHintTx) Count() int64 {
 }
 
 func (a torrentHasOneHintTx) Unscoped() *torrentHasOneHintTx {
+	a.tx = a.tx.Unscoped()
+	return &a
+}
+
+type torrentHasOneFavorite struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a torrentHasOneFavorite) Where(conds ...field.Expr) *torrentHasOneFavorite {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a torrentHasOneFavorite) WithContext(ctx context.Context) *torrentHasOneFavorite {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a torrentHasOneFavorite) Session(session *gorm.Session) *torrentHasOneFavorite {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a torrentHasOneFavorite) Model(m *model.Torrent) *torrentHasOneFavoriteTx {
+	return &torrentHasOneFavoriteTx{a.db.Model(m).Association(a.Name())}
+}
+
+func (a torrentHasOneFavorite) Unscoped() *torrentHasOneFavorite {
+	a.db = a.db.Unscoped()
+	return &a
+}
+
+type torrentHasOneFavoriteTx struct{ tx *gorm.Association }
+
+func (a torrentHasOneFavoriteTx) Find() (result *model.TorrentFavorite, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a torrentHasOneFavoriteTx) Append(values ...*model.TorrentFavorite) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a torrentHasOneFavoriteTx) Replace(values ...*model.TorrentFavorite) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a torrentHasOneFavoriteTx) Delete(values ...*model.TorrentFavorite) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a torrentHasOneFavoriteTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a torrentHasOneFavoriteTx) Count() int64 {
+	return a.tx.Count()
+}
+
+func (a torrentHasOneFavoriteTx) Unscoped() *torrentHasOneFavoriteTx {
 	a.tx = a.tx.Unscoped()
 	return &a
 }

@@ -190,12 +190,20 @@ func (h *serverHandler) start(ctx context.Context) {
 	}
 }
 
+// handleJob claims at most one eligible job and runs it. Claiming (the SELECT ... FOR UPDATE
+// SKIP LOCKED) happens in its own short transaction that only extends the job's run_after as a
+// lease before committing; the handler itself then runs outside of any transaction. Handlers can
+// run for up to several minutes (see JobTimeout), and holding a database transaction open for the
+// whole time would block autovacuum for the entire database, not just this table, degrading
+// unrelated queries under sustained write load.
 func (h *serverHandler) handleJob(
 	ctx context.Context,
 	conds ...gen.Condition,
 ) (jobID string, processed bool, err error) {
+	var job *model.QueueJob
+
 	err = h.query.Transaction(func(tx *dao.Query) error {
-		job, findErr := tx.QueueJob.WithContext(ctx).Where(
+		claimed, findErr := tx.QueueJob.WithContext(ctx).Where(
 			append(
 				conds,
 				h.query.QueueJob.Queue.Eq(h.Queue),
@@ -206,7 +214,9 @@ func (h *serverHandler) handleJob(
 				h.query.QueueJob.RunAfter.Lte(time.Now()),
 			)...,
 		).Order(
-			h.query.QueueJob.Status.Eq(string(model.QueueJobStatusRetry)),
+			// "pending" sorts before "retry" alphabetically, giving fresh jobs priority over
+			// retries while keeping this ORDER BY sargable against the supporting index.
+			h.query.QueueJob.Status,
 			h.query.QueueJob.Priority,
 			h.query.QueueJob.RunAfter,
 		).Clauses(clause.Locking{
@@ -221,47 +231,69 @@ func (h *serverHandler) handleJob(
 			return findErr
 		}
 
-		jobID = job.ID
+		leased := *claimed
+		leased.RunAfter = time.Now().Add(h.JobTimeout)
 
-		var jobErr error
-		if job.Deadline.Valid && job.Deadline.Time.Before(time.Now()) {
-			jobErr = ErrJobExceededDeadline
-
-			h.logger.Debugw("job deadline is in the past, skipping", "job_id", job.ID)
-		} else {
-			// check if the job is being retried and increment retry count accordingly
-			if job.Status != model.QueueJobStatusPending {
-				job.Retries++
-			}
-			// execute the queue handler of this job
-			jobErr = handler.Exec(ctx, h.Handler, *job)
+		if _, updateErr := tx.QueueJob.WithContext(ctx).Updates(&leased); updateErr != nil {
+			return updateErr
 		}
 
-		job.RanAt = sql.NullTime{Time: time.Now(), Valid: true}
+		job = claimed
 
-		if jobErr != nil {
-			h.logger.Errorw("job failed", "error", jobErr)
-
-			if job.Retries < job.MaxRetries {
-				job.Status = model.QueueJobStatusRetry
-				job.RunAfter = queue.CalculateBackoff(job.Retries)
-			} else {
-				job.Status = model.QueueJobStatusFailed
-			}
-
-			job.Error = model.NewNullString(jobErr.Error())
-		} else {
-			job.Status = model.QueueJobStatusProcessed
-			processed = true
-		}
-
-		_, updateErr := tx.QueueJob.WithContext(ctx).Updates(job)
-
-		return updateErr
+		return nil
 	})
 	if err != nil {
 		h.logger.Error("error handling job", "error", err)
-	} else if processed {
+
+		return
+	}
+	if job == nil {
+		return
+	}
+
+	jobID = job.ID
+
+	var jobErr error
+	if job.Deadline.Valid && job.Deadline.Time.Before(time.Now()) {
+		jobErr = ErrJobExceededDeadline
+
+		h.logger.Debugw("job deadline is in the past, skipping", "job_id", job.ID)
+	} else {
+		// check if the job is being retried and increment retry count accordingly
+		if job.Status != model.QueueJobStatusPending {
+			job.Retries++
+		}
+		// execute the queue handler of this job
+		jobErr = handler.Exec(ctx, h.Handler, *job)
+	}
+
+	job.RanAt = sql.NullTime{Time: time.Now(), Valid: true}
+
+	if jobErr != nil {
+		h.logger.Errorw("job failed", "error", jobErr)
+
+		if job.Retries < job.MaxRetries {
+			job.Status = model.QueueJobStatusRetry
+			job.RunAfter = queue.CalculateBackoff(job.Retries)
+		} else {
+			job.Status = model.QueueJobStatusFailed
+		}
+
+		job.Error = model.NewNullString(jobErr.Error())
+	} else {
+		job.Status = model.QueueJobStatusProcessed
+		processed = true
+	}
+
+	if _, updateErr := h.query.QueueJob.WithContext(ctx).Updates(job); updateErr != nil {
+		h.logger.Error("error handling job", "error", updateErr)
+
+		err = updateErr
+
+		return
+	}
+
+	if processed {
 		h.logger.Debugw("job processed", "job_id", jobID)
 	}
 

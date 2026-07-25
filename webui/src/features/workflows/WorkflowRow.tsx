@@ -8,13 +8,13 @@ import { ApplyWorkflowToExistingDocument, type WorkflowFragment } from '@/lib/gr
 
 export function WorkflowRow({
   workflow,
-  integrationName,
+  targetLabel,
   onToggleEnabled,
   onEdit,
   onDelete,
 }: {
   workflow: WorkflowFragment
-  integrationName: string
+  targetLabel: string
   onToggleEnabled: (workflow: WorkflowFragment) => void
   onEdit: (workflow: WorkflowFragment) => void
   onDelete: (workflow: WorkflowFragment) => void
@@ -44,7 +44,7 @@ export function WorkflowRow({
         </SimpleTooltip>
       </td>
       <td className="py-2 font-medium">{workflow.name}</td>
-      <td className="py-2 text-muted-fg">{integrationName}</td>
+      <td className="py-2 text-muted-fg">{targetLabel}</td>
       <td className="py-2 text-muted-fg">
         {t(workflow.matchOnRematch ? 'workflows.match_mode_always' : 'workflows.match_mode_new_only')}
       </td>

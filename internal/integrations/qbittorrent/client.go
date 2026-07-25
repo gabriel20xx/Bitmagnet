@@ -90,6 +90,48 @@ func (c *Client) login(ctx context.Context) error {
 	return c.doLogin(ctx)
 }
 
+// Torrent is a torrent as reported by qBittorrent's own /api/v2/torrents/info endpoint.
+type Torrent struct {
+	Hash          string  `json:"hash"`
+	Name          string  `json:"name"`
+	Progress      float64 `json:"progress"`
+	State         string  `json:"state"`
+	DownloadSpeed int64   `json:"dlspeed"`
+	// ETA is the estimated seconds remaining, or a very large sentinel value from qBittorrent
+	// when unknown (e.g. stalled, no peers) - callers should treat implausibly large values as
+	// "unknown" rather than displaying them verbatim.
+	ETA  int64 `json:"eta"`
+	Size int64 `json:"size"`
+}
+
+// ListActiveTorrents returns the torrents qBittorrent currently reports as downloading (including
+// stalled/queued/checking states that fall under its own "downloading" filter) - i.e. what it's
+// currently processing, not its full library.
+func (c *Client) ListActiveTorrents(ctx context.Context) ([]Torrent, error) {
+	if !c.usesAPIKey() {
+		if loginErr := c.login(ctx); loginErr != nil {
+			return nil, fmt.Errorf("qbittorrent login: %w", loginErr)
+		}
+	}
+
+	var torrents []Torrent
+
+	res, err := c.resty.R().
+		SetContext(ctx).
+		SetQueryParam("filter", "downloading").
+		SetResult(&torrents).
+		Get("/api/v2/torrents/info")
+	if err != nil {
+		return nil, fmt.Errorf("qbittorrent list torrents: %w", err)
+	}
+
+	if !res.IsSuccess() {
+		return nil, fmt.Errorf("qbittorrent list torrents: unexpected status %s", res.Status())
+	}
+
+	return torrents, nil
+}
+
 // TestConnection checks that qBittorrent's WebUI is reachable and that its credentials (either
 // the API key, or - unlike login - the username/password even if empty) are accepted, so it
 // also catches an unreachable/wrong URL.

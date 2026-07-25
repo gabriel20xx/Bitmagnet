@@ -36,6 +36,11 @@ func (r *mutationResolver) Workflows(ctx context.Context) (gqlmodel.WorkflowsMut
 	return gqlmodel.WorkflowsMutation{Manager: r.WorkflowManager}, nil
 }
 
+// Favorites is the resolver for the favorites field.
+func (r *mutationResolver) Favorites(ctx context.Context) (gqlmodel.FavoritesMutation, error) {
+	return gqlmodel.FavoritesMutation{Manager: r.FavoritesManager}, nil
+}
+
 // Tmdb is the resolver for the tmdb field.
 func (r *mutationResolver) Tmdb(ctx context.Context) (gqlmodel.TmdbMutation, error) {
 	return gqlmodel.TmdbMutation{SettingsManager: r.SettingsManager, Client: r.TmdbClient}, nil

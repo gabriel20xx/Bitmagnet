@@ -39,6 +39,12 @@ input TorrentTagFacetInput {
   filter: [String!]
 }
 
+input TorrentFavoritesListFacetInput {
+  aggregate: Boolean
+  logic: FacetLogic
+  filter: [ID!]
+}
+
 input TorrentFileTypeFacetInput {
   aggregate: Boolean
   logic: FacetLogic
@@ -75,6 +81,7 @@ input TorrentContentFacetsInput {
   contentType: ContentTypeFacetInput
   torrentSource: TorrentSourceFacetInput
   torrentTag: TorrentTagFacetInput
+  favoritesList: TorrentFavoritesListFacetInput
   torrentFileType: TorrentFileTypeFacetInput
   language: LanguageFacetInput
   genre: GenreFacetInput
@@ -99,6 +106,13 @@ type TorrentSourceAgg {
 
 type TorrentTagAgg {
   value: String!
+  label: String!
+  count: Int!
+  isEstimate: Boolean!
+}
+
+type TorrentFavoritesListAgg {
+  value: ID!
   label: String!
   count: Int!
   isEstimate: Boolean!
@@ -150,6 +164,7 @@ type TorrentContentAggregations {
   contentType: [ContentTypeAgg!]
   torrentSource: [TorrentSourceAgg!]
   torrentTag: [TorrentTagAgg!]
+  favoritesList: [TorrentFavoritesListAgg!]
   torrentFileType: [TorrentFileTypeAgg!]
   language: [LanguageAgg!]
   genre: [GenreAgg!]

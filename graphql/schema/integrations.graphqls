@@ -40,6 +40,21 @@ input TestIntegrationInput {
   apiKey: String
 }
 
+"""
+IntegrationActiveTorrent is a torrent an integration's own client (e.g. qBittorrent) currently
+reports as downloading - a live snapshot of what it's processing right now, not something
+bitmagnet itself tracks.
+"""
+type IntegrationActiveTorrent {
+  hash: String!
+  name: String!
+  progress: Float!
+  state: String!
+  downloadSpeed: Int!
+  eta: Int!
+  size: Int!
+}
+
 type IntegrationsMutation {
   create(input: CreateIntegrationInput!): Integration!
   update(id: ID!, input: UpdateIntegrationInput!): Integration!

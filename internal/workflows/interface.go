@@ -7,19 +7,21 @@ import (
 )
 
 type CreateRequest struct {
-	Name           string
-	Enabled        bool
-	IntegrationID  string
-	MatchOnRematch bool
-	Criteria       model.WorkflowCriteria
+	Name            string
+	Enabled         bool
+	IntegrationID   *string
+	FavoritesListID *string
+	MatchOnRematch  bool
+	Criteria        model.WorkflowCriteria
 }
 
 type UpdateRequest struct {
-	Name           *string
-	Enabled        *bool
-	IntegrationID  *string
-	MatchOnRematch *bool
-	Criteria       *model.WorkflowCriteria
+	Name            *string
+	Enabled         *bool
+	IntegrationID   *string
+	FavoritesListID *string
+	MatchOnRematch  *bool
+	Criteria        *model.WorkflowCriteria
 }
 
 type Manager interface {

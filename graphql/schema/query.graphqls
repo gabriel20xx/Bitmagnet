@@ -6,7 +6,13 @@ type Query {
   torrent: TorrentQuery!
   torrentContent: TorrentContentQuery!
   integrations: [Integration!]!
+  """
+  integrationActiveTorrents queries the integration's own client for what it currently reports
+  as downloading. This is a live call to the external client, not a cached value.
+  """
+  integrationActiveTorrents(id: ID!): [IntegrationActiveTorrent!]!
   workflows: [Workflow!]!
+  favoritesLists: [FavoritesList!]!
   databaseStats: DatabaseStatsQuery!
   tmdb: TmdbQuery!
 }

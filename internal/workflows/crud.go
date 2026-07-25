@@ -8,7 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var ErrNotFound = errors.New("workflow not found")
+var (
+	ErrNotFound = errors.New("workflow not found")
+	ErrNoAction = errors.New("a workflow needs an integration, a favorites list, or both")
+)
 
 func (m manager) List(ctx context.Context) ([]model.Workflow, error) {
 	var items []model.Workflow
@@ -27,17 +30,36 @@ func (m manager) ListEnabled(ctx context.Context) ([]model.Workflow, error) {
 }
 
 func (m manager) Create(ctx context.Context, req CreateRequest) (model.Workflow, error) {
-	workflow := model.Workflow{
-		Name:           req.Name,
-		Enabled:        req.Enabled,
-		IntegrationID:  req.IntegrationID,
-		MatchOnRematch: req.MatchOnRematch,
-		Criteria:       req.Criteria,
+	if req.IntegrationID == nil && req.FavoritesListID == nil {
+		return model.Workflow{}, ErrNoAction
 	}
 
-	err := m.db.WithContext(ctx).Create(&workflow).Error
+	workflow := model.Workflow{
+		Name:            req.Name,
+		Enabled:         req.Enabled,
+		IntegrationID:   req.IntegrationID,
+		FavoritesListID: req.FavoritesListID,
+		MatchOnRematch:  req.MatchOnRematch,
+		Criteria:        req.Criteria,
+	}
 
-	return workflow, err
+	if err := m.db.WithContext(ctx).Create(&workflow).Error; err != nil {
+		return model.Workflow{}, err
+	}
+
+	// GORM substitutes a field's `default` tag value whenever the Go value is that field's zero
+	// value - Enabled:false is indistinguishable from "not set" to it, so an explicit false gets
+	// silently replaced with the column's default (true). Patch it in separately: an explicit
+	// single-column Update isn't subject to that substitution.
+	if !req.Enabled {
+		if err := m.db.WithContext(ctx).Model(&workflow).Update("enabled", false).Error; err != nil {
+			return model.Workflow{}, err
+		}
+
+		workflow.Enabled = false
+	}
+
+	return workflow, nil
 }
 
 func (m manager) Update(ctx context.Context, id string, req UpdateRequest) (model.Workflow, error) {
@@ -54,9 +76,12 @@ func (m manager) Update(ctx context.Context, id string, req UpdateRequest) (mode
 		workflow.Enabled = *req.Enabled
 	}
 
-	if req.IntegrationID != nil {
-		workflow.IntegrationID = *req.IntegrationID
-	}
+	// Unlike the other fields, IntegrationID/FavoritesListID are always applied verbatim rather
+	// than only when non-nil: nil is itself a meaningful value here (clear that action), and the
+	// only caller (the GraphQL resolver) always submits both from the full current form state,
+	// so there's no "leave untouched" case to distinguish from "clear it".
+	workflow.IntegrationID = req.IntegrationID
+	workflow.FavoritesListID = req.FavoritesListID
 
 	if req.MatchOnRematch != nil {
 		workflow.MatchOnRematch = *req.MatchOnRematch
@@ -64,6 +89,10 @@ func (m manager) Update(ctx context.Context, id string, req UpdateRequest) (mode
 
 	if req.Criteria != nil {
 		workflow.Criteria = *req.Criteria
+	}
+
+	if workflow.IntegrationID == nil && workflow.FavoritesListID == nil {
+		return model.Workflow{}, ErrNoAction
 	}
 
 	if err := m.db.WithContext(ctx).Save(&workflow).Error; err != nil {

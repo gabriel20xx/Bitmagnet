@@ -4,11 +4,14 @@ import (
 	"context"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
 )
 
 type pendingWorkflowSend struct {
-	integrationID string
-	magnetURI     string
+	infoHash        protocol.ID
+	integrationID   *string
+	favoritesListID *string
+	magnetURI       string
 }
 
 // matchingWorkflowSends returns, for every enabled workflow whose criteria matches (torrent, tc),
@@ -30,8 +33,10 @@ func matchingWorkflowSends(
 
 		if wf.Criteria.Matches(torrent, tc) {
 			sends = append(sends, pendingWorkflowSend{
-				integrationID: wf.IntegrationID,
-				magnetURI:     torrent.MagnetURI(),
+				infoHash:        torrent.InfoHash,
+				integrationID:   wf.IntegrationID,
+				favoritesListID: wf.FavoritesListID,
+				magnetURI:       torrent.MagnetURI(),
 			})
 		}
 	}
@@ -39,9 +44,11 @@ func matchingWorkflowSends(
 	return sends
 }
 
-// sendPendingWorkflows delivers pending sends to their target integrations, grouped so each
-// integration is called once. Failures are logged, not returned - a workflow send failure must
-// not roll back or fail the classification/persistence that already succeeded.
+// sendPendingWorkflows delivers pending sends to their target integrations and favorites lists.
+// Integration sends are grouped so each integration is called once; favorites lists are assigned
+// one torrent at a time, since there's no batch equivalent of Send. Failures are logged, not
+// returned - a workflow send failure must not roll back or fail the classification/persistence
+// that already succeeded.
 func (c processor) sendPendingWorkflows(ctx context.Context, pending []pendingWorkflowSend) {
 	if len(pending) == 0 {
 		return
@@ -50,10 +57,23 @@ func (c processor) sendPendingWorkflows(ctx context.Context, pending []pendingWo
 	magnetURIsByIntegration := make(map[string][]string)
 
 	for _, send := range pending {
-		magnetURIsByIntegration[send.integrationID] = append(
-			magnetURIsByIntegration[send.integrationID],
-			send.magnetURI,
-		)
+		if send.integrationID != nil {
+			magnetURIsByIntegration[*send.integrationID] = append(
+				magnetURIsByIntegration[*send.integrationID],
+				send.magnetURI,
+			)
+		}
+
+		if send.favoritesListID != nil {
+			if err := c.favoritesManager.SetFavorite(ctx, send.infoHash, *send.favoritesListID); err != nil {
+				c.logger.Errorw(
+					"workflow: failed to add torrent to favorites list",
+					"favoritesListId", *send.favoritesListID,
+					"infoHash", send.infoHash.String(),
+					"error", err,
+				)
+			}
+		}
 	}
 
 	for integrationID, magnetURIs := range magnetURIsByIntegration {

@@ -12,6 +12,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
+	"github.com/bitmagnet-io/bitmagnet/internal/favorites"
 	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
@@ -33,6 +34,7 @@ type processor struct {
 	blockingManager     blocking.Manager
 	workflowManager     workflows.Manager
 	integrationsManager integrations.Manager
+	favoritesManager    favorites.Manager
 	logger              *zap.SugaredLogger
 }
 

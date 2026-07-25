@@ -1,0 +1,6 @@
+fragment FavoritesList on FavoritesList {
+  id
+  name
+  createdAt
+  updatedAt
+}

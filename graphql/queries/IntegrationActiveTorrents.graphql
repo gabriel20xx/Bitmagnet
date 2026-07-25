@@ -1,0 +1,11 @@
+query IntegrationActiveTorrents($id: ID!) {
+  integrationActiveTorrents(id: $id) {
+    hash
+    name
+    progress
+    state
+    downloadSpeed
+    eta
+    size
+  }
+}

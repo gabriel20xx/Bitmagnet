@@ -61,6 +61,11 @@ func newTorrentContent(db *gorm.DB, opts ...gen.DOOption) torrentContent {
 		}{
 			RelationField: field.NewRelation("Torrent.Hint", "model.TorrentHint"),
 		},
+		Favorite: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Torrent.Favorite", "model.TorrentFavorite"),
+		},
 		Contents: struct {
 			field.RelationField
 		}{
@@ -275,6 +280,9 @@ type torrentContentBelongsToTorrent struct {
 	field.RelationField
 
 	Hint struct {
+		field.RelationField
+	}
+	Favorite struct {
 		field.RelationField
 	}
 	Contents struct {

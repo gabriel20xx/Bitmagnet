@@ -55,6 +55,7 @@ func (h torrentContentTorrentHydrator) GetSubs(
 					q.Torrent.Sources.TorrentSource.RelationField,
 					q.Torrent.Hint.RelationField,
 					q.Torrent.Tags.RelationField,
+					q.Torrent.Favorite.RelationField,
 				}
 				if h.files {
 					preload = append(preload, q.Torrent.Files.RelationField)

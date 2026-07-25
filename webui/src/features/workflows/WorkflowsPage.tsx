@@ -7,6 +7,7 @@ import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { addError } from '@/lib/toast/store'
 import { UpdateWorkflowDocument, type WorkflowFragment } from '@/lib/graphql/generated'
 import { useIntegrations } from '@/features/integrations/useIntegrations'
+import { useFavoritesLists } from '@/features/torrents/useFavoritesLists'
 import { useWorkflows } from './useWorkflows'
 import { WorkflowRow } from './WorkflowRow'
 import { WorkflowDialog } from './WorkflowDialog'
@@ -18,13 +19,24 @@ export function WorkflowsPage() {
 
   const { workflows, loading, refetch } = useWorkflows()
   const { integrations } = useIntegrations()
+  const { lists: favoritesLists } = useFavoritesLists()
   const [updateWorkflow] = useMutation(UpdateWorkflowDocument)
 
   const [editing, setEditing] = useState<WorkflowFragment | null | undefined>(undefined)
   const [deleting, setDeleting] = useState<WorkflowFragment | null>(null)
 
-  const integrationName = (integrationId: string) =>
-    integrations.find((i) => i.id === integrationId)?.name ?? integrationId
+  const canAddWorkflow = integrations.length > 0 || favoritesLists.length > 0
+
+  const targetLabel = (workflow: WorkflowFragment) => {
+    const labels: string[] = []
+    if (workflow.integrationId) {
+      labels.push(integrations.find((i) => i.id === workflow.integrationId)?.name ?? workflow.integrationId)
+    }
+    if (workflow.favoritesListId) {
+      labels.push(favoritesLists.find((l) => l.id === workflow.favoritesListId)?.name ?? workflow.favoritesListId)
+    }
+    return labels.join(' + ')
+  }
 
   const toggleEnabled = (workflow: WorkflowFragment) => {
     updateWorkflow({ variables: { id: workflow.id, input: { enabled: !workflow.enabled } } })
@@ -40,15 +52,13 @@ export function WorkflowsPage() {
             <WorkflowIcon className="size-5" />
             {t('routes.workflows')}
           </h2>
-          <Button type="button" size="sm" disabled={integrations.length === 0} onClick={() => setEditing(null)}>
+          <Button type="button" size="sm" disabled={!canAddWorkflow} onClick={() => setEditing(null)}>
             <Plus className="size-4" />
             {t('workflows.add_workflow')}
           </Button>
         </div>
         <div className="p-4">
-          {integrations.length === 0 && (
-            <p className="mb-3 text-sm text-muted-fg">{t('workflows.needs_integration')}</p>
-          )}
+          {!canAddWorkflow && <p className="mb-3 text-sm text-muted-fg">{t('workflows.needs_integration')}</p>}
           {!loading && workflows.length === 0 ? (
             <p className="text-sm text-muted-fg">{t('workflows.none_configured')}</p>
           ) : (
@@ -57,7 +67,7 @@ export function WorkflowsPage() {
                 <tr className="text-muted-fg">
                   <th className="py-2 font-medium">{t('integrations.status')}</th>
                   <th className="py-2 font-medium">{t('workflows.name')}</th>
-                  <th className="py-2 font-medium">{t('workflows.integration')}</th>
+                  <th className="py-2 font-medium">{t('workflows.action')}</th>
                   <th className="py-2 font-medium">{t('workflows.trigger')}</th>
                   <th className="py-2 text-right font-medium" />
                 </tr>
@@ -67,7 +77,7 @@ export function WorkflowsPage() {
                   <WorkflowRow
                     key={workflow.id}
                     workflow={workflow}
-                    integrationName={integrationName(workflow.integrationId)}
+                    targetLabel={targetLabel(workflow)}
                     onToggleEnabled={toggleEnabled}
                     onEdit={setEditing}
                     onDelete={setDeleting}
@@ -83,6 +93,7 @@ export function WorkflowsPage() {
           onOpenChange={(open) => !open && setEditing(undefined)}
           workflow={editing}
           integrations={integrations}
+          favoritesLists={favoritesLists}
           onSaved={() => refetch()}
         />
         <DeleteWorkflowDialog
