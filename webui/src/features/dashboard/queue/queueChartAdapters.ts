@@ -88,10 +88,10 @@ export function buildQueueTimelineChart(
             result.params.buckets,
           ).index,
         )
-  const maxBucket = Math.max(
-    nonEmptyBuckets[nonEmptyBuckets.length - 1],
-    normalizeBucket(now, result.params.buckets).index,
-  )
+  // The current bucket is still accumulating events, so plotting it as a complete data point
+  // would understate throughput and show a misleading drop at the most recent value. Stop at
+  // the last fully-elapsed bucket instead.
+  const maxBucket = normalizeBucket(now, result.params.buckets).index - 1
 
   if (nonEmptyBuckets.length) {
     for (let i = minBucket; i <= maxBucket; i++) {

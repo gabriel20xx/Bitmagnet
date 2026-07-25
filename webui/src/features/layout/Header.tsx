@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils/cn'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { HealthWidget } from '@/features/health/HealthWidget'
+import { DatabaseStatsWidget } from '@/features/dashboard/DatabaseStatsWidget'
 import { ThemeToggle } from './ThemeToggle'
 import { LanguageMenu } from './LanguageMenu'
 
@@ -73,6 +74,7 @@ export function Header() {
 
       <span className="flex-1" />
 
+      <DatabaseStatsWidget />
       <HealthWidget />
       <ThemeToggle />
       <LanguageMenu />
