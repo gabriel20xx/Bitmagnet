@@ -6,10 +6,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bitmagnet-io/bitmagnet/internal/archive"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/httpserver"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
 	"github.com/bitmagnet-io/bitmagnet/internal/mediastream"
+	"github.com/bitmagnet-io/bitmagnet/internal/model"
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
@@ -51,23 +53,69 @@ func (*builder) Key() string {
 
 func (b *builder) Apply(e *gin.Engine) error {
 	e.GET("/torrents/:infoHash/files/:index/stream", b.handleStream)
+	e.GET("/torrents/:infoHash/files/:index/archive/:entryIndex/stream", b.handleArchiveEntryStream)
 
 	return nil
 }
 
 func (b *builder) handleStream(ctx *gin.Context) {
-	infoHash, parseErr := protocol.ParseID(ctx.Param("infoHash"))
-	if parseErr != nil {
-		ctx.String(http.StatusBadRequest, "invalid info hash")
+	index, t, ok := b.loadTorrentFile(ctx)
+	if !ok {
+		return
+	}
+
+	stream, openErr := b.service.OpenStream(ctx.Request.Context(), t, index)
+	if openErr != nil {
+		b.writeStreamError(ctx, openErr)
+
+		return
+	}
+	defer stream.Close()
+
+	http.ServeContent(ctx.Writer, ctx.Request, stream.Name, time.Time{}, stream.Reader)
+}
+
+func (b *builder) handleArchiveEntryStream(ctx *gin.Context) {
+	index, t, ok := b.loadTorrentFile(ctx)
+	if !ok {
+		return
+	}
+
+	entryIndex, entryIndexErr := strconv.Atoi(ctx.Param("entryIndex"))
+	if entryIndexErr != nil || entryIndex < 0 {
+		ctx.String(http.StatusBadRequest, "invalid archive entry index")
 
 		return
 	}
 
-	index, indexErr := strconv.ParseUint(ctx.Param("index"), 10, 32)
+	stream, openErr := b.service.OpenArchiveEntry(ctx.Request.Context(), t, index, entryIndex)
+	if openErr != nil {
+		b.writeStreamError(ctx, openErr)
+
+		return
+	}
+	defer stream.Close()
+
+	http.ServeContent(ctx.Writer, ctx.Request, stream.Name, time.Time{}, stream.Reader)
+}
+
+// loadTorrentFile parses and validates the :infoHash/:index route params shared by both
+// stream handlers, and loads the corresponding torrent (with the relations OpenStream and
+// OpenArchiveEntry both need already preloaded). ok is false if a response has already been
+// written and the caller should return immediately.
+func (b *builder) loadTorrentFile(ctx *gin.Context) (index uint, t *model.Torrent, ok bool) {
+	infoHash, parseErr := protocol.ParseID(ctx.Param("infoHash"))
+	if parseErr != nil {
+		ctx.String(http.StatusBadRequest, "invalid info hash")
+
+		return 0, nil, false
+	}
+
+	index64, indexErr := strconv.ParseUint(ctx.Param("index"), 10, 32)
 	if indexErr != nil {
 		ctx.String(http.StatusBadRequest, "invalid file index")
 
-		return
+		return 0, nil, false
 	}
 
 	q, daoErr := b.dao.Get()
@@ -75,7 +123,7 @@ func (b *builder) handleStream(ctx *gin.Context) {
 		b.logger.Errorw("error getting dao", "error", daoErr)
 		ctx.Status(http.StatusInternalServerError)
 
-		return
+		return 0, nil, false
 	}
 
 	t, findErr := q.Torrent.WithContext(ctx).
@@ -86,36 +134,38 @@ func (b *builder) handleStream(ctx *gin.Context) {
 		if errors.Is(findErr, gorm.ErrRecordNotFound) {
 			ctx.Status(http.StatusNotFound)
 
-			return
+			return 0, nil, false
 		}
 
 		b.logger.Errorw("error fetching torrent", "error", findErr)
 		ctx.Status(http.StatusInternalServerError)
 
-		return
+		return 0, nil, false
 	}
 
-	stream, openErr := b.service.OpenStream(ctx.Request.Context(), t, uint(index))
-	if openErr != nil {
-		switch {
-		case errors.Is(openErr, mediastream.ErrFileNotFound):
-			ctx.Status(http.StatusNotFound)
-		case errors.Is(openErr, mediastream.ErrFileNotPreviewable):
-			ctx.Status(http.StatusUnsupportedMediaType)
-		case errors.Is(openErr, mediastream.ErrTooManyStreams):
-			ctx.Status(http.StatusServiceUnavailable)
-		case errors.Is(openErr, mediastream.ErrMetadataTimeout):
-			// Expected when the swarm has no responsive peers within the timeout - not a
-			// server malfunction, so this doesn't warrant an error-level log entry.
-			ctx.Status(http.StatusGatewayTimeout)
-		default:
-			b.logger.Errorw("error opening media stream", "error", openErr)
-			ctx.Status(http.StatusInternalServerError)
-		}
+	return uint(index64), t, true
+}
 
-		return
+func (b *builder) writeStreamError(ctx *gin.Context, openErr error) {
+	switch {
+	case errors.Is(openErr, mediastream.ErrFileNotFound), errors.Is(openErr, archive.ErrEntryNotFound):
+		ctx.Status(http.StatusNotFound)
+	case errors.Is(openErr, mediastream.ErrFileNotPreviewable), errors.Is(openErr, mediastream.ErrNotAnArchive):
+		ctx.Status(http.StatusUnsupportedMediaType)
+	case errors.Is(openErr, archive.ErrArchiveEncrypted):
+		ctx.Status(http.StatusUnauthorized)
+	case errors.Is(openErr, archive.ErrArchiveCorrupt):
+		ctx.Status(http.StatusUnprocessableEntity)
+	case errors.Is(openErr, mediastream.ErrArchiveEntryTooLarge):
+		ctx.Status(http.StatusRequestEntityTooLarge)
+	case errors.Is(openErr, mediastream.ErrTooManyStreams):
+		ctx.Status(http.StatusServiceUnavailable)
+	case errors.Is(openErr, mediastream.ErrMetadataTimeout):
+		// Expected when the swarm has no responsive peers within the timeout - not a
+		// server malfunction, so this doesn't warrant an error-level log entry.
+		ctx.Status(http.StatusGatewayTimeout)
+	default:
+		b.logger.Errorw("error opening media stream", "error", openErr)
+		ctx.Status(http.StatusInternalServerError)
 	}
-	defer stream.Close()
-
-	http.ServeContent(ctx.Writer, ctx.Request, stream.Name, time.Time{}, stream.Reader)
 }

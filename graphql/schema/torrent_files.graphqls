@@ -19,3 +19,16 @@ type TorrentFilesQueryResult {
   hasNextPage: Boolean
   items: [TorrentFile!]!
 }
+
+"""
+ArchiveEntry is one file inside an archive (zip, more formats to follow) that lives inside
+a torrent. index is the stable identifier for addressing this entry - e.g. to fetch its
+content - since archive filenames aren't guaranteed to be valid UTF-8 and some archive
+formats permit duplicate names; path is for display only.
+"""
+type ArchiveEntry {
+  index: Int!
+  path: String!
+  size: Int!
+  fileType: FileType
+}

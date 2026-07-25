@@ -97,6 +97,7 @@ func (r *queryResolver) Torrent(ctx context.Context) (gqlmodel.TorrentQuery, err
 		Dao:                  r.Dao,
 		Search:               r.Search,
 		TorrentMetricsClient: r.TorrentMetricsClient,
+		MediaStreamService:   r.MediaStreamService,
 	}, nil
 }
 

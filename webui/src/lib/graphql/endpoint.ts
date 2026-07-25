@@ -17,3 +17,7 @@ export function resolveTorrentDownloadUrl(infoHash: string): string {
 export function resolveTorrentFileStreamUrl(infoHash: string, index: number): string {
   return `${resolveApiOrigin()}/torrents/${infoHash}/files/${index}/stream`
 }
+
+export function resolveTorrentArchiveEntryStreamUrl(infoHash: string, fileIndex: number, entryIndex: number): string {
+  return `${resolveApiOrigin()}/torrents/${infoHash}/files/${fileIndex}/archive/${entryIndex}/stream`
+}

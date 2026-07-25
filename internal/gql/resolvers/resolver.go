@@ -7,6 +7,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/favorites"
 	"github.com/bitmagnet-io/bitmagnet/internal/health"
 	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
+	"github.com/bitmagnet-io/bitmagnet/internal/mediastream"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/processor"
@@ -36,4 +37,5 @@ type Resolver struct {
 	FavoritesManager     favorites.Manager
 	SettingsManager      settings.Manager
 	TmdbClient           tmdb.Client
+	MediaStreamService   *mediastream.Service
 }

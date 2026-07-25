@@ -1,0 +1,10 @@
+query ArchiveEntries($infoHash: Hash20!, $index: Int!) {
+  torrent {
+    archiveEntries(infoHash: $infoHash, index: $index) {
+      index
+      path
+      size
+      fileType
+    }
+  }
+}

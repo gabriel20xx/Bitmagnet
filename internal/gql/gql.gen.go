@@ -14,6 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/bitmagnet-io/bitmagnet/internal/archive"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel"
@@ -54,6 +55,13 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	ArchiveEntry struct {
+		FileType func(childComplexity int) int
+		Index    func(childComplexity int) int
+		Path     func(childComplexity int) int
+		Size     func(childComplexity int) int
+	}
+
 	Content struct {
 		Adult            func(childComplexity int) int
 		Attributes       func(childComplexity int) int
@@ -443,10 +451,11 @@ type ComplexityRoot struct {
 	}
 
 	TorrentQuery struct {
-		Files       func(childComplexity int, input gqlmodel.TorrentFilesQueryInput) int
-		ListSources func(childComplexity int) int
-		Metrics     func(childComplexity int, input gen.TorrentMetricsQueryInput) int
-		SuggestTags func(childComplexity int, input *gen.SuggestTagsQueryInput) int
+		ArchiveEntries func(childComplexity int, infoHash protocol.ID, index int) int
+		Files          func(childComplexity int, input gqlmodel.TorrentFilesQueryInput) int
+		ListSources    func(childComplexity int) int
+		Metrics        func(childComplexity int, input gen.TorrentMetricsQueryInput) int
+		SuggestTags    func(childComplexity int, input *gen.SuggestTagsQueryInput) int
 	}
 
 	TorrentSource struct {
@@ -612,6 +621,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	ec := newExecutionContext(nil, e, nil)
 	_ = ec
 	switch typeName + "." + field {
+
+	case "ArchiveEntry.fileType":
+		if e.ComplexityRoot.ArchiveEntry.FileType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ArchiveEntry.FileType(childComplexity), true
+	case "ArchiveEntry.index":
+		if e.ComplexityRoot.ArchiveEntry.Index == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ArchiveEntry.Index(childComplexity), true
+	case "ArchiveEntry.path":
+		if e.ComplexityRoot.ArchiveEntry.Path == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ArchiveEntry.Path(childComplexity), true
+	case "ArchiveEntry.size":
+		if e.ComplexityRoot.ArchiveEntry.Size == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ArchiveEntry.Size(childComplexity), true
 
 	case "Content.adult":
 		if e.ComplexityRoot.Content.Adult == nil {
@@ -2241,6 +2275,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TorrentMutation.SetTags(childComplexity, args["infoHashes"].([]protocol.ID), args["tagNames"].([]string)), true
 
+	case "TorrentQuery.archiveEntries":
+		if e.ComplexityRoot.TorrentQuery.ArchiveEntries == nil {
+			break
+		}
+
+		args, err := ec.field_TorrentQuery_archiveEntries_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TorrentQuery.ArchiveEntries(childComplexity, args["infoHash"].(protocol.ID), args["index"].(int)), true
 	case "TorrentQuery.files":
 		if e.ComplexityRoot.TorrentQuery.Files == nil {
 			break
@@ -3281,6 +3326,14 @@ type TorrentQuery {
   listSources: TorrentListSourcesResult!
   suggestTags(input: SuggestTagsQueryInput): TorrentSuggestTagsResult!
   metrics(input: TorrentMetricsQueryInput!): TorrentMetricsQueryResult!
+  """
+  archiveEntries lists the contents of an archive file (zip, more formats to follow)
+  inside a torrent. Unlike every other field on this type, this isn't a database read -
+  it's a live, on-demand computation that fetches bytes from BitTorrent peers, so it has
+  different latency and failure characteristics (it can time out waiting for peers, and
+  isn't cheap to retry) than the rest of this schema.
+  """
+  archiveEntries(infoHash: Hash20!, index: Int!): [ArchiveEntry!]!
 }
 
 input SuggestTagsQueryInput {
@@ -3674,6 +3727,19 @@ type TorrentFilesQueryResult {
   hasNextPage: Boolean
   items: [TorrentFile!]!
 }
+
+"""
+ArchiveEntry is one file inside an archive (zip, more formats to follow) that lives inside
+a torrent. index is the stable identifier for addressing this entry - e.g. to fetch its
+content - since archive filenames aren't guaranteed to be valid UTF-8 and some archive
+formats permit duplicate names; path is for display only.
+"""
+type ArchiveEntry {
+  index: Int!
+  path: String!
+  size: Int!
+  fileType: FileType
+}
 `, BuiltIn: false},
 	{Name: "../../graphql/schema/workflows.graphqls", Input: `"""
 WorkflowCriteria describes the conditions a torrent's classified content must satisfy for a
@@ -3770,6 +3836,20 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // childFields_* functions provide shared child field context lookups.
 // Each function is generated once per unique object type, deduplicating the
 // switch statements that were previously inlined in every fieldContext_* function.
+
+func (ec *executionContext) childFields_ArchiveEntry(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "index":
+		return ec.fieldContext_ArchiveEntry_index(ctx, field)
+	case "path":
+		return ec.fieldContext_ArchiveEntry_path(ctx, field)
+	case "size":
+		return ec.fieldContext_ArchiveEntry_size(ctx, field)
+	case "fileType":
+		return ec.fieldContext_ArchiveEntry_fileType(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ArchiveEntry", field.Name)
+}
 
 func (ec *executionContext) childFields_Content(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
@@ -4509,6 +4589,8 @@ func (ec *executionContext) childFields_TorrentQuery(ctx context.Context, field 
 		return ec.fieldContext_TorrentQuery_suggestTags(ctx, field)
 	case "metrics":
 		return ec.fieldContext_TorrentQuery_metrics(ctx, field)
+	case "archiveEntries":
+		return ec.fieldContext_TorrentQuery_archiveEntries(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type TorrentQuery", field.Name)
 }
@@ -5199,6 +5281,28 @@ func (ec *executionContext) field_TorrentMutation_setTags_args(ctx context.Conte
 	return args, nil
 }
 
+func (ec *executionContext) field_TorrentQuery_archiveEntries_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "infoHash",
+		func(ctx context.Context, v any) (protocol.ID, error) {
+			return ec.unmarshalNHash202githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋprotocolᚐID(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["infoHash"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "index",
+		func(ctx context.Context, v any) (int, error) {
+			return ec.unmarshalNInt2int(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["index"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_TorrentQuery_files_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -5364,6 +5468,98 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ***************************** args.gotpl *****************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _ArchiveEntry_index(ctx context.Context, field graphql.CollectedField, obj *archive.Entry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ArchiveEntry_index(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Index, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ArchiveEntry_index(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ArchiveEntry", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ArchiveEntry_path(ctx context.Context, field graphql.CollectedField, obj *archive.Entry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ArchiveEntry_path(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Path, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ArchiveEntry_path(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ArchiveEntry", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ArchiveEntry_size(ctx context.Context, field graphql.CollectedField, obj *archive.Entry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ArchiveEntry_size(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Size, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int64) graphql.Marshaler {
+			return ec.marshalNInt2int64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ArchiveEntry_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ArchiveEntry", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ArchiveEntry_fileType(ctx context.Context, field graphql.CollectedField, obj *archive.Entry) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ArchiveEntry_fileType(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.FileType, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.NullFileType) graphql.Marshaler {
+			return ec.marshalOFileType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullFileType(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ArchiveEntry_fileType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ArchiveEntry", field, false, false, errors.New("field of type FileType does not have child fields"))
+}
 
 func (ec *executionContext) _Content_type(ctx context.Context, field graphql.CollectedField, obj *model.Content) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
@@ -12186,6 +12382,50 @@ func (ec *executionContext) fieldContext_TorrentQuery_metrics(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _TorrentQuery_archiveEntries(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TorrentQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TorrentQuery_archiveEntries(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.ArchiveEntries(ctx, fc.Args["infoHash"].(protocol.ID), fc.Args["index"].(int))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []archive.Entry) graphql.Marshaler {
+			return ec.marshalNArchiveEntry2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋarchiveᚐEntryᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TorrentQuery_archiveEntries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TorrentQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ArchiveEntry(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_TorrentQuery_archiveEntries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TorrentSource_key(ctx context.Context, field graphql.CollectedField, obj *model.TorrentSource) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -16454,6 +16694,59 @@ func (ec *executionContext) unmarshalInputWorkflowCriteriaInput(ctx context.Cont
 
 // region    **************************** object.gotpl ****************************
 
+var archiveEntryImplementors = []string{"ArchiveEntry"}
+
+func (ec *executionContext) _ArchiveEntry(ctx context.Context, sel ast.SelectionSet, obj *archive.Entry) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, archiveEntryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ArchiveEntry")
+		case "index":
+			out.Values[i] = ec._ArchiveEntry_index(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "path":
+			out.Values[i] = ec._ArchiveEntry_path(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "size":
+			out.Values[i] = ec._ArchiveEntry_size(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "fileType":
+			out.Values[i] = ec._ArchiveEntry_fileType(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var contentImplementors = []string{"Content"}
 
 func (ec *executionContext) _Content(ctx context.Context, sel ast.SelectionSet, obj *model.Content) graphql.Marshaler {
@@ -20658,6 +20951,44 @@ func (ec *executionContext) _TorrentQuery(ctx context.Context, sel ast.Selection
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "archiveEntries":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TorrentQuery_archiveEntries(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -21881,6 +22212,26 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) marshalNArchiveEntry2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋarchiveᚐEntry(ctx context.Context, sel ast.SelectionSet, v archive.Entry) graphql.Marshaler {
+	return ec._ArchiveEntry(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNArchiveEntry2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋarchiveᚐEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []archive.Entry) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNArchiveEntry2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋarchiveᚐEntry(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)

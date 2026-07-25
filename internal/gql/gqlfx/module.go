@@ -13,6 +13,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/health"
 	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
+	"github.com/bitmagnet-io/bitmagnet/internal/mediastream"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
 	"github.com/bitmagnet-io/bitmagnet/internal/processor"
@@ -113,6 +114,7 @@ func New() fx.Option {
 							FavoritesManager:     fm,
 							SettingsManager:      sm,
 							TmdbClient:           tc,
+							MediaStreamService:   p.MediaStreamService,
 						}, nil
 					}),
 				}
@@ -146,6 +148,11 @@ type Params struct {
 	FavoritesManager     lazy.Lazy[favorites.Manager]
 	SettingsManager      lazy.Lazy[settings.Manager]
 	TmdbClient           lazy.Lazy[tmdb.Client]
+	// MediaStreamService is injected directly (unlike every other field above) since
+	// mediastreamfx provides *mediastream.Service eagerly rather than as a lazy.Lazy, and
+	// there's no circular dependency here requiring the deferred-resolution trick the other
+	// fields use.
+	MediaStreamService *mediastream.Service
 }
 
 type Result struct {

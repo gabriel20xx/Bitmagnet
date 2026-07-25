@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { LoaderCircle, RotateCcw } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { resolveTorrentFileStreamUrl } from '@/lib/graphql/endpoint'
 import { isTextPreviewable } from '@/lib/utils/textPreview'
 import type { FileType } from '@/lib/graphql/generated'
 
@@ -56,7 +55,6 @@ function TextPreview({ url, onError }: { url: string; onError: () => void }) {
 
 interface PreviewableNode {
   name: string
-  index: number
   fileType: FileType | null
 }
 
@@ -179,25 +177,30 @@ function MediaPreviewBody({ node, url }: { node: PreviewableNode; url: string })
   )
 }
 
+export interface PreviewTarget extends PreviewableNode {
+  // Distinguishes previews of different files/entries so MediaPreviewBody remounts (and
+  // re-checks stream availability) instead of reusing stale state - the resolved URL is
+  // already unique per file/entry, so it doubles as that identity.
+  url: string
+}
+
 export function MediaPreviewModal({
-  infoHash,
-  node,
+  target,
   onOpenChange,
 }: {
-  infoHash: string
-  node: PreviewableNode | null
+  target: PreviewTarget | null
   onOpenChange: (open: boolean) => void
 }) {
   return (
-    <Dialog open={node != null} onOpenChange={onOpenChange}>
+    <Dialog open={target != null} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl">
-        {node && (
+        {target && (
           <>
             <DialogHeader>
-              <DialogTitle className="truncate">{node.name}</DialogTitle>
+              <DialogTitle className="truncate">{target.name}</DialogTitle>
             </DialogHeader>
             <div className="flex aspect-video w-full items-center justify-center overflow-hidden bg-black/5 dark:bg-white/5">
-              <MediaPreviewBody key={node.index} node={node} url={resolveTorrentFileStreamUrl(infoHash, node.index)} />
+              <MediaPreviewBody key={target.url} node={target} url={target.url} />
             </div>
           </>
         )}

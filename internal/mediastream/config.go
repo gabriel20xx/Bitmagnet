@@ -25,14 +25,28 @@ type Config struct {
 	// (piece hashes/file list) before giving up. Only relevant when we don't already have
 	// piece data saved locally, since that's otherwise fetched live over BEP-9.
 	MetadataTimeout time.Duration
+	// ArchiveSpoolDir is where decompressed archive-entry content is spooled to disk before
+	// being served, so previewing a file inside an archive can still support HTTP range
+	// requests the same way whole-file previews do. Deliberately separate from DataDir,
+	// which the underlying torrent client manages for its own piece storage.
+	ArchiveSpoolDir string
+	// MaxArchiveEntrySpoolBytes caps how much decompressed data a single archive entry may
+	// produce before spooling is aborted. Archive formats can lie about an entry's declared
+	// size, so this is enforced against actual bytes copied, not the header's claim.
+	MaxArchiveEntrySpoolBytes int64
+	// MaxArchiveEntries caps how many entries a single archive listing may return.
+	MaxArchiveEntries int
 }
 
 func NewDefaultConfig() Config {
 	return Config{
-		DataDir:              filepath.Join(os.TempDir(), "bitmagnet", "mediastream"),
-		MaxConcurrentStreams: 4,
-		IdleTimeout:          5 * time.Minute,
-		ReadaheadBytes:       8 * 1024 * 1024,
-		MetadataTimeout:      30 * time.Second,
+		DataDir:                   filepath.Join(os.TempDir(), "bitmagnet", "mediastream"),
+		MaxConcurrentStreams:      4,
+		IdleTimeout:               5 * time.Minute,
+		ReadaheadBytes:            8 * 1024 * 1024,
+		MetadataTimeout:           30 * time.Second,
+		ArchiveSpoolDir:           filepath.Join(os.TempDir(), "bitmagnet", "mediastream-archive-spool"),
+		MaxArchiveEntrySpoolBytes: 2 << 30, // 2GiB
+		MaxArchiveEntries:         10_000,
 	}
 }

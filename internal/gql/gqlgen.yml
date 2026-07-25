@@ -189,3 +189,6 @@ models:
   WorkflowCriteriaInput:
     model:
       - github.com/bitmagnet-io/bitmagnet/internal/model.WorkflowCriteria
+  ArchiveEntry:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/archive.Entry

@@ -61,12 +61,19 @@ type Service struct {
 	activePerTorrent map[string]int
 	lastAccess       map[string]time.Time
 
+	archiveMu    sync.Mutex
+	archiveSpool map[string]*spooledEntry
+
 	done chan struct{}
 }
 
 func New(config Config, logger *zap.SugaredLogger) (*Service, error) {
 	if mkdirErr := os.MkdirAll(config.DataDir, 0o755); mkdirErr != nil {
 		return nil, fmt.Errorf("creating media stream data dir: %w", mkdirErr)
+	}
+
+	if mkdirErr := os.MkdirAll(config.ArchiveSpoolDir, 0o755); mkdirErr != nil {
+		return nil, fmt.Errorf("creating media stream archive spool dir: %w", mkdirErr)
 	}
 
 	clientConfig := at.NewDefaultClientConfig()
@@ -86,7 +93,14 @@ func New(config Config, logger *zap.SugaredLogger) (*Service, error) {
 		client:           client,
 		activePerTorrent: make(map[string]int),
 		lastAccess:       make(map[string]time.Time),
+		archiveSpool:     make(map[string]*spooledEntry),
 		done:             make(chan struct{}),
+	}
+
+	// Nothing could have registered a spool file with this fresh process yet, so anything
+	// already sitting in the spool dir at startup is left over from a previous crash.
+	if sweepErr := sweepOrphanedSpoolFiles(config.ArchiveSpoolDir); sweepErr != nil {
+		logger.Warnw("failed to sweep orphaned archive spool files", "error", sweepErr)
 	}
 
 	go s.evictIdleLoop()
@@ -113,39 +127,11 @@ func (s *Service) OpenStream(ctx context.Context, t *model.Torrent, index uint) 
 		return nil, ErrFileNotPreviewable
 	}
 
-	key := t.InfoHash.String()
-
-	if acquireErr := s.acquireSlot(key); acquireErr != nil {
-		return nil, acquireErr
+	file, key, handleErr := s.openFileHandle(ctx, t, index)
+	if handleErr != nil {
+		return nil, handleErr
 	}
 
-	tt, addErr := s.getOrAddTorrent(t)
-	if addErr != nil {
-		s.releaseSlot(key)
-
-		return nil, addErr
-	}
-
-	select {
-	case <-tt.GotInfo():
-	case <-ctx.Done():
-		s.releaseSlot(key)
-
-		return nil, ctx.Err()
-	case <-time.After(s.config.MetadataTimeout):
-		s.releaseSlot(key)
-
-		return nil, ErrMetadataTimeout
-	}
-
-	files := tt.Files()
-	if int(index) >= len(files) {
-		s.releaseSlot(key)
-
-		return nil, ErrFileNotFound
-	}
-
-	file := files[index]
 	reader := file.NewReader()
 	reader.SetContext(ctx)
 	reader.SetResponsive()
@@ -164,6 +150,46 @@ func (s *Service) OpenStream(ctx context.Context, t *model.Torrent, index uint) 
 			},
 		},
 	}, nil
+}
+
+// openFileHandle resolves and adds the torrent, waits for its metadata, and returns the
+// specific at.File for index - the shared setup behind both OpenStream and the
+// archive-related methods in archive.go. On success, callers own the acquired slot and
+// must eventually call s.releaseSlot(key) exactly once.
+func (s *Service) openFileHandle(ctx context.Context, t *model.Torrent, index uint) (file *at.File, key string, err error) {
+	key = t.InfoHash.String()
+
+	if acquireErr := s.acquireSlot(key); acquireErr != nil {
+		return nil, "", acquireErr
+	}
+
+	tt, addErr := s.getOrAddTorrent(t)
+	if addErr != nil {
+		s.releaseSlot(key)
+
+		return nil, "", addErr
+	}
+
+	select {
+	case <-tt.GotInfo():
+	case <-ctx.Done():
+		s.releaseSlot(key)
+
+		return nil, "", ctx.Err()
+	case <-time.After(s.config.MetadataTimeout):
+		s.releaseSlot(key)
+
+		return nil, "", ErrMetadataTimeout
+	}
+
+	files := tt.Files()
+	if int(index) >= len(files) {
+		s.releaseSlot(key)
+
+		return nil, "", ErrFileNotFound
+	}
+
+	return files[index], key, nil
 }
 
 // getOrAddTorrent hands the torrent to the client so it can fetch piece data from peers.
@@ -241,6 +267,11 @@ func (s *Service) evictIdleLoop() {
 }
 
 func (s *Service) evictIdle() {
+	s.evictIdleTorrents()
+	s.evictIdleArchiveSpool()
+}
+
+func (s *Service) evictIdleTorrents() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

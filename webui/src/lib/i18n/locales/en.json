@@ -334,6 +334,8 @@
     "original_release_date": "Original release date",
     "permalink": "Permalink",
     "poster": "Poster",
+    "archive_empty": "This archive has no files",
+    "browse_archive": "Browse archive contents",
     "preview_failed": "This file couldn't be played",
     "preview_file": "Preview file",
     "preview_loading": "Loading preview…",

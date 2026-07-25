@@ -27,6 +27,14 @@ type TorrentQuery {
   listSources: TorrentListSourcesResult!
   suggestTags(input: SuggestTagsQueryInput): TorrentSuggestTagsResult!
   metrics(input: TorrentMetricsQueryInput!): TorrentMetricsQueryResult!
+  """
+  archiveEntries lists the contents of an archive file (zip, more formats to follow)
+  inside a torrent. Unlike every other field on this type, this isn't a database read -
+  it's a live, on-demand computation that fetches bytes from BitTorrent peers, so it has
+  different latency and failure characteristics (it can time out waiting for peers, and
+  isn't cheap to retry) than the rest of this schema.
+  """
+  archiveEntries(infoHash: Hash20!, index: Int!): [ArchiveEntry!]!
 }
 
 input SuggestTagsQueryInput {
