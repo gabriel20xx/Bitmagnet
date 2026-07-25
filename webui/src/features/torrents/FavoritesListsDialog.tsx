@@ -37,7 +37,7 @@ export function FavoritesListsDialog({ open, onOpenChange }: { open: boolean; on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>{t('torrents.favorites_lists')}</DialogTitle>
         </DialogHeader>
