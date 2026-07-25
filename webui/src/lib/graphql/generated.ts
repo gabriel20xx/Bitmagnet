@@ -215,6 +215,7 @@ export type QueueJobsOrderByInput = {
 };
 
 export type QueueJobsQueryInput = {
+  cached?: boolean | null | undefined;
   facets?: QueueJobsFacetsInput | null | undefined;
   hasNextPage?: boolean | null | undefined;
   limit?: number | null | undefined;

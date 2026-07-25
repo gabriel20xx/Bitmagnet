@@ -110,11 +110,6 @@ export function TorrentsTable({
                   {displayedColumns.includes('summary') && (
                     <td className="max-w-md py-2">
                       <div className="flex items-center gap-2">
-                        <FavoritesPicker
-                          favoritesListId={favoritesListId(item)}
-                          onAssign={(listId) => assign(item, listId)}
-                          onRemove={() => remove(item)}
-                        />
                         <SimpleTooltip label={t(`content_types.singular.${item.contentType ?? 'null'}`)}>
                           <ContentTypeIcon className="size-4 shrink-0" />
                         </SimpleTooltip>
@@ -161,6 +156,11 @@ export function TorrentsTable({
                   {displayedColumns.includes('magnet') && (
                     <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-center gap-2">
+                        <FavoritesPicker
+                          favoritesListId={favoritesListId(item)}
+                          onAssign={(listId) => assign(item, listId)}
+                          onRemove={() => remove(item)}
+                        />
                         <TorrentSendIcon infoHash={item.infoHash} />
                         <SimpleTooltip label={t('torrents.magnet')}>
                           <a href={item.torrent.magnetUri} className="cursor-pointer">

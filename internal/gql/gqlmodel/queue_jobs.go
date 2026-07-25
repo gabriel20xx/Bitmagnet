@@ -20,6 +20,7 @@ type QueueJobsQueryInput struct {
 	HasNextPage model.NullBool
 	Facets      *gen.QueueJobsFacetsInput
 	OrderBy     []gen.QueueJobsOrderByInput
+	Cached      model.NullBool
 }
 
 type QueueJobsQueryResult struct {
@@ -45,6 +46,7 @@ func (qq QueueQuery) Jobs(
 			Offset:      query.Offset,
 			TotalCount:  query.TotalCount,
 			HasNextPage: query.HasNextPage,
+			Cached:      query.Cached,
 		}.Option(),
 	}
 

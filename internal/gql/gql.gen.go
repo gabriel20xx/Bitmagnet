@@ -3352,6 +3352,7 @@ input QueueJobsQueryInput {
   hasNextPage: Boolean
   facets: QueueJobsFacetsInput
   orderBy: [QueueJobsOrderByInput!]
+  cached: Boolean
 }
 
 input QueueJobQueueFacetInput {
@@ -15127,7 +15128,7 @@ func (ec *executionContext) unmarshalInputQueueJobsQueryInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"queues", "statuses", "limit", "page", "offset", "totalCount", "hasNextPage", "facets", "orderBy"}
+	fieldsInOrder := [...]string{"queues", "statuses", "limit", "page", "offset", "totalCount", "hasNextPage", "facets", "orderBy", "cached"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -15197,6 +15198,13 @@ func (ec *executionContext) unmarshalInputQueueJobsQueryInput(ctx context.Contex
 				return it, err
 			}
 			it.OrderBy = data
+		case "cached":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cached"))
+			data, err := ec.unmarshalOBoolean2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullBool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cached = data
 		}
 	}
 	return it, nil

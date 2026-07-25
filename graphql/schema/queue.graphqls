@@ -13,6 +13,7 @@ input QueueJobsQueryInput {
   hasNextPage: Boolean
   facets: QueueJobsFacetsInput
   orderBy: [QueueJobsOrderByInput!]
+  cached: Boolean
 }
 
 input QueueJobQueueFacetInput {

@@ -50,7 +50,10 @@ export function useQueueJobs(controls: QueueJobsControls) {
   }, [error])
 
   const result = data?.queue.jobs ?? emptyResult
-  const refresh = useCallback(() => void refetch(), [refetch])
+  const refresh = useCallback(
+    () => void refetch({ input: { ...debouncedVariables.input, cached: false } }),
+    [refetch, debouncedVariables],
+  )
 
   return { result, loading, refresh }
 }

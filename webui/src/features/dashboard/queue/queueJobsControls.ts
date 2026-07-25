@@ -93,6 +93,7 @@ export function controlsToQueryVariables(ctrl: QueueJobsControls): QueueJobsQuer
       limit: ctrl.limit,
       page: ctrl.page,
       totalCount: true,
+      cached: true,
       orderBy: [
         ctrl.orderBy,
         ...(ctrl.orderBy.field !== 'created_at'
