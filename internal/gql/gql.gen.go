@@ -178,6 +178,7 @@ type ComplexityRoot struct {
 		Queue        func(childComplexity int) int
 		Tmdb         func(childComplexity int) int
 		Torrent      func(childComplexity int) int
+		Workflows    func(childComplexity int) int
 	}
 
 	Query struct {
@@ -190,6 +191,7 @@ type ComplexityRoot struct {
 		TorrentContent func(childComplexity int) int
 		Version        func(childComplexity int) int
 		Workers        func(childComplexity int) int
+		Workflows      func(childComplexity int) int
 	}
 
 	QueueJob struct {
@@ -461,6 +463,36 @@ type ComplexityRoot struct {
 	WorkersQuery struct {
 		ListAll func(childComplexity int) int
 	}
+
+	Workflow struct {
+		CreatedAt      func(childComplexity int) int
+		Criteria       func(childComplexity int) int
+		Enabled        func(childComplexity int) int
+		ID             func(childComplexity int) int
+		IntegrationID  func(childComplexity int) int
+		MatchOnRematch func(childComplexity int) int
+		Name           func(childComplexity int) int
+		UpdatedAt      func(childComplexity int) int
+	}
+
+	WorkflowCriteria struct {
+		ContentTypes     func(childComplexity int) int
+		Genres           func(childComplexity int) int
+		Languages        func(childComplexity int) int
+		MinSeeders       func(childComplexity int) int
+		SizeMax          func(childComplexity int) int
+		SizeMin          func(childComplexity int) int
+		TitlePatterns    func(childComplexity int) int
+		VideoResolutions func(childComplexity int) int
+		VideoSources     func(childComplexity int) int
+	}
+
+	WorkflowsMutation struct {
+		ApplyToExisting func(childComplexity int, id string) int
+		Create          func(childComplexity int, input gen.CreateWorkflowInput) int
+		Delete          func(childComplexity int, id string) int
+		Update          func(childComplexity int, id string, input gen.UpdateWorkflowInput) int
+	}
 }
 
 // endregion ***************************** api!.gotpl *****************************
@@ -474,6 +506,7 @@ type MutationResolver interface {
 	Torrent(ctx context.Context) (gqlmodel.TorrentMutation, error)
 	Queue(ctx context.Context) (gqlmodel.QueueMutation, error)
 	Integrations(ctx context.Context) (gqlmodel.IntegrationsMutation, error)
+	Workflows(ctx context.Context) (gqlmodel.WorkflowsMutation, error)
 	Tmdb(ctx context.Context) (gqlmodel.TmdbMutation, error)
 }
 type QueryResolver interface {
@@ -484,6 +517,7 @@ type QueryResolver interface {
 	Torrent(ctx context.Context) (gqlmodel.TorrentQuery, error)
 	TorrentContent(ctx context.Context) (gqlmodel.TorrentContentQuery, error)
 	Integrations(ctx context.Context) ([]model.Integration, error)
+	Workflows(ctx context.Context) ([]model.Workflow, error)
 	DatabaseStats(ctx context.Context) (gqlmodel.DatabaseStatsQuery, error)
 	Tmdb(ctx context.Context) (gqlmodel.TmdbQuery, error)
 }
@@ -1051,6 +1085,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.Torrent(childComplexity), true
+	case "Mutation.workflows":
+		if e.ComplexityRoot.Mutation.Workflows == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Mutation.Workflows(childComplexity), true
 
 	case "Query.databaseStats":
 		if e.ComplexityRoot.Query.DatabaseStats == nil {
@@ -1107,6 +1147,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.Workers(childComplexity), true
+	case "Query.workflows":
+		if e.ComplexityRoot.Query.Workflows == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.Workflows(childComplexity), true
 
 	case "QueueJob.createdAt":
 		if e.ComplexityRoot.QueueJob.CreatedAt == nil {
@@ -2169,6 +2215,155 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkersQuery.ListAll(childComplexity), true
 
+	case "Workflow.createdAt":
+		if e.ComplexityRoot.Workflow.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.CreatedAt(childComplexity), true
+	case "Workflow.criteria":
+		if e.ComplexityRoot.Workflow.Criteria == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.Criteria(childComplexity), true
+	case "Workflow.enabled":
+		if e.ComplexityRoot.Workflow.Enabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.Enabled(childComplexity), true
+	case "Workflow.id":
+		if e.ComplexityRoot.Workflow.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.ID(childComplexity), true
+	case "Workflow.integrationId":
+		if e.ComplexityRoot.Workflow.IntegrationID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.IntegrationID(childComplexity), true
+	case "Workflow.matchOnRematch":
+		if e.ComplexityRoot.Workflow.MatchOnRematch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.MatchOnRematch(childComplexity), true
+	case "Workflow.name":
+		if e.ComplexityRoot.Workflow.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.Name(childComplexity), true
+	case "Workflow.updatedAt":
+		if e.ComplexityRoot.Workflow.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Workflow.UpdatedAt(childComplexity), true
+
+	case "WorkflowCriteria.contentTypes":
+		if e.ComplexityRoot.WorkflowCriteria.ContentTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.ContentTypes(childComplexity), true
+	case "WorkflowCriteria.genres":
+		if e.ComplexityRoot.WorkflowCriteria.Genres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.Genres(childComplexity), true
+	case "WorkflowCriteria.languages":
+		if e.ComplexityRoot.WorkflowCriteria.Languages == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.Languages(childComplexity), true
+	case "WorkflowCriteria.minSeeders":
+		if e.ComplexityRoot.WorkflowCriteria.MinSeeders == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.MinSeeders(childComplexity), true
+	case "WorkflowCriteria.sizeMax":
+		if e.ComplexityRoot.WorkflowCriteria.SizeMax == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.SizeMax(childComplexity), true
+	case "WorkflowCriteria.sizeMin":
+		if e.ComplexityRoot.WorkflowCriteria.SizeMin == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.SizeMin(childComplexity), true
+	case "WorkflowCriteria.titlePatterns":
+		if e.ComplexityRoot.WorkflowCriteria.TitlePatterns == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.TitlePatterns(childComplexity), true
+	case "WorkflowCriteria.videoResolutions":
+		if e.ComplexityRoot.WorkflowCriteria.VideoResolutions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.VideoResolutions(childComplexity), true
+	case "WorkflowCriteria.videoSources":
+		if e.ComplexityRoot.WorkflowCriteria.VideoSources == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkflowCriteria.VideoSources(childComplexity), true
+
+	case "WorkflowsMutation.applyToExisting":
+		if e.ComplexityRoot.WorkflowsMutation.ApplyToExisting == nil {
+			break
+		}
+
+		args, err := ec.field_WorkflowsMutation_applyToExisting_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.WorkflowsMutation.ApplyToExisting(childComplexity, args["id"].(string)), true
+	case "WorkflowsMutation.create":
+		if e.ComplexityRoot.WorkflowsMutation.Create == nil {
+			break
+		}
+
+		args, err := ec.field_WorkflowsMutation_create_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.WorkflowsMutation.Create(childComplexity, args["input"].(gen.CreateWorkflowInput)), true
+	case "WorkflowsMutation.delete":
+		if e.ComplexityRoot.WorkflowsMutation.Delete == nil {
+			break
+		}
+
+		args, err := ec.field_WorkflowsMutation_delete_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.WorkflowsMutation.Delete(childComplexity, args["id"].(string)), true
+	case "WorkflowsMutation.update":
+		if e.ComplexityRoot.WorkflowsMutation.Update == nil {
+			break
+		}
+
+		args, err := ec.field_WorkflowsMutation_update_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.WorkflowsMutation.Update(childComplexity, args["id"].(string), args["input"].(gen.UpdateWorkflowInput)), true
+
 	}
 	return 0, false
 }
@@ -2179,6 +2374,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputContentTypeFacetInput,
 		ec.unmarshalInputCreateIntegrationInput,
+		ec.unmarshalInputCreateWorkflowInput,
 		ec.unmarshalInputGenreFacetInput,
 		ec.unmarshalInputLanguageFacetInput,
 		ec.unmarshalInputQueueEnqueueReprocessTorrentsBatchInput,
@@ -2203,8 +2399,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTorrentSourceFacetInput,
 		ec.unmarshalInputTorrentTagFacetInput,
 		ec.unmarshalInputUpdateIntegrationInput,
+		ec.unmarshalInputUpdateWorkflowInput,
 		ec.unmarshalInputVideoResolutionFacetInput,
 		ec.unmarshalInputVideoSourceFacetInput,
+		ec.unmarshalInputWorkflowCriteriaInput,
 	)
 	first := true
 
@@ -2699,6 +2897,7 @@ type ContentCollection {
   torrent: TorrentMutation!
   queue: QueueMutation!
   integrations: IntegrationsMutation!
+  workflows: WorkflowsMutation!
   tmdb: TmdbMutation!
 }
 
@@ -2726,6 +2925,7 @@ input TorrentReprocessInput {
   torrent: TorrentQuery!
   torrentContent: TorrentContentQuery!
   integrations: [Integration!]!
+  workflows: [Workflow!]!
   databaseStats: DatabaseStatsQuery!
   tmdb: TmdbQuery!
 }
@@ -3116,6 +3316,84 @@ type TorrentFilesQueryResult {
   totalCount: Int!
   hasNextPage: Boolean
   items: [TorrentFile!]!
+}
+`, BuiltIn: false},
+	{Name: "../../graphql/schema/workflows.graphqls", Input: `"""
+WorkflowCriteria describes the conditions a torrent's classified content must satisfy for a
+Workflow to fire. Within a single field, values are OR'd together (any match is sufficient);
+across fields, the result is AND'd (every specified field must match). Omitted fields aren't
+applied.
+"""
+type WorkflowCriteria {
+  contentTypes: [ContentType!]
+  genres: [String!]
+  languages: [Language!]
+  videoResolutions: [VideoResolution!]
+  videoSources: [VideoSource!]
+  """
+  titlePatterns match the torrent's raw name using glob-style wildcards: ` + "`" + `*` + "`" + ` stands in for any
+  run of characters, ` + "`" + `?` + "`" + ` for a single one (e.g. "The Office S01*" or "*2160p*HDR*").
+  """
+  titlePatterns: [String!]
+  sizeMin: Int
+  sizeMax: Int
+  minSeeders: Int
+}
+
+input WorkflowCriteriaInput {
+  contentTypes: [ContentType!]
+  genres: [String!]
+  languages: [Language!]
+  videoResolutions: [VideoResolution!]
+  videoSources: [VideoSource!]
+  titlePatterns: [String!]
+  sizeMin: Int
+  sizeMax: Int
+  minSeeders: Int
+}
+
+type Workflow {
+  id: ID!
+  name: String!
+  enabled: Boolean!
+  integrationId: ID!
+  """
+  matchOnRematch, when true, also evaluates this workflow when an already-known torrent is
+  reclassified (e.g. reprocessed or rematched) - by default a workflow only fires the first time
+  a torrent's content is classified.
+  """
+  matchOnRematch: Boolean!
+  criteria: WorkflowCriteria!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateWorkflowInput {
+  name: String!
+  enabled: Boolean
+  integrationId: ID!
+  matchOnRematch: Boolean
+  criteria: WorkflowCriteriaInput!
+}
+
+input UpdateWorkflowInput {
+  name: String
+  enabled: Boolean
+  integrationId: ID
+  matchOnRematch: Boolean
+  criteria: WorkflowCriteriaInput
+}
+
+type WorkflowsMutation {
+  create(input: CreateWorkflowInput!): Workflow!
+  update(id: ID!, input: UpdateWorkflowInput!): Workflow!
+  delete(id: ID!): Void
+  """
+  applyToExisting enqueues a background scan of already-classified torrents against the
+  workflow's criteria, sending every match to its integration. Runs in the background - this
+  field returns as soon as the scan is queued, not once it completes.
+  """
+  applyToExisting(id: ID!): Void
 }
 `, BuiltIn: false},
 }
@@ -3905,6 +4183,66 @@ func (ec *executionContext) childFields_WorkersQuery(ctx context.Context, field 
 	return nil, fmt.Errorf("no field named %q was found under type WorkersQuery", field.Name)
 }
 
+func (ec *executionContext) childFields_Workflow(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Workflow_id(ctx, field)
+	case "name":
+		return ec.fieldContext_Workflow_name(ctx, field)
+	case "enabled":
+		return ec.fieldContext_Workflow_enabled(ctx, field)
+	case "integrationId":
+		return ec.fieldContext_Workflow_integrationId(ctx, field)
+	case "matchOnRematch":
+		return ec.fieldContext_Workflow_matchOnRematch(ctx, field)
+	case "criteria":
+		return ec.fieldContext_Workflow_criteria(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_Workflow_createdAt(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_Workflow_updatedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Workflow", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkflowCriteria(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "contentTypes":
+		return ec.fieldContext_WorkflowCriteria_contentTypes(ctx, field)
+	case "genres":
+		return ec.fieldContext_WorkflowCriteria_genres(ctx, field)
+	case "languages":
+		return ec.fieldContext_WorkflowCriteria_languages(ctx, field)
+	case "videoResolutions":
+		return ec.fieldContext_WorkflowCriteria_videoResolutions(ctx, field)
+	case "videoSources":
+		return ec.fieldContext_WorkflowCriteria_videoSources(ctx, field)
+	case "titlePatterns":
+		return ec.fieldContext_WorkflowCriteria_titlePatterns(ctx, field)
+	case "sizeMin":
+		return ec.fieldContext_WorkflowCriteria_sizeMin(ctx, field)
+	case "sizeMax":
+		return ec.fieldContext_WorkflowCriteria_sizeMax(ctx, field)
+	case "minSeeders":
+		return ec.fieldContext_WorkflowCriteria_minSeeders(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkflowCriteria", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkflowsMutation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "create":
+		return ec.fieldContext_WorkflowsMutation_create(ctx, field)
+	case "update":
+		return ec.fieldContext_WorkflowsMutation_update(ctx, field)
+	case "delete":
+		return ec.fieldContext_WorkflowsMutation_delete(ctx, field)
+	case "applyToExisting":
+		return ec.fieldContext_WorkflowsMutation_applyToExisting(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkflowsMutation", field.Name)
+}
+
 func (ec *executionContext) childFields___Directive(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "name":
@@ -4352,6 +4690,70 @@ func (ec *executionContext) field_TorrentQuery_suggestTags_args(ctx context.Cont
 		return nil, err
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_WorkflowsMutation_applyToExisting_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_WorkflowsMutation_create_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.CreateWorkflowInput, error) {
+			return ec.unmarshalNCreateWorkflowInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateWorkflowInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_WorkflowsMutation_delete_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_WorkflowsMutation_update_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNID2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.UpdateWorkflowInput, error) {
+			return ec.unmarshalNUpdateWorkflowInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐUpdateWorkflowInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -6452,6 +6854,38 @@ func (ec *executionContext) fieldContext_Mutation_integrations(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_workflows(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_workflows(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Mutation().Workflows(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.WorkflowsMutation) graphql.Marshaler {
+			return ec.marshalNWorkflowsMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐWorkflowsMutation(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_workflows(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_WorkflowsMutation(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_tmdb(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6694,6 +7128,38 @@ func (ec *executionContext) fieldContext_Query_integrations(_ context.Context, f
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Integration(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_workflows(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_workflows(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().Workflows(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.Workflow) graphql.Marshaler {
+			return ec.marshalNWorkflow2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_workflows(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Workflow(ctx, field)
 		},
 	}
 	return fc, nil
@@ -11060,6 +11526,582 @@ func (ec *executionContext) fieldContext_WorkersQuery_listAll(_ context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Workflow_id(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _Workflow_name(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Workflow_enabled(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_enabled(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Enabled, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _Workflow_integrationId(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_integrationId(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.IntegrationID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNID2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_integrationId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _Workflow_matchOnRematch(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_matchOnRematch(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.MatchOnRematch, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_matchOnRematch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _Workflow_criteria(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_criteria(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Criteria, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.WorkflowCriteria) graphql.Marshaler {
+			return ec.marshalNWorkflowCriteria2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowCriteria(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_criteria(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Workflow",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_WorkflowCriteria(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Workflow_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_createdAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNDateTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type DateTime does not have child fields"))
+}
+
+func (ec *executionContext) _Workflow_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Workflow) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Workflow_updatedAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNDateTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Workflow_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Workflow", field, false, false, errors.New("field of type DateTime does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_contentTypes(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_contentTypes(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ContentTypes, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.ContentType) graphql.Marshaler {
+			return ec.marshalOContentType2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐContentTypeᚄ(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_contentTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type ContentType does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_genres(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_genres(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Genres, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalOString2ᚕstringᚄ(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_genres(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_languages(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_languages(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Languages, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.Language) graphql.Marshaler {
+			return ec.marshalOLanguage2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐLanguageᚄ(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_languages(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type Language does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_videoResolutions(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_videoResolutions(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.VideoResolutions, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.VideoResolution) graphql.Marshaler {
+			return ec.marshalOVideoResolution2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolutionᚄ(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_videoResolutions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type VideoResolution does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_videoSources(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_videoSources(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.VideoSources, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []model.VideoSource) graphql.Marshaler {
+			return ec.marshalOVideoSource2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSourceᚄ(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_videoSources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type VideoSource does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_titlePatterns(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_titlePatterns(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TitlePatterns, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalOString2ᚕstringᚄ(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_titlePatterns(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_sizeMin(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_sizeMin(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SizeMin, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *uint64) graphql.Marshaler {
+			return ec.marshalOInt2ᚖuint64(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_sizeMin(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_sizeMax(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_sizeMax(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SizeMax, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *uint64) graphql.Marshaler {
+			return ec.marshalOInt2ᚖuint64(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_sizeMax(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowCriteria_minSeeders(ctx context.Context, field graphql.CollectedField, obj *model.WorkflowCriteria) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowCriteria_minSeeders(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.MinSeeders, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *uint) graphql.Marshaler {
+			return ec.marshalOInt2ᚖuint(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowCriteria_minSeeders(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkflowCriteria", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _WorkflowsMutation_create(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkflowsMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowsMutation_create(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Create(ctx, fc.Args["input"].(gen.CreateWorkflowInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.Workflow) graphql.Marshaler {
+			return ec.marshalNWorkflow2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflow(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowsMutation_create(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkflowsMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Workflow(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_WorkflowsMutation_create_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkflowsMutation_update(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkflowsMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowsMutation_update(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Update(ctx, fc.Args["id"].(string), fc.Args["input"].(gen.UpdateWorkflowInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v model.Workflow) graphql.Marshaler {
+			return ec.marshalNWorkflow2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflow(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowsMutation_update(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkflowsMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Workflow(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_WorkflowsMutation_update_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkflowsMutation_delete(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkflowsMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowsMutation_delete(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Delete(ctx, fc.Args["id"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowsMutation_delete(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkflowsMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Void does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_WorkflowsMutation_delete_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkflowsMutation_applyToExisting(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.WorkflowsMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkflowsMutation_applyToExisting(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.ApplyToExisting(ctx, fc.Args["id"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOVoid2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkflowsMutation_applyToExisting(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkflowsMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Void does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_WorkflowsMutation_applyToExisting_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -12223,6 +13265,64 @@ func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Con
 				return it, err
 			}
 			it.APIKey = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateWorkflowInput(ctx context.Context, obj any) (gen.CreateWorkflowInput, error) {
+	var it gen.CreateWorkflowInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "enabled", "integrationId", "matchOnRematch", "criteria"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "integrationId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IntegrationID = data
+		case "matchOnRematch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchOnRematch"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchOnRematch = graphql.OmittableOf(data)
+		case "criteria":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("criteria"))
+			data, err := ec.unmarshalNWorkflowCriteriaInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowCriteria(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Criteria = data
 		}
 	}
 	return it, nil
@@ -13524,6 +14624,64 @@ func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateWorkflowInput(ctx context.Context, obj any) (gen.UpdateWorkflowInput, error) {
+	var it gen.UpdateWorkflowInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "enabled", "integrationId", "matchOnRematch", "criteria"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = graphql.OmittableOf(data)
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "integrationId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("integrationId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IntegrationID = graphql.OmittableOf(data)
+		case "matchOnRematch":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchOnRematch"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MatchOnRematch = graphql.OmittableOf(data)
+		case "criteria":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("criteria"))
+			data, err := ec.unmarshalOWorkflowCriteriaInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowCriteria(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Criteria = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputVideoResolutionFacetInput(ctx context.Context, obj any) (gen.VideoResolutionFacetInput, error) {
 	var it gen.VideoResolutionFacetInput
 	if obj == nil {
@@ -13593,6 +14751,92 @@ func (ec *executionContext) unmarshalInputVideoSourceFacetInput(ctx context.Cont
 				return it, err
 			}
 			it.Filter = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputWorkflowCriteriaInput(ctx context.Context, obj any) (model.WorkflowCriteria, error) {
+	var it model.WorkflowCriteria
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"contentTypes", "genres", "languages", "videoResolutions", "videoSources", "titlePatterns", "sizeMin", "sizeMax", "minSeeders"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "contentTypes":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contentTypes"))
+			data, err := ec.unmarshalOContentType2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐContentTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ContentTypes = data
+		case "genres":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("genres"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Genres = data
+		case "languages":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("languages"))
+			data, err := ec.unmarshalOLanguage2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐLanguageᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Languages = data
+		case "videoResolutions":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("videoResolutions"))
+			data, err := ec.unmarshalOVideoResolution2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolutionᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VideoResolutions = data
+		case "videoSources":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("videoSources"))
+			data, err := ec.unmarshalOVideoSource2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSourceᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VideoSources = data
+		case "titlePatterns":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("titlePatterns"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TitlePatterns = data
+		case "sizeMin":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sizeMin"))
+			data, err := ec.unmarshalOInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SizeMin = data
+		case "sizeMax":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sizeMax"))
+			data, err := ec.unmarshalOInt2ᚖuint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SizeMax = data
+		case "minSeeders":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minSeeders"))
+			data, err := ec.unmarshalOInt2ᚖuint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MinSeeders = data
 		}
 	}
 	return it, nil
@@ -14814,6 +16058,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "workflows":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_workflows(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "tmdb":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_tmdb(ctx, field)
@@ -15004,6 +16255,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_integrations(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "workflows":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_workflows(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -17771,6 +19044,342 @@ func (ec *executionContext) _WorkersQuery(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var workflowImplementors = []string{"Workflow"}
+
+func (ec *executionContext) _Workflow(ctx context.Context, sel ast.SelectionSet, obj *model.Workflow) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workflowImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Workflow")
+		case "id":
+			out.Values[i] = ec._Workflow_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Workflow_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._Workflow_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "integrationId":
+			out.Values[i] = ec._Workflow_integrationId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "matchOnRematch":
+			out.Values[i] = ec._Workflow_matchOnRematch(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "criteria":
+			out.Values[i] = ec._Workflow_criteria(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._Workflow_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Workflow_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var workflowCriteriaImplementors = []string{"WorkflowCriteria"}
+
+func (ec *executionContext) _WorkflowCriteria(ctx context.Context, sel ast.SelectionSet, obj *model.WorkflowCriteria) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workflowCriteriaImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkflowCriteria")
+		case "contentTypes":
+			out.Values[i] = ec._WorkflowCriteria_contentTypes(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "genres":
+			out.Values[i] = ec._WorkflowCriteria_genres(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "languages":
+			out.Values[i] = ec._WorkflowCriteria_languages(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "videoResolutions":
+			out.Values[i] = ec._WorkflowCriteria_videoResolutions(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "videoSources":
+			out.Values[i] = ec._WorkflowCriteria_videoSources(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "titlePatterns":
+			out.Values[i] = ec._WorkflowCriteria_titlePatterns(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "sizeMin":
+			out.Values[i] = ec._WorkflowCriteria_sizeMin(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "sizeMax":
+			out.Values[i] = ec._WorkflowCriteria_sizeMax(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "minSeeders":
+			out.Values[i] = ec._WorkflowCriteria_minSeeders(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var workflowsMutationImplementors = []string{"WorkflowsMutation"}
+
+func (ec *executionContext) _WorkflowsMutation(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.WorkflowsMutation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workflowsMutationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkflowsMutation")
+		case "create":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkflowsMutation_create(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "update":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkflowsMutation_update(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "delete":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkflowsMutation_delete(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "applyToExisting":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkflowsMutation_applyToExisting(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var __DirectiveImplementors = []string{"__Directive"}
 
 func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionSet, obj *introspection.Directive) graphql.Marshaler {
@@ -18242,6 +19851,11 @@ func (ec *executionContext) marshalNContentTypeAgg2githubᚗcomᚋbitmagnetᚑio
 
 func (ec *executionContext) unmarshalNCreateIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateIntegrationInput(ctx context.Context, v any) (gen.CreateIntegrationInput, error) {
 	res, err := ec.unmarshalInputCreateIntegrationInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateWorkflowInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateWorkflowInput(ctx context.Context, v any) (gen.CreateWorkflowInput, error) {
+	res, err := ec.unmarshalInputCreateWorkflowInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -18960,8 +20574,47 @@ func (ec *executionContext) unmarshalNUpdateIntegrationInput2githubᚗcomᚋbitm
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNUpdateWorkflowInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐUpdateWorkflowInput(ctx context.Context, v any) (gen.UpdateWorkflowInput, error) {
+	res, err := ec.unmarshalInputUpdateWorkflowInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNVideoResolution2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolution(ctx context.Context, v any) (model.VideoResolution, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := model.VideoResolution(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNVideoResolution2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolution(ctx context.Context, sel ast.SelectionSet, v model.VideoResolution) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNVideoResolutionAgg2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐVideoResolutionAgg(ctx context.Context, sel ast.SelectionSet, v gen.VideoResolutionAgg) graphql.Marshaler {
 	return ec._VideoResolutionAgg(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNVideoSource2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSource(ctx context.Context, v any) (model.VideoSource, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := model.VideoSource(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNVideoSource2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSource(ctx context.Context, sel ast.SelectionSet, v model.VideoSource) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNVideoSourceAgg2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐVideoSourceAgg(ctx context.Context, sel ast.SelectionSet, v gen.VideoSourceAgg) graphql.Marshaler {
@@ -18994,6 +20647,39 @@ func (ec *executionContext) marshalNWorkersListAllQueryResult2githubᚗcomᚋbit
 
 func (ec *executionContext) marshalNWorkersQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐWorkersQuery(ctx context.Context, sel ast.SelectionSet, v gen.WorkersQuery) graphql.Marshaler {
 	return ec._WorkersQuery(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWorkflow2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflow(ctx context.Context, sel ast.SelectionSet, v model.Workflow) graphql.Marshaler {
+	return ec._Workflow(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNWorkflow2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Workflow) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNWorkflow2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflow(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNWorkflowCriteria2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowCriteria(ctx context.Context, sel ast.SelectionSet, v model.WorkflowCriteria) graphql.Marshaler {
+	return ec._WorkflowCriteria(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNWorkflowCriteriaInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowCriteria(ctx context.Context, v any) (model.WorkflowCriteria, error) {
+	res, err := ec.unmarshalInputWorkflowCriteriaInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNWorkflowsMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐWorkflowsMutation(ctx context.Context, sel ast.SelectionSet, v gqlmodel.WorkflowsMutation) graphql.Marshaler {
+	return ec._WorkflowsMutation(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -19191,6 +20877,42 @@ func (ec *executionContext) unmarshalOContentType2githubᚗcomᚋbitmagnetᚑio�
 
 func (ec *executionContext) marshalOContentType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullContentType(ctx context.Context, sel ast.SelectionSet, v model.NullContentType) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalOContentType2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐContentTypeᚄ(ctx context.Context, v any) ([]model.ContentType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	vSlice := graphql.CoerceList(v)
+	var err error
+	res := make([]model.ContentType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNContentType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐContentType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOContentType2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐContentTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.ContentType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNContentType2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐContentType(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOContentType2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullContentType(ctx context.Context, v any) ([]model.NullContentType, error) {
@@ -19521,6 +21243,24 @@ func (ec *executionContext) marshalOHash202ᚕgithubᚗcomᚋbitmagnetᚑioᚋbi
 	return ret
 }
 
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v any) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalID(*v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOInt2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullUint(ctx context.Context, v any) (model.NullUint, error) {
 	var res model.NullUint
 	err := res.UnmarshalGQL(v)
@@ -19603,6 +21343,24 @@ func (ec *executionContext) marshalOInt2ᚖuint(ctx context.Context, sel ast.Sel
 	_ = sel
 	_ = ctx
 	res := graphql.MarshalUint(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖuint64(ctx context.Context, v any) (*uint64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalUint64(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖuint64(ctx context.Context, sel ast.SelectionSet, v *uint64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalUint64(*v)
 	return res
 }
 
@@ -20115,6 +21873,42 @@ func (ec *executionContext) marshalOVideoResolution2githubᚗcomᚋbitmagnetᚑi
 	return v
 }
 
+func (ec *executionContext) unmarshalOVideoResolution2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolutionᚄ(ctx context.Context, v any) ([]model.VideoResolution, error) {
+	if v == nil {
+		return nil, nil
+	}
+	vSlice := graphql.CoerceList(v)
+	var err error
+	res := make([]model.VideoResolution, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNVideoResolution2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolution(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOVideoResolution2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolutionᚄ(ctx context.Context, sel ast.SelectionSet, v []model.VideoResolution) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNVideoResolution2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolution(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOVideoResolution2ᚕᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoResolution(ctx context.Context, v any) ([]*model.VideoResolution, error) {
 	if v == nil {
 		return nil, nil
@@ -20199,6 +21993,42 @@ func (ec *executionContext) unmarshalOVideoSource2githubᚗcomᚋbitmagnetᚑio�
 
 func (ec *executionContext) marshalOVideoSource2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐNullVideoSource(ctx context.Context, sel ast.SelectionSet, v model.NullVideoSource) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalOVideoSource2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSourceᚄ(ctx context.Context, v any) ([]model.VideoSource, error) {
+	if v == nil {
+		return nil, nil
+	}
+	vSlice := graphql.CoerceList(v)
+	var err error
+	res := make([]model.VideoSource, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNVideoSource2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSource(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOVideoSource2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSourceᚄ(ctx context.Context, sel ast.SelectionSet, v []model.VideoSource) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNVideoSource2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSource(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOVideoSource2ᚕᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐVideoSource(ctx context.Context, v any) ([]*model.VideoSource, error) {
@@ -20293,6 +22123,14 @@ func (ec *executionContext) marshalOVoid2ᚖstring(ctx context.Context, sel ast.
 	_ = ctx
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOWorkflowCriteriaInput2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowCriteria(ctx context.Context, v any) (*model.WorkflowCriteria, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputWorkflowCriteriaInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOYear2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐYear(ctx context.Context, v any) (model.Year, error) {

@@ -13,6 +13,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/settings"
 	"github.com/bitmagnet-io/bitmagnet/internal/tmdb"
 	"github.com/bitmagnet-io/bitmagnet/internal/worker"
+	"github.com/bitmagnet-io/bitmagnet/internal/workflows"
 )
 
 // This file will not be regenerated automatically.
@@ -30,6 +31,7 @@ type Resolver struct {
 	Processor            processor.Processor
 	BlockingManager      blocking.Manager
 	IntegrationsManager  integrations.Manager
+	WorkflowManager      workflows.Manager
 	SettingsManager      settings.Manager
 	TmdbClient           tmdb.Client
 }

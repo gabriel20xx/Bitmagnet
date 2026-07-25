@@ -7,6 +7,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/classifier"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql"
@@ -29,6 +30,11 @@ func (r *mutationResolver) Queue(ctx context.Context) (gqlmodel.QueueMutation, e
 // Integrations is the resolver for the integrations field.
 func (r *mutationResolver) Integrations(ctx context.Context) (gqlmodel.IntegrationsMutation, error) {
 	return gqlmodel.IntegrationsMutation{Manager: r.IntegrationsManager, Dao: r.Dao}, nil
+}
+
+// Workflows is the resolver for the workflows field.
+func (r *mutationResolver) Workflows(ctx context.Context) (gqlmodel.WorkflowsMutation, error) {
+	return gqlmodel.WorkflowsMutation{Manager: r.WorkflowManager}, nil
 }
 
 // Tmdb is the resolver for the tmdb field.

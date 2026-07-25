@@ -1,0 +1,5 @@
+mutation ApplyWorkflowToExisting($id: ID!) {
+  workflows {
+    applyToExisting(id: $id)
+  }
+}

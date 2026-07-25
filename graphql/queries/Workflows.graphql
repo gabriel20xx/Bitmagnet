@@ -1,0 +1,7 @@
+#import "../fragments/Workflow"
+
+query Workflows {
+  workflows {
+    ...Workflow
+  }
+}

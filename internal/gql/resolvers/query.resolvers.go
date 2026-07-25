@@ -7,6 +7,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
@@ -109,6 +110,11 @@ func (r *queryResolver) TorrentContent(ctx context.Context) (gqlmodel.TorrentCon
 // Integrations is the resolver for the integrations field.
 func (r *queryResolver) Integrations(ctx context.Context) ([]model.Integration, error) {
 	return r.IntegrationsManager.List(ctx)
+}
+
+// Workflows is the resolver for the workflows field.
+func (r *queryResolver) Workflows(ctx context.Context) ([]model.Workflow, error) {
+	return r.WorkflowManager.List(ctx)
 }
 
 // DatabaseStats is the resolver for the databaseStats field.

@@ -36,6 +36,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/version/versionfx"
 	"github.com/bitmagnet-io/bitmagnet/internal/webui"
 	"github.com/bitmagnet-io/bitmagnet/internal/worker/workerfx"
+	"github.com/bitmagnet-io/bitmagnet/internal/workflows/workflowsfx"
 	"go.uber.org/fx"
 )
 
@@ -67,6 +68,7 @@ func New() fx.Option {
 		validationfx.New(),
 		versionfx.New(),
 		workerfx.New(),
+		workflowsfx.New(),
 		fx.Provide(
 			args.New,
 			cli.New,

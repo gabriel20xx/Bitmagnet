@@ -278,7 +278,8 @@
     "metrics": "Metrics",
     "torrent_metrics": "Torrents",
     "torrents": "Torrents",
-    "visualize": "Visualize"
+    "visualize": "Visualize",
+    "workflows": "Workflows"
   },
   "torrents": {
     "clear_search": "Clear Search",
@@ -345,13 +346,43 @@
     "size_max": "Max size",
     "size_min": "Min size",
     "source": "Torrent Source",
+    "star": "Star",
     "summary": "Summary",
     "title": "Title",
     "toggle_drawer": "Toggle Drawer",
+    "unstar": "Unstar",
     "votes_count_n": "{{count}} votes"
   },
   "version": {
     "bitmagnet_version": "bitmagnet version {{version}}",
     "unknown": "unknown"
+  },
+  "workflows": {
+    "add_workflow": "Add workflow",
+    "apply_to_existing": "Apply to existing torrents",
+    "apply_to_existing_started": "Scanning existing torrents in the background — matches will be sent as they're found",
+    "confirm_delete": "Are you sure you want to delete \"{{name}}\"?",
+    "content_types": "Content types",
+    "criteria": "Criteria",
+    "delete_workflow": "Delete workflow",
+    "edit_workflow": "Edit workflow",
+    "genres": "Genres",
+    "genres_hint": "e.g. Action, Comedy",
+    "integration": "Integration",
+    "languages": "Languages",
+    "languages_hint": "e.g. en, fr",
+    "match_mode_always": "New torrents & rematches",
+    "match_mode_new_only": "New torrents only",
+    "match_on_rematch": "Also match when a torrent is reprocessed or rematched",
+    "min_seeders": "Min seeders",
+    "name": "Name",
+    "needs_integration": "Configure an integration first before creating a workflow.",
+    "none_configured": "No workflows configured",
+    "select_integration": "Select an integration",
+    "title_patterns": "Title patterns",
+    "title_patterns_hint": "One pattern per line, e.g. *2160p*HDR* — use * and ? as wildcards",
+    "trigger": "Trigger",
+    "video_resolutions": "Video resolutions",
+    "video_sources": "Video sources"
   }
 }

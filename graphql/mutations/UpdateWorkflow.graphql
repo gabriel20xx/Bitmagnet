@@ -1,0 +1,9 @@
+#import "../fragments/Workflow"
+
+mutation UpdateWorkflow($id: ID!, $input: UpdateWorkflowInput!) {
+  workflows {
+    update(id: $id, input: $input) {
+      ...Workflow
+    }
+  }
+}

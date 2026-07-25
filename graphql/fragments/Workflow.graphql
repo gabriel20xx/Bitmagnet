@@ -1,0 +1,20 @@
+fragment Workflow on Workflow {
+  id
+  name
+  enabled
+  integrationId
+  matchOnRematch
+  criteria {
+    contentTypes
+    genres
+    languages
+    videoResolutions
+    videoSources
+    titlePatterns
+    sizeMin
+    sizeMax
+    minSeeders
+  }
+  createdAt
+  updatedAt
+}

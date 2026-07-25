@@ -1,0 +1,9 @@
+#import "../fragments/Workflow"
+
+mutation CreateWorkflow($input: CreateWorkflowInput!) {
+  workflows {
+    create(input: $input) {
+      ...Workflow
+    }
+  }
+}

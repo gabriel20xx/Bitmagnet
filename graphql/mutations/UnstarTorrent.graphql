@@ -1,0 +1,5 @@
+mutation UnstarTorrent($infoHash: Hash20!) {
+  torrent {
+    deleteTags(infoHashes: [$infoHash], tagNames: ["starred"])
+  }
+}

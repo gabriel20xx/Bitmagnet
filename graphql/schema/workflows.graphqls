@@ -1,0 +1,77 @@
+"""
+WorkflowCriteria describes the conditions a torrent's classified content must satisfy for a
+Workflow to fire. Within a single field, values are OR'd together (any match is sufficient);
+across fields, the result is AND'd (every specified field must match). Omitted fields aren't
+applied.
+"""
+type WorkflowCriteria {
+  contentTypes: [ContentType!]
+  genres: [String!]
+  languages: [Language!]
+  videoResolutions: [VideoResolution!]
+  videoSources: [VideoSource!]
+  """
+  titlePatterns match the torrent's raw name using glob-style wildcards: `*` stands in for any
+  run of characters, `?` for a single one (e.g. "The Office S01*" or "*2160p*HDR*").
+  """
+  titlePatterns: [String!]
+  sizeMin: Int
+  sizeMax: Int
+  minSeeders: Int
+}
+
+input WorkflowCriteriaInput {
+  contentTypes: [ContentType!]
+  genres: [String!]
+  languages: [Language!]
+  videoResolutions: [VideoResolution!]
+  videoSources: [VideoSource!]
+  titlePatterns: [String!]
+  sizeMin: Int
+  sizeMax: Int
+  minSeeders: Int
+}
+
+type Workflow {
+  id: ID!
+  name: String!
+  enabled: Boolean!
+  integrationId: ID!
+  """
+  matchOnRematch, when true, also evaluates this workflow when an already-known torrent is
+  reclassified (e.g. reprocessed or rematched) - by default a workflow only fires the first time
+  a torrent's content is classified.
+  """
+  matchOnRematch: Boolean!
+  criteria: WorkflowCriteria!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateWorkflowInput {
+  name: String!
+  enabled: Boolean
+  integrationId: ID!
+  matchOnRematch: Boolean
+  criteria: WorkflowCriteriaInput!
+}
+
+input UpdateWorkflowInput {
+  name: String
+  enabled: Boolean
+  integrationId: ID
+  matchOnRematch: Boolean
+  criteria: WorkflowCriteriaInput
+}
+
+type WorkflowsMutation {
+  create(input: CreateWorkflowInput!): Workflow!
+  update(id: ID!, input: UpdateWorkflowInput!): Workflow!
+  delete(id: ID!): Void
+  """
+  applyToExisting enqueues a background scan of already-classified torrents against the
+  workflow's criteria, sending every match to its integration. Runs in the background - this
+  field returns as soon as the scan is queued, not once it completes.
+  """
+  applyToExisting(id: ID!): Void
+}

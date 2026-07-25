@@ -5,19 +5,23 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/classifier"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
+	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
+	"github.com/bitmagnet-io/bitmagnet/internal/workflows"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
 type Params struct {
 	fx.In
-	ClassifierConfig classifier.Config
-	Search           lazy.Lazy[search.Search]
-	Workflow         lazy.Lazy[classifier.Runner]
-	Dao              lazy.Lazy[*dao.Query]
-	BlockingManager  lazy.Lazy[blocking.Manager]
-	Logger           *zap.SugaredLogger
+	ClassifierConfig    classifier.Config
+	Search              lazy.Lazy[search.Search]
+	Workflow            lazy.Lazy[classifier.Runner]
+	Dao                 lazy.Lazy[*dao.Query]
+	BlockingManager     lazy.Lazy[blocking.Manager]
+	WorkflowManager     lazy.Lazy[workflows.Manager]
+	IntegrationsManager lazy.Lazy[integrations.Manager]
+	Logger              *zap.SugaredLogger
 }
 
 type Result struct {
@@ -44,13 +48,24 @@ func New(p Params) Result {
 			if err != nil {
 				return nil, err
 			}
+			wm, err := p.WorkflowManager.Get()
+			if err != nil {
+				return nil, err
+			}
+			im, err := p.IntegrationsManager.Get()
+			if err != nil {
+				return nil, err
+			}
 
 			return processor{
-				dao:             d,
-				search:          s,
-				blockingManager: bm,
-				runner:          w,
-				defaultWorkflow: p.ClassifierConfig.Workflow,
+				dao:                 d,
+				search:              s,
+				blockingManager:     bm,
+				runner:              w,
+				defaultWorkflow:     p.ClassifierConfig.Workflow,
+				workflowManager:     wm,
+				integrationsManager: im,
+				logger:              p.Logger,
 			}, nil
 		}),
 	}

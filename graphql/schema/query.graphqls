@@ -6,6 +6,7 @@ type Query {
   torrent: TorrentQuery!
   torrentContent: TorrentContentQuery!
   integrations: [Integration!]!
+  workflows: [Workflow!]!
   databaseStats: DatabaseStatsQuery!
   tmdb: TmdbQuery!
 }

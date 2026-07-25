@@ -38,6 +38,14 @@ type CreateIntegrationInput struct {
 	APIKey   graphql.Omittable[*string] `json:"apiKey,omitempty"`
 }
 
+type CreateWorkflowInput struct {
+	Name           string                   `json:"name"`
+	Enabled        graphql.Omittable[*bool] `json:"enabled,omitempty"`
+	IntegrationID  string                   `json:"integrationId"`
+	MatchOnRematch graphql.Omittable[*bool] `json:"matchOnRematch,omitempty"`
+	Criteria       model.WorkflowCriteria   `json:"criteria"`
+}
+
 type GenreAgg struct {
 	Value      string `json:"value"`
 	Label      string `json:"label"`
@@ -258,6 +266,14 @@ type UpdateIntegrationInput struct {
 	Username graphql.Omittable[*string] `json:"username,omitempty"`
 	Password graphql.Omittable[*string] `json:"password,omitempty"`
 	APIKey   graphql.Omittable[*string] `json:"apiKey,omitempty"`
+}
+
+type UpdateWorkflowInput struct {
+	Name           graphql.Omittable[*string]                 `json:"name,omitempty"`
+	Enabled        graphql.Omittable[*bool]                   `json:"enabled,omitempty"`
+	IntegrationID  graphql.Omittable[*string]                 `json:"integrationId,omitempty"`
+	MatchOnRematch graphql.Omittable[*bool]                   `json:"matchOnRematch,omitempty"`
+	Criteria       graphql.Omittable[*model.WorkflowCriteria] `json:"criteria,omitempty"`
 }
 
 type VideoResolutionAgg struct {

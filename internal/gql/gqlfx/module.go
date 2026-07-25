@@ -19,6 +19,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/settings"
 	"github.com/bitmagnet-io/bitmagnet/internal/tmdb"
 	"github.com/bitmagnet-io/bitmagnet/internal/worker"
+	"github.com/bitmagnet-io/bitmagnet/internal/workflows"
 	"go.uber.org/fx"
 )
 
@@ -81,6 +82,10 @@ func New() fx.Option {
 						if err != nil {
 							return nil, err
 						}
+						wfm, err := p.WorkflowManager.Get()
+						if err != nil {
+							return nil, err
+						}
 						sm, err := p.SettingsManager.Get()
 						if err != nil {
 							return nil, err
@@ -99,6 +104,7 @@ func New() fx.Option {
 							Processor:            pr,
 							BlockingManager:      bm,
 							IntegrationsManager:  im,
+							WorkflowManager:      wfm,
 							SettingsManager:      sm,
 							TmdbClient:           tc,
 						}, nil
@@ -130,6 +136,7 @@ type Params struct {
 	Processor            lazy.Lazy[processor.Processor]
 	BlockingManager      lazy.Lazy[blocking.Manager]
 	IntegrationsManager  lazy.Lazy[integrations.Manager]
+	WorkflowManager      lazy.Lazy[workflows.Manager]
 	SettingsManager      lazy.Lazy[settings.Manager]
 	TmdbClient           lazy.Lazy[tmdb.Client]
 }

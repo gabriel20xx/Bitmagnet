@@ -6,6 +6,7 @@ import { MetricsPage } from '@/features/dashboard/metrics/MetricsPage'
 import { QueueJobs } from '@/features/dashboard/queue/QueueJobs'
 import { QueueAdmin } from '@/features/dashboard/queue/QueueAdmin'
 import { IntegrationsPage } from '@/features/integrations/IntegrationsPage'
+import { WorkflowsPage } from '@/features/workflows/WorkflowsPage'
 import { TorrentsSearch } from '@/features/torrents/TorrentsSearch'
 import { TorrentPermalink } from '@/features/torrents/TorrentPermalink'
 import { NotFound } from '@/features/not-found/NotFound'
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
             { path: 'jobs', element: <QueueJobs /> },
             { path: 'admin', element: <QueueAdmin /> },
             { path: 'integrations', element: <IntegrationsPage /> },
+            { path: 'workflows', element: <WorkflowsPage /> },
           ],
         },
         { path: '*', element: <NotFound /> },

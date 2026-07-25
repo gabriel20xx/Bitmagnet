@@ -12,8 +12,11 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
+	"github.com/bitmagnet-io/bitmagnet/internal/integrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/bitmagnet-io/bitmagnet/internal/workflows"
+	"go.uber.org/zap"
 	"gorm.io/gen/field"
 	"gorm.io/gorm/clause"
 )
@@ -23,11 +26,14 @@ type Processor interface {
 }
 
 type processor struct {
-	defaultWorkflow string
-	search          search.Search
-	runner          classifier.Runner
-	dao             *dao.Query
-	blockingManager blocking.Manager
+	defaultWorkflow     string
+	search              search.Search
+	runner              classifier.Runner
+	dao                 *dao.Query
+	blockingManager     blocking.Manager
+	workflowManager     workflows.Manager
+	integrationsManager integrations.Manager
+	logger              *zap.SugaredLogger
 }
 
 type MissingHashesError struct {
@@ -68,6 +74,11 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 		return tcErr
 	}
 
+	enabledWorkflows, workflowsErr := c.workflowManager.ListEnabled(ctx)
+	if workflowsErr != nil {
+		c.logger.Errorw("workflow: failed to list enabled workflows, skipping auto-send", "error", workflowsErr)
+	}
+
 	for _, tc := range tcResult.Items {
 		for ti, t := range searchResult.Torrents {
 			if t.InfoHash == tc.InfoHash {
@@ -91,6 +102,8 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 
 	tcs := make([]model.TorrentContent, 0, len(searchResult.Torrents))
 
+	var pendingWorkflowSends []pendingWorkflowSend
+
 	tagsToAdd := make(map[protocol.ID]map[string]struct{})
 
 	failedHashes := make([]protocol.ID, 0, len(searchResult.MissingInfoHashes))
@@ -106,6 +119,7 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 		go func(torrent model.Torrent) {
 			defer wg.Done()
 
+			isNewContent := len(torrent.Contents) == 0
 			thisDeleteIDs := make(map[string]struct{}, len(torrent.Contents))
 			foundMatch := false
 
@@ -152,6 +166,11 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 				if len(cl.Tags) > 0 {
 					tagsToAdd[torrent.InfoHash] = cl.Tags
 				}
+
+				pendingWorkflowSends = append(
+					pendingWorkflowSends,
+					matchingWorkflowSends(enabledWorkflows, isNewContent, torrent, torrentContent)...,
+				)
 			}
 		}(torrent)
 	}
@@ -184,12 +203,18 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 		return nil
 	}
 
-	return c.persist(ctx, persistPayload{
+	if persistErr := c.persist(ctx, persistPayload{
 		torrentContents:  tcs,
 		deleteIDs:        idsToDelete,
 		deleteInfoHashes: infoHashesToDelete,
 		addTags:          tagsToAdd,
-	})
+	}); persistErr != nil {
+		return persistErr
+	}
+
+	c.sendPendingWorkflows(ctx, pendingWorkflowSends)
+
+	return nil
 }
 
 func newTorrentContent(t model.Torrent, c classification.Result) model.TorrentContent {
