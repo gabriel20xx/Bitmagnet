@@ -7,7 +7,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"sort"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"

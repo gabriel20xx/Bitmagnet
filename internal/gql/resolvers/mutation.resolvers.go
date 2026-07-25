@@ -7,7 +7,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/classifier"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql"
