@@ -60,7 +60,7 @@ func (s *Service) ListArchive(ctx context.Context, t *model.Torrent, index uint)
 	reader.SetResponsive()
 	reader.SetReadahead(s.config.ReadaheadBytes)
 
-	archiveReader, openErr := archive.OpenSeekable(format, reader, size)
+	archiveReader, openErr := archive.Open(format, reader, size)
 	if openErr != nil {
 		return nil, openErr
 	}
@@ -126,7 +126,7 @@ func (s *Service) spoolArchiveEntry(
 	reader.SetResponsive()
 	reader.SetReadahead(s.config.ReadaheadBytes)
 
-	archiveReader, openErr := archive.OpenSeekable(format, reader, size)
+	archiveReader, openErr := archive.Open(format, reader, size)
 	if openErr != nil {
 		return nil, openErr
 	}

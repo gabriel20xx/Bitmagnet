@@ -5,6 +5,7 @@ import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import { useCopyFeedback } from '@/lib/hooks/useCopyFeedback'
 import { SendToIntegrationButtons } from '@/features/integrations/SendToIntegrationButtons'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
+import { AddToFavoritesButton } from './AddToFavoritesButton'
 
 export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentContentFragment[] }) {
   const { t } = useTranslation()
@@ -30,6 +31,7 @@ export function TorrentsBulkActions({ selectedItems }: { selectedItems: TorrentC
   return (
     <div className="flex flex-wrap gap-2">
       <SendToIntegrationButtons infoHashes={infoHashes} />
+      <AddToFavoritesButton infoHashes={infoHashes} />
       <Button
         type="button"
         variant="outline"

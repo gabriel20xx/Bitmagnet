@@ -1,10 +1,10 @@
-// Package archive lists and extracts entries from archive files (zip, with more formats
-// following in a later phase) whose bytes are fetched on demand from BitTorrent peers - see
-// internal/mediastream - rather than downloaded and stored ahead of time. Not every archive
-// format allows the same access pattern: zip stores its directory metadata in a trailer, so
-// listing it only needs a small read at the end of the file. Formats handled sequentially
-// (rar, tar - added in a later phase) have no such trailer and require reading through the
-// entire byte stream just to enumerate their contents.
+// Package archive lists and extracts entries from archive files (zip, 7z, rar, tar) whose
+// bytes are fetched on demand from BitTorrent peers - see internal/mediastream - rather than
+// downloaded and stored ahead of time. Not every archive format allows the same access
+// pattern: zip and 7z store their directory metadata in a trailer, so listing them only
+// needs a small read at the end of the file. rar and tar have no such trailer and require
+// reading through the entire byte stream just to enumerate their contents - see
+// Format.IsSequential.
 package archive
 
 import (
@@ -44,20 +44,32 @@ type Reader interface {
 type Format string
 
 const (
-	FormatZip Format = "zip"
+	FormatZip    Format = "zip"
+	FormatSevenZ Format = "7z"
+	FormatRar    Format = "rar"
+	FormatTar    Format = "tar"
 )
 
 // IsSequential reports whether listing this format's entries requires reading through its
-// entire underlying byte stream, as opposed to a cheap read of a trailer. Always false today
-// (zip only) - relevant once sequential-only formats (rar, tar) land in a later phase.
+// entire underlying byte stream, as opposed to a cheap read of a trailer. zip and 7z store a
+// central directory/trailer and are never sequential; rar and tar have no such structure -
+// for a torrent file streamed live from peers, expanding one of these can mean pulling the
+// archive's entire contents over the wire just to see what's inside, not just a quick peek.
 func (f Format) IsSequential() bool {
-	return false
+	switch f {
+	case FormatRar, FormatTar:
+		return true
+	default:
+		return false
+	}
 }
 
 // DetectFormat returns the archive format implied by name's extension, if any. This is a
 // deliberate allowlist independent of model.FileTypeFromExtension - some of that
-// classification's "archive" extensions (like .iso, a filesystem image rather than a
-// compressed archive) are intentionally never dispatched here.
+// classification's "archive" extensions are intentionally never dispatched here: .iso is a
+// filesystem image rather than a compressed archive, and standalone .gz/.bz2 are ambiguous
+// (a plain single compressed file vs. a tar archive compressed on top - e.g. "data.csv.gz"
+// vs. "backup.tar.gz" share the same last extension) so browsing them isn't supported yet.
 func DetectFormat(name string) (Format, bool) {
 	ext := model.FileExtensionFromPath(name)
 	if !ext.Valid {
@@ -67,27 +79,35 @@ func DetectFormat(name string) (Format, bool) {
 	switch ext.String {
 	case "zip":
 		return FormatZip, true
+	case "7z":
+		return FormatSevenZ, true
+	case "rar":
+		return FormatRar, true
+	case "tar":
+		return FormatTar, true
 	default:
 		return "", false
 	}
 }
 
-// Open parses the archive in r (of the given size) according to format.
-func Open(format Format, r io.ReaderAt, size int64) (Reader, error) {
+// Open parses the archive in r (of the given size) according to format. zip/7z need random
+// access to their trailer and wrap r in an adapter; rar/tar only ever read sequentially from
+// the start, but still need to Seek back to 0 whenever Open(index) is called, since none of
+// these libraries support resuming a partial scan or seeking within their own decompressed
+// entry streams.
+func Open(format Format, r io.ReadSeeker, size int64) (Reader, error) {
 	switch format {
 	case FormatZip:
-		return openZip(r, size)
+		return openZip(newReaderAtAdapter(r), size)
+	case FormatSevenZ:
+		return openSevenZip(newReaderAtAdapter(r), size)
+	case FormatRar:
+		return openRar(r)
+	case FormatTar:
+		return openTar(r)
 	default:
 		return nil, fmt.Errorf("unsupported archive format: %s", format)
 	}
-}
-
-// OpenSeekable is a convenience for callers (like internal/mediastream) that only have an
-// io.ReadSeeker - e.g. a piece-fetching torrent file reader - rather than a native
-// io.ReaderAt. The returned Reader is only as safe for concurrent use as the adapter: all
-// reads through it are serialized.
-func OpenSeekable(format Format, r io.ReadSeeker, size int64) (Reader, error) {
-	return Open(format, newReaderAtAdapter(r), size)
 }
 
 func fileTypeFromName(name string) model.NullFileType {

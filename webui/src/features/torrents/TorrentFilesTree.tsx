@@ -7,8 +7,9 @@ import { resolveTorrentFileStreamUrl } from '@/lib/graphql/endpoint'
 import { TorrentFilesDocument, type TorrentFragment } from '@/lib/graphql/generated'
 import { buildTree, flattenVisibleRows, isNodeExpanded, type TreeFileNode } from './fileTree'
 import { FileRow, FolderRow } from './TreeRows'
-import { isExpandableArchive } from './treeFileTypes'
+import { isExpandableArchive, isSequentialArchiveFormat, SEQUENTIAL_ARCHIVE_SCAN_WARN_BYTES } from './treeFileTypes'
 import { ArchiveContents } from './ArchiveContents'
+import { ConfirmArchiveScanDialog, type PendingSequentialScan } from './ConfirmArchiveScanDialog'
 import { MediaPreviewModal, type PreviewTarget } from './MediaPreviewModal'
 
 const DEFAULT_ROWS_PAGING: PageEvent = { page: 1, pageSize: 50 }
@@ -48,6 +49,8 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
   const [toggled, setToggled] = useState<Set<string>>(new Set())
   const [previewTarget, setPreviewTarget] = useState<PreviewTarget | null>(null)
   const [rowsPaging, setRowsPaging] = useState<PageEvent>(DEFAULT_ROWS_PAGING)
+  const [confirmedScans, setConfirmedScans] = useState<Set<string>>(new Set())
+  const [pendingScan, setPendingScan] = useState<(PendingSequentialScan & { path: string }) | null>(null)
 
   const toggle = (path: string) => {
     setToggled((prev) => {
@@ -56,6 +59,26 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
       else next.add(path)
       return next
     })
+  }
+
+  // rar/tar have no directory trailer, so expanding one means downloading the whole archive
+  // over BitTorrent, not a quick peek - gate large ones behind an explicit confirmation
+  // rather than silently starting what could be a very large fetch. zip/7z, and anything
+  // already confirmed once this session, expand immediately as before.
+  const toggleArchive = (node: TreeFileNode<number>) => {
+    const expanding = !isNodeExpanded(node.path, toggled)
+    const needsConfirmation =
+      expanding &&
+      isSequentialArchiveFormat(node.name) &&
+      node.size > SEQUENTIAL_ARCHIVE_SCAN_WARN_BYTES &&
+      !confirmedScans.has(node.path)
+
+    if (needsConfirmation) {
+      setPendingScan({ path: node.path, name: node.name, size: node.size })
+      return
+    }
+
+    toggle(node.path)
   }
 
   const visibleRows = useMemo(() => flattenVisibleRows(tree.children, 0, toggled), [tree, toggled])
@@ -99,7 +122,7 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
                 onPreview={previewOuterFile}
                 archiveExpansion={
                   isExpandableArchive(node.fileType)
-                    ? { expanded: isNodeExpanded(node.path, toggled), onToggle: () => toggle(node.path) }
+                    ? { expanded: isNodeExpanded(node.path, toggled), onToggle: () => toggleArchive(node) }
                     : undefined
                 }
               />
@@ -128,6 +151,17 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
         target={previewTarget}
         onOpenChange={(open) => {
           if (!open) setPreviewTarget(null)
+        }}
+      />
+      <ConfirmArchiveScanDialog
+        pending={pendingScan}
+        onOpenChange={(open) => {
+          if (!open) setPendingScan(null)
+        }}
+        onConfirm={() => {
+          if (!pendingScan) return
+          setConfirmedScans((prev) => new Set(prev).add(pendingScan.path))
+          toggle(pendingScan.path)
         }}
       />
     </div>

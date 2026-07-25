@@ -140,8 +140,12 @@ func TestDetectFormat(t *testing.T) {
 		{"movie.zip", FormatZip, true},
 		{"Movie.ZIP", FormatZip, true},
 		{"disk.iso", "", false}, // ISO9660 filesystem image, not a compressed archive - never dispatched
-		{"archive.rar", "", false},
-		{"archive.7z", "", false},
+		{"archive.rar", FormatRar, true},
+		{"archive.7z", FormatSevenZ, true},
+		{"archive.tar", FormatTar, true},
+		{"archive.tar.gz", "", false}, // ambiguous with a standalone .gz - not dispatched, see DetectFormat doc
+		{"archive.gz", "", false},
+		{"archive.bz2", "", false},
 		{"noext", "", false},
 	}
 

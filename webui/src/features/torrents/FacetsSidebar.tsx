@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { formatIntEstimate } from '@/lib/utils/intEstimate'
 import type { TorrentContentSearchResultFragment } from '@/lib/graphql/generated'
 import { contentTypeList } from './contentTypes'
+import { FavoritesListFacetContent } from './FavoritesListFacetContent'
 import { SizeFilter } from './SizeFilter'
 import {
   activateFacet,
@@ -187,7 +188,13 @@ export function FacetsSidebar({
                 </span>
               </AccordionTrigger>
               <AccordionContent>
-                {facet.aggregations.length === 0 && !facet.filter?.length ? (
+                {facet.def.key === 'favorites_list' ? (
+                  <FavoritesListFacetContent
+                    filter={facet.filter as string[] | undefined}
+                    aggregations={facet.aggregations}
+                    onUpdate={onUpdate}
+                  />
+                ) : facet.aggregations.length === 0 && !facet.filter?.length ? (
                   <p className="px-2 text-sm text-muted-fg">{t('general.none')}</p>
                 ) : (
                   <ul className="space-y-1.5">

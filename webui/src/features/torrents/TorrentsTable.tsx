@@ -1,11 +1,12 @@
 import { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Magnet, Download, HelpCircle, Copy } from 'lucide-react'
+import { Magnet, Download, Fingerprint, Check, HelpCircle, Copy } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { formatFilesize } from '@/lib/utils/filesize'
 import { formatTimeAgo } from '@/lib/dates/format'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
+import { useCopyFeedback } from '@/lib/hooks/useCopyFeedback'
 import { TorrentSendIcon } from '@/features/integrations/TorrentSendIcon'
 import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { contentTypeInfo } from './contentTypes'
@@ -20,6 +21,143 @@ import type { TorrentSearchControls } from './searchControls'
 export const allColumns = ['select', 'summary', 'size', 'publishedAt', 'peers', 'magnet'] as const
 export const compactColumns = ['select', 'summary', 'size', 'magnet'] as const
 export type Column = (typeof allColumns)[number]
+
+function TorrentRow({
+  item,
+  displayedColumns,
+  expanded,
+  expandedDuplicates,
+  isSelected,
+  onToggleSelected,
+  onRowClick,
+  onToggleDuplicates,
+  favoritesListId,
+  onAssignFavorite,
+  onRemoveFavorite,
+}: {
+  item: TorrentContentFragment
+  displayedColumns: readonly Column[]
+  expanded: boolean
+  expandedDuplicates: boolean
+  isSelected: boolean
+  onToggleSelected: () => void
+  onRowClick: () => void
+  onToggleDuplicates: () => void
+  favoritesListId: string | null
+  onAssignFavorite: (listId: string) => void
+  onRemoveFavorite: () => void
+}) {
+  const { t, i18n } = useTranslation()
+  const ContentTypeIcon = contentTypeInfo(item.contentType)?.icon ?? HelpCircle
+  const [magnetCopied, copyMagnet] = useCopyFeedback()
+  const [infoHashCopied, copyInfoHash] = useCopyFeedback()
+
+  return (
+    <Fragment>
+      <tr
+        onClick={onRowClick}
+        className={
+          'cursor-pointer border-t border-border hover:bg-surface-hover ' + (expanded ? 'bg-surface-hover' : '')
+        }
+      >
+        {displayedColumns.includes('select') && (
+          <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
+            <Checkbox className="mx-auto" checked={isSelected} onCheckedChange={onToggleSelected} />
+          </td>
+        )}
+        {displayedColumns.includes('summary') && (
+          <td className="max-w-md py-2">
+            <div className="flex items-center gap-2">
+              <SimpleTooltip label={t(`content_types.singular.${item.contentType ?? 'null'}`)}>
+                <ContentTypeIcon className="size-4 shrink-0" />
+              </SimpleTooltip>
+              <div className="min-w-0">
+                <div className="truncate font-medium">{item.title}</div>
+                {item.title !== item.torrent.name && (
+                  <p className="truncate text-xs text-muted-fg">{item.torrent.name}</p>
+                )}
+                <TorrentChips torrentContent={item} />
+                {item.duplicatesCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onToggleDuplicates()
+                    }}
+                    className="mt-1 flex items-center gap-1 text-xs text-muted-fg hover:text-primary hover:underline"
+                  >
+                    <Copy className="size-3" />
+                    {t('torrents.duplicates_count_n', { count: item.duplicatesCount })}
+                  </button>
+                )}
+              </div>
+            </div>
+          </td>
+        )}
+        {displayedColumns.includes('size') && (
+          <td className="py-2">
+            <span title={formatFilesize(item.torrent.size, i18n.language, 10)}>
+              {formatFilesize(item.torrent.size, i18n.language)}
+            </span>
+          </td>
+        )}
+        {displayedColumns.includes('publishedAt') && (
+          <td className="py-2">
+            <abbr title={item.publishedAt}>{formatTimeAgo(item.publishedAt, i18n.language)}</abbr>
+          </td>
+        )}
+        {displayedColumns.includes('peers') && (
+          <td className="py-2">
+            <SeedersLeechers seeders={item.seeders} leechers={item.leechers} />
+          </td>
+        )}
+        {displayedColumns.includes('magnet') && (
+          <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-center gap-2">
+              <FavoritesPicker
+                favoritesListId={favoritesListId}
+                onAssign={onAssignFavorite}
+                onRemove={onRemoveFavorite}
+              />
+              <TorrentSendIcon infoHash={item.infoHash} />
+              <SimpleTooltip label={t('torrents.copy_magnet_link')}>
+                <button type="button" className="cursor-pointer" onClick={() => copyMagnet(item.torrent.magnetUri)}>
+                  {magnetCopied ? (
+                    <Check className="size-4 text-primary" />
+                  ) : (
+                    <Magnet className="size-4 text-primary" />
+                  )}
+                </button>
+              </SimpleTooltip>
+              <SimpleTooltip label={t('torrents.download_torrent_file')}>
+                <a href={resolveTorrentDownloadUrl(item.infoHash)} className="cursor-pointer">
+                  <Download className="size-4 text-primary" />
+                </a>
+              </SimpleTooltip>
+              <SimpleTooltip label={t('torrents.copy_info_hash')}>
+                <button type="button" className="cursor-pointer" onClick={() => copyInfoHash(item.infoHash)}>
+                  {infoHashCopied ? (
+                    <Check className="size-4 text-primary" />
+                  ) : (
+                    <Fingerprint className="size-4 text-primary" />
+                  )}
+                </button>
+              </SimpleTooltip>
+            </div>
+          </td>
+        )}
+      </tr>
+      {expanded && (
+        <tr className="border-t border-border bg-surface/50">
+          <td colSpan={displayedColumns.length} className="p-4">
+            <TorrentFilesTree torrent={item.torrent} />
+          </td>
+        </tr>
+      )}
+      {expandedDuplicates && <TorrentDuplicatesRow infoHash={item.infoHash} colSpan={displayedColumns.length} />}
+    </Fragment>
+  )
+}
 
 export function TorrentsTable({
   items,
@@ -38,7 +176,7 @@ export function TorrentsTable({
   onToggleAll: () => void
   onSelectControls: (fn: (c: TorrentSearchControls) => TorrentSearchControls) => void
 }) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const isAllSelected = items.length > 0 && items.every((i) => selected.has(i.infoHash))
   const isIndeterminate = !isAllSelected && items.some((i) => selected.has(i.infoHash))
   const [expandedDuplicatesOf, setExpandedDuplicatesOf] = useState<string | null>(null)
@@ -81,114 +219,29 @@ export function TorrentsTable({
               </th>
             )}
             {displayedColumns.includes('magnet') && (
-              <th className="py-2 text-center font-medium">{t('torrents.download')}</th>
+              <th className="py-2 text-center font-medium">{t('torrents.actions')}</th>
             )}
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => {
-            const ContentTypeIcon = contentTypeInfo(item.contentType)?.icon ?? HelpCircle
-            const expanded = controls.selectedTorrent?.infoHash === item.infoHash
-            return (
-              <Fragment key={item.infoHash}>
-                <tr
-                  onClick={() => toggleSelectedTorrent(item.infoHash)}
-                  className={
-                    'cursor-pointer border-t border-border hover:bg-surface-hover ' +
-                    (expanded ? 'bg-surface-hover' : '')
-                  }
-                >
-                  {displayedColumns.includes('select') && (
-                    <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        className="mx-auto"
-                        checked={selected.has(item.infoHash)}
-                        onCheckedChange={() => onToggleSelected(item.infoHash)}
-                      />
-                    </td>
-                  )}
-                  {displayedColumns.includes('summary') && (
-                    <td className="max-w-md py-2">
-                      <div className="flex items-center gap-2">
-                        <SimpleTooltip label={t(`content_types.singular.${item.contentType ?? 'null'}`)}>
-                          <ContentTypeIcon className="size-4 shrink-0" />
-                        </SimpleTooltip>
-                        <div className="min-w-0">
-                          <div className="truncate font-medium">{item.title}</div>
-                          {item.title !== item.torrent.name && (
-                            <p className="truncate text-xs text-muted-fg">{item.torrent.name}</p>
-                          )}
-                          <TorrentChips torrentContent={item} />
-                          {item.duplicatesCount > 0 && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setExpandedDuplicatesOf((prev) => (prev === item.infoHash ? null : item.infoHash))
-                              }}
-                              className="mt-1 flex items-center gap-1 text-xs text-muted-fg hover:text-primary hover:underline"
-                            >
-                              <Copy className="size-3" />
-                              {t('torrents.duplicates_count_n', { count: item.duplicatesCount })}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                  )}
-                  {displayedColumns.includes('size') && (
-                    <td className="py-2">
-                      <span title={formatFilesize(item.torrent.size, i18n.language, 10)}>
-                        {formatFilesize(item.torrent.size, i18n.language)}
-                      </span>
-                    </td>
-                  )}
-                  {displayedColumns.includes('publishedAt') && (
-                    <td className="py-2">
-                      <abbr title={item.publishedAt}>{formatTimeAgo(item.publishedAt, i18n.language)}</abbr>
-                    </td>
-                  )}
-                  {displayedColumns.includes('peers') && (
-                    <td className="py-2">
-                      <SeedersLeechers seeders={item.seeders} leechers={item.leechers} />
-                    </td>
-                  )}
-                  {displayedColumns.includes('magnet') && (
-                    <td className="py-2 text-center" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-center gap-2">
-                        <FavoritesPicker
-                          favoritesListId={favoritesListId(item)}
-                          onAssign={(listId) => assign(item, listId)}
-                          onRemove={() => remove(item)}
-                        />
-                        <TorrentSendIcon infoHash={item.infoHash} />
-                        <SimpleTooltip label={t('torrents.magnet')}>
-                          <a href={item.torrent.magnetUri} className="cursor-pointer">
-                            <Magnet className="size-4 text-primary" />
-                          </a>
-                        </SimpleTooltip>
-                        <SimpleTooltip label={t('torrents.download_torrent_file')}>
-                          <a href={resolveTorrentDownloadUrl(item.infoHash)} className="cursor-pointer">
-                            <Download className="size-4 text-primary" />
-                          </a>
-                        </SimpleTooltip>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-                {expanded && (
-                  <tr className="border-t border-border bg-surface/50">
-                    <td colSpan={displayedColumns.length} className="p-4">
-                      <TorrentFilesTree torrent={item.torrent} />
-                    </td>
-                  </tr>
-                )}
-                {expandedDuplicatesOf === item.infoHash && (
-                  <TorrentDuplicatesRow infoHash={item.infoHash} colSpan={displayedColumns.length} />
-                )}
-              </Fragment>
-            )
-          })}
+          {items.map((item) => (
+            <TorrentRow
+              key={item.infoHash}
+              item={item}
+              displayedColumns={displayedColumns}
+              expanded={controls.selectedTorrent?.infoHash === item.infoHash}
+              expandedDuplicates={expandedDuplicatesOf === item.infoHash}
+              isSelected={selected.has(item.infoHash)}
+              onToggleSelected={() => onToggleSelected(item.infoHash)}
+              onRowClick={() => toggleSelectedTorrent(item.infoHash)}
+              onToggleDuplicates={() =>
+                setExpandedDuplicatesOf((prev) => (prev === item.infoHash ? null : item.infoHash))
+              }
+              favoritesListId={favoritesListId(item)}
+              onAssignFavorite={(listId) => assign(item, listId)}
+              onRemoveFavorite={() => remove(item)}
+            />
+          ))}
         </tbody>
       </table>
     </div>
