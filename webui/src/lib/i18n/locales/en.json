@@ -106,6 +106,7 @@
     "status": "Status",
     "torrent_source": "Torrent Source",
     "torrent_tag": "Torrent Tag",
+    "type": "Type",
     "video_resolution": "Video Resolution",
     "video_source": "Video Source"
   },
@@ -126,6 +127,7 @@
     "dismiss": "Dismiss",
     "error": "Error",
     "delete": "Delete",
+    "no_matching_filters": "No results match the current filters",
     "none": "None",
     "page_not_found": "Page not found",
     "refresh": "Refresh",

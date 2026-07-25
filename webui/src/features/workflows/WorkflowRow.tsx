@@ -30,7 +30,7 @@ export function WorkflowRow({
 
   return (
     <tr className="border-t border-border">
-      <td className="py-2">
+      <td className="py-2 pl-3">
         <SimpleTooltip label={t(workflow.enabled ? 'integrations.disable' : 'integrations.enable')}>
           <Button
             type="button"

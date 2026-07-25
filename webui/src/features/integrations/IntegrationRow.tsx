@@ -35,7 +35,7 @@ export function IntegrationRow({
           'cursor-pointer border-t border-border hover:bg-surface-hover ' + (expanded ? 'bg-surface-hover' : '')
         }
       >
-        <td className="py-2">
+        <td className="py-2 pl-3">
           <IntegrationStatusBadge integration={integration} />
         </td>
         <td className="py-2 font-medium">{integration.name}</td>
