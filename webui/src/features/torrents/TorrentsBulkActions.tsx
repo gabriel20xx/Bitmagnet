@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Check, Download, Fingerprint, Magnet } from 'lucide-react'
+import { Check, Download, Fingerprint, Link2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { resolveTorrentDownloadUrl } from '@/lib/graphql/endpoint'
 import { useCopyFeedback } from '@/lib/hooks/useCopyFeedback'
@@ -44,7 +44,7 @@ export function TorrentsBulkActions({
         disabled={!hasSelection}
         onClick={() => copyMagnets(selectedItems.map((i) => i.torrent.magnetUri).join('\n'))}
       >
-        {magnetsCopied ? <Check className="size-4" /> : <Magnet className="size-4" />}
+        {magnetsCopied ? <Check className="size-4" /> : <Link2 className="size-4" />}
         {t('torrents.copy')} {t('torrents.magnet_links')}
       </Button>
       <Button type="button" variant="outline" disabled={!hasSelection} onClick={downloadTorrents}>

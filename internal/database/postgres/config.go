@@ -16,14 +16,22 @@ type Config struct {
 	SSLCertPath       string
 	SSLKeyPath        string
 	SSLRootCertPath   string
+	// PoolMaxConns caps the shared pgx connection pool. Left at pgxpool's own default
+	// (max(4, runtime.NumCPU())), the pool is too small once the DHT crawler's pipelines, the
+	// GraphQL API, and queue processing are all drawing from it at once: everything ends up
+	// queueing for a free connection, which surfaces as spurious gorm "slow SQL" warnings on
+	// queries (including trivially fast ones, even a SELECT ... FOR UPDATE SKIP LOCKED dequeue
+	// returning zero rows) that are actually just waiting on the pool, not running slowly.
+	PoolMaxConns uint
 }
 
 func NewDefaultConfig() Config {
 	return Config{
-		Host: "localhost",
-		User: "postgres",
-		Port: 5432,
-		Name: "bitmagnet",
+		Host:         "localhost",
+		User:         "postgres",
+		Port:         5432,
+		Name:         "bitmagnet",
+		PoolMaxConns: 50,
 	}
 }
 
@@ -70,6 +78,7 @@ func dbValues(cfg *Config) map[string]string {
 	setIfNotEmpty(p, "sslcert", cfg.SSLCertPath)
 	setIfNotEmpty(p, "sslkey", cfg.SSLKeyPath)
 	setIfNotEmpty(p, "sslrootcert", cfg.SSLRootCertPath)
+	setIfPositive(p, "pool_max_conns", cfg.PoolMaxConns)
 
 	return p
 }
