@@ -101,3 +101,12 @@ body {
   background-color: var(--color-primary);
   color: var(--color-primary-fg);
 }
+
+@keyframes loading-bar-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}

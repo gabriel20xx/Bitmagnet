@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { Paginator } from '@/components/ui/paginator'
+import { LoadingBar } from '@/components/ui/loading-bar'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
+import { cn } from '@/lib/utils/cn'
 import { FilterSidebar } from '@/features/dashboard/FilterSidebar'
 import { FacetsSidebar } from './FacetsSidebar'
 import { TorrentsTable, allColumns, compactColumns } from './TorrentsTable'
@@ -20,7 +22,7 @@ export function TorrentsSearch() {
   const { t } = useTranslation()
   const isDesktop = useIsDesktop()
   const [controls, updateControls] = useTorrentSearchControls()
-  const { result, refresh } = useTorrentSearch(controls)
+  const { result, refresh, loading } = useTorrentSearch(controls)
   const { favoritesListId, overrides, assign, remove, assignMany } = useFavorite(refresh)
   const [queryInput, setQueryInput] = useState(controls.queryString ?? '')
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -164,7 +166,7 @@ export function TorrentsSearch() {
           </SimpleTooltip>
           <SimpleTooltip label={t('torrents.refresh')}>
             <Button variant="default" size="icon" onClick={refresh}>
-              <RefreshCw className="size-4" />
+              <RefreshCw className={cn('size-4', loading && 'animate-spin')} />
             </Button>
           </SimpleTooltip>
         </div>
@@ -173,7 +175,13 @@ export function TorrentsSearch() {
           <TorrentsBulkActions selectedItems={selectedItems} onAssignFavorites={assignMany} />
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-border bg-bg">
+        <LoadingBar active={loading} />
+        <div
+          className={cn(
+            'overflow-x-auto rounded-lg border border-border bg-bg transition-opacity',
+            loading && 'opacity-60',
+          )}
+        >
           <TorrentsTable
             items={filteredItems}
             controls={controls}

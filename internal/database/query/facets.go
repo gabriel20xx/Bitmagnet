@@ -10,7 +10,20 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/maps"
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"golang.org/x/sync/semaphore"
 )
+
+// aggregationConcurrency caps how many facet-value count queries run against the database at
+// once, process-wide. calculateAggregations fans out one query per value of every aggregated
+// facet (content type, torrent source, file type, language, favorites list, ...): left unbounded,
+// a single search can burst into dozens of concurrent queries, and every concurrent search
+// multiplies that further. That burst doesn't make the search resolve any faster - Postgres still
+// has to work through them - it just starves the shared connection pool for everyone else (the
+// DHT crawler, other concurrent searches, the main results query), which is what surfaces as
+// wildly varying "slow SQL" warnings across otherwise-unrelated queries.
+const aggregationConcurrency = 8
+
+var aggregationSem = semaphore.NewWeighted(aggregationConcurrency)
 
 type FacetConfig interface {
 	Key() string
@@ -288,6 +301,13 @@ func (b optionBuilder) calculateAggregations(ctx context.Context) (Aggregations,
 			for key, label := range values {
 				go func(key, label string) {
 					defer wgInner.Done()
+
+					if acquireErr := aggregationSem.Acquire(ctx, 1); acquireErr != nil {
+						addErr(fmt.Errorf("failed to acquire aggregation slot for key '%s': %w", facet.Key(), acquireErr))
+						return
+					}
+					defer aggregationSem.Release(1)
+
 					criterias := facet.Criteria(FacetFilter{key: struct{}{}})
 					var criteria Criteria
 					switch facet.Logic() {
