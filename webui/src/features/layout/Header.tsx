@@ -37,46 +37,37 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-bg px-3">
-      {isDesktop ? (
-        <>
-          <Link to="/torrents" className="flex items-center gap-2 pr-2 font-semibold">
-            <Magnet className="size-5 text-primary" />
-            <span>
-              <span className="text-lg">B</span>itmagnet
-            </span>
-          </Link>
-          <nav className="flex items-center gap-1">
-            {navItems.map((item) => (
-              <NavLink key={item.to} to={item.to} end={item.end} className={navLinkClass}>
+      <Link to="/torrents" className="flex shrink-0 items-center gap-2 pr-1 font-semibold">
+        <Magnet className="size-5 text-primary" />
+        {isDesktop && (
+          <span>
+            <span className="text-lg">B</span>itmagnet
+          </span>
+        )}
+      </Link>
+      <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {navItems.map((item) =>
+          isDesktop ? (
+            <NavLink key={item.to} to={item.to} end={item.end} className={navLinkClass}>
+              <item.icon className="size-4" />
+              {t(item.labelKey)}
+            </NavLink>
+          ) : (
+            <SimpleTooltip key={item.to} label={t(item.labelKey)}>
+              <NavLink to={item.to} end={item.end} className={navLinkClass}>
                 <item.icon className="size-4" />
-                {t(item.labelKey)}
               </NavLink>
-            ))}
-          </nav>
-        </>
-      ) : (
-        <>
-          <Link to="/torrents" className="pr-1">
-            <Magnet className="size-5 text-primary" />
-          </Link>
-          <nav className="flex items-center gap-1">
-            {navItems.map((item) => (
-              <SimpleTooltip key={item.to} label={t(item.labelKey)}>
-                <NavLink to={item.to} end={item.end} className={navLinkClass}>
-                  <item.icon className="size-4" />
-                </NavLink>
-              </SimpleTooltip>
-            ))}
-          </nav>
-        </>
-      )}
+            </SimpleTooltip>
+          ),
+        )}
+      </nav>
 
-      <span className="flex-1" />
-
-      <DatabaseStatsWidget />
-      <HealthWidget />
-      <ThemeToggle />
-      <LanguageMenu />
+      <div className="flex shrink-0 items-center gap-1">
+        <DatabaseStatsWidget />
+        <HealthWidget />
+        <ThemeToggle />
+        <LanguageMenu />
+      </div>
     </header>
   )
 }

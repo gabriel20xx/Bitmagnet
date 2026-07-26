@@ -5,6 +5,7 @@ import { Plug, Plus, Power, Star, PanelLeftClose, PanelLeftOpen } from 'lucide-r
 import { Button } from '@/components/ui/button'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
+import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { addError } from '@/lib/toast/store'
 import { UpdateWorkflowDocument, type IntegrationType, type WorkflowFragment } from '@/lib/graphql/generated'
 import { useIntegrations } from '@/features/integrations/useIntegrations'
@@ -23,6 +24,7 @@ const statusFilterValues: StatusFilterValue[] = ['enabled', 'disabled']
 export function WorkflowsPage() {
   const { t } = useTranslation()
   useDocumentTitle(t('routes.workflows'), t('routes.dashboard'))
+  const isDesktop = useIsDesktop()
 
   const { workflows, loading, refetch } = useWorkflows()
   const { integrations } = useIntegrations()
@@ -31,7 +33,7 @@ export function WorkflowsPage() {
 
   const [editing, setEditing] = useState<WorkflowFragment | null | undefined>(undefined)
   const [deleting, setDeleting] = useState<WorkflowFragment | null>(null)
-  const [drawerOpen, setDrawerOpen] = useState(true)
+  const [drawerOpen, setDrawerOpen] = useState(isDesktop)
   const [typeFilter, setTypeFilter] = useState<Set<IntegrationType>>(new Set())
   const [statusFilter, setStatusFilter] = useState<Set<StatusFilterValue>>(new Set())
   const [favoritesListFilter, setFavoritesListFilter] = useState<Set<string>>(new Set())
@@ -98,39 +100,37 @@ export function WorkflowsPage() {
 
   return (
     <div className="flex flex-1">
-      {drawerOpen && (
-        <FilterSidebar>
-          <FilterSidebarSection
-            icon={Plug}
-            label={t('facets.type')}
-            options={typeOptions}
-            selected={typeFilter}
-            onToggle={(v) => setTypeFilter((s) => toggleFilterValue(s, integrationTypeList, v))}
-          />
-          <FilterSidebarSection
-            icon={Power}
-            label={t('facets.status')}
-            options={statusOptions}
-            selected={statusFilter}
-            onToggle={(v) => setStatusFilter((s) => toggleFilterValue(s, statusFilterValues, v))}
-          />
-          <FilterSidebarSection
-            icon={Star}
-            label={t('facets.favorites_list')}
-            options={favoritesListOptions}
-            selected={favoritesListFilter}
-            onToggle={(v) =>
-              setFavoritesListFilter((s) =>
-                toggleFilterValue(
-                  s,
-                  favoritesLists.map((l) => l.id),
-                  v,
-                ),
-              )
-            }
-          />
-        </FilterSidebar>
-      )}
+      <FilterSidebar open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <FilterSidebarSection
+          icon={Plug}
+          label={t('facets.type')}
+          options={typeOptions}
+          selected={typeFilter}
+          onToggle={(v) => setTypeFilter((s) => toggleFilterValue(s, integrationTypeList, v))}
+        />
+        <FilterSidebarSection
+          icon={Power}
+          label={t('facets.status')}
+          options={statusOptions}
+          selected={statusFilter}
+          onToggle={(v) => setStatusFilter((s) => toggleFilterValue(s, statusFilterValues, v))}
+        />
+        <FilterSidebarSection
+          icon={Star}
+          label={t('facets.favorites_list')}
+          options={favoritesListOptions}
+          selected={favoritesListFilter}
+          onToggle={(v) =>
+            setFavoritesListFilter((s) =>
+              toggleFilterValue(
+                s,
+                favoritesLists.map((l) => l.id),
+                v,
+              ),
+            )
+          }
+        />
+      </FilterSidebar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <SimpleTooltip label={t('torrents.toggle_drawer')}>

@@ -82,7 +82,7 @@ export function FacetsSidebar({
   const openAccordionValues = facetInfos.filter((f) => f.active).map((f) => f.def.key)
 
   return (
-    <div className="w-64 shrink-0 space-y-1 border-r border-border p-3">
+    <>
       <div className="border-b border-border">
         <div className="flex items-center justify-between gap-2 py-3 text-sm font-medium">
           <span className="flex items-center gap-2">
@@ -230,6 +230,6 @@ export function FacetsSidebar({
             </AccordionItem>
           ))}
       </Accordion>
-    </div>
+    </>
   )
 }

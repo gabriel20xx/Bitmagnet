@@ -7,6 +7,7 @@ import { SimpleTooltip } from '@/components/ui/tooltip'
 import { Paginator } from '@/components/ui/paginator'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
+import { FilterSidebar } from '@/features/dashboard/FilterSidebar'
 import { FacetsSidebar } from './FacetsSidebar'
 import { TorrentsTable, allColumns, compactColumns } from './TorrentsTable'
 import { TorrentsBulkActions } from './TorrentsBulkActions'
@@ -23,7 +24,7 @@ export function TorrentsSearch() {
   const { favoritesListId, overrides, assign, remove, assignMany } = useFavorite(refresh)
   const [queryInput, setQueryInput] = useState(controls.queryString ?? '')
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [drawerOpen, setDrawerOpen] = useState(true)
+  const [drawerOpen, setDrawerOpen] = useState(isDesktop)
 
   // Adjust local state in response to prop/query changes during render (React's
   // recommended alternative to a synchronizing effect), rather than in a useEffect.
@@ -89,7 +90,9 @@ export function TorrentsSearch() {
 
   return (
     <div className="flex flex-1">
-      {drawerOpen && <FacetsSidebar controls={controls} result={sidebarResult} onUpdate={updateControls} />}
+      <FilterSidebar open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <FacetsSidebar controls={controls} result={sidebarResult} onUpdate={updateControls} />
+      </FilterSidebar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <SimpleTooltip label={t('torrents.toggle_drawer')}>
@@ -170,7 +173,7 @@ export function TorrentsSearch() {
           <TorrentsBulkActions selectedItems={selectedItems} onAssignFavorites={assignMany} />
         </div>
 
-        <div className="rounded-lg border border-border bg-bg">
+        <div className="overflow-x-auto rounded-lg border border-border bg-bg">
           <TorrentsTable
             items={filteredItems}
             controls={controls}
