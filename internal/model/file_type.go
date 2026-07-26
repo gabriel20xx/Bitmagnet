@@ -77,6 +77,7 @@ var extensionToFileTypeMap = map[string]FileType{
 	"tif":  FileTypeImage,
 	"tiff": FileTypeImage,
 	"ico":  FileTypeImage,
+	"webp": FileTypeImage,
 
 	// Software
 	"exe":     FileTypeSoftware,

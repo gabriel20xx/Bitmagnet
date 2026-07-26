@@ -12,7 +12,6 @@ import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { contentTypeInfo } from './contentTypes'
 import { FavoritesPicker } from './FavoritesPicker'
 import { SeedersLeechers } from './SeedersLeechers'
-import { TorrentChips } from './TorrentChips'
 import { TorrentDuplicatesRow } from './TorrentDuplicatesRow'
 import { TorrentFilesTree } from './TorrentFilesTree'
 import type { TorrentSearchControls } from './searchControls'
@@ -75,7 +74,6 @@ function TorrentRow({
                 {item.title !== item.torrent.name && (
                   <p className="truncate text-xs text-muted-fg">{item.torrent.name}</p>
                 )}
-                <TorrentChips torrentContent={item} />
                 {item.duplicatesCount > 0 && (
                   <button
                     type="button"
