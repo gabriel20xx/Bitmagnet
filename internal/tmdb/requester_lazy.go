@@ -112,7 +112,11 @@ func newRequester(ctx context.Context, config Config, logger *zap.SugaredLogger)
 							SetRetryCount(3).
 							SetRetryWaitTime(2 * time.Second).
 							SetRetryMaxWaitTime(20 * time.Second).
-							SetTimeout(10 * time.Second).
+							// resty's client-wide timeout wraps the entire retry sequence, not each
+							// attempt individually - with the retry backoff alone summing to ~14s
+							// (2s+4s+8s across 3 retries), a 10s timeout left retries no room to ever
+							// succeed. 30s comfortably covers the backoff plus real request time.
+							SetTimeout(30 * time.Second).
 							EnableTrace().
 							SetLogger(logger),
 					},

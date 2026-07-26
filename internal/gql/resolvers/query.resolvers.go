@@ -9,6 +9,7 @@ import (
 	"context"
 	"sort"
 
+	"github.com/bitmagnet-io/bitmagnet/internal/buildinfo"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel"
@@ -156,6 +157,11 @@ func (r *queryResolver) DatabaseStats(ctx context.Context) (gqlmodel.DatabaseSta
 // Tmdb is the resolver for the tmdb field.
 func (r *queryResolver) Tmdb(ctx context.Context) (gqlmodel.TmdbQuery, error) {
 	return gqlmodel.TmdbQuery{SettingsManager: r.SettingsManager}, nil
+}
+
+// TechStack is the resolver for the techStack field.
+func (r *queryResolver) TechStack(ctx context.Context) (buildinfo.Info, error) {
+	return buildinfo.Current(), nil
 }
 
 // Files is the resolver for the files field.

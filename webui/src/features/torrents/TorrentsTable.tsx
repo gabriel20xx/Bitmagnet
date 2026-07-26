@@ -15,7 +15,6 @@ import { SeedersLeechers } from './SeedersLeechers'
 import { TorrentChips } from './TorrentChips'
 import { TorrentDuplicatesRow } from './TorrentDuplicatesRow'
 import { TorrentFilesTree } from './TorrentFilesTree'
-import { useFavorite } from './useFavorite'
 import type { TorrentSearchControls } from './searchControls'
 
 export const allColumns = ['select', 'summary', 'size', 'publishedAt', 'peers', 'magnet'] as const
@@ -67,12 +66,12 @@ function TorrentRow({
         )}
         {displayedColumns.includes('summary') && (
           <td className="max-w-md py-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2">
               <SimpleTooltip label={t(`content_types.singular.${item.contentType ?? 'null'}`)}>
-                <ContentTypeIcon className="size-4 shrink-0" />
+                <ContentTypeIcon className="mt-0.5 size-4 shrink-0" />
               </SimpleTooltip>
               <div className="min-w-0">
-                <div className="truncate font-medium">{item.title}</div>
+                <div className="truncate font-medium leading-4">{item.title}</div>
                 {item.title !== item.torrent.name && (
                   <p className="truncate text-xs text-muted-fg">{item.torrent.name}</p>
                 )}
@@ -167,6 +166,9 @@ export function TorrentsTable({
   onToggleSelected,
   onToggleAll,
   onSelectControls,
+  favoritesListId,
+  onAssignFavorite,
+  onRemoveFavorite,
 }: {
   items: TorrentContentFragment[]
   controls: TorrentSearchControls
@@ -175,12 +177,14 @@ export function TorrentsTable({
   onToggleSelected: (infoHash: string) => void
   onToggleAll: () => void
   onSelectControls: (fn: (c: TorrentSearchControls) => TorrentSearchControls) => void
+  favoritesListId: (item: TorrentContentFragment) => string | null
+  onAssignFavorite: (item: TorrentContentFragment, listId: string) => void
+  onRemoveFavorite: (item: TorrentContentFragment) => void
 }) {
   const { t } = useTranslation()
   const isAllSelected = items.length > 0 && items.every((i) => selected.has(i.infoHash))
   const isIndeterminate = !isAllSelected && items.some((i) => selected.has(i.infoHash))
   const [expandedDuplicatesOf, setExpandedDuplicatesOf] = useState<string | null>(null)
-  const { favoritesListId, assign, remove } = useFavorite()
 
   const toggleSelectedTorrent = (infoHash: string) => {
     onSelectControls((c) => ({
@@ -238,8 +242,8 @@ export function TorrentsTable({
                 setExpandedDuplicatesOf((prev) => (prev === item.infoHash ? null : item.infoHash))
               }
               favoritesListId={favoritesListId(item)}
-              onAssignFavorite={(listId) => assign(item, listId)}
-              onRemoveFavorite={() => remove(item)}
+              onAssignFavorite={(listId) => onAssignFavorite(item, listId)}
+              onRemoveFavorite={() => onRemoveFavorite(item)}
             />
           ))}
         </tbody>

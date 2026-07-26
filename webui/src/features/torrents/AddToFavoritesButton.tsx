@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMutation } from '@apollo/client/react'
 import { Star, Plus, Check, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,8 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { SetFavoriteDocument } from '@/lib/graphql/generated'
-import { addError } from '@/lib/toast/store'
+import type { TorrentContentFragment } from '@/lib/graphql/generated'
 import { useFavoritesLists } from './useFavoritesLists'
 import { FavoritesListsDialog } from './FavoritesListsDialog'
 
@@ -19,10 +17,18 @@ import { FavoritesListsDialog } from './FavoritesListsDialog'
 // actions bar, alongside "send to integration". Unlike the per-row FavoritesPicker, there's
 // no single "current list"/"remove" state to show for a multi-torrent selection, so this is
 // add-only: pick a list (or create one) and every selected torrent gets assigned to it.
-export function AddToFavoritesButton({ infoHashes }: { infoHashes: string[] }) {
+// Delegates the actual assignment to the shared useFavorite() instance (via onAssign) so its
+// optimistic `overrides` - and the favorites-list sidebar counts derived from them - cover
+// bulk assignment the same way they do the per-row FavoritesPicker.
+export function AddToFavoritesButton({
+  items,
+  onAssign,
+}: {
+  items: TorrentContentFragment[]
+  onAssign: (items: TorrentContentFragment[], listId: string) => Promise<void>
+}) {
   const { t } = useTranslation()
   const { lists, create } = useFavoritesLists()
-  const [setFavorite] = useMutation(SetFavoriteDocument)
   const [newListName, setNewListName] = useState('')
   const [manageOpen, setManageOpen] = useState(false)
   const [justAssigned, setJustAssigned] = useState(false)
@@ -30,18 +36,14 @@ export function AddToFavoritesButton({ infoHashes }: { infoHashes: string[] }) {
 
   useEffect(() => () => clearTimeout(timeoutRef.current), [])
 
-  const hasSelection = infoHashes.length > 0
+  const hasSelection = items.length > 0
 
   const assignAll = (listId: string) => {
-    Promise.all(
-      infoHashes.map((infoHash) => setFavorite({ variables: { input: { infoHash, favoritesListId: listId } } })),
-    )
-      .then(() => {
-        clearTimeout(timeoutRef.current)
-        setJustAssigned(true)
-        timeoutRef.current = setTimeout(() => setJustAssigned(false), 1500)
-      })
-      .catch((err: Error) => addError(err.message))
+    onAssign(items, listId).then(() => {
+      clearTimeout(timeoutRef.current)
+      setJustAssigned(true)
+      timeoutRef.current = setTimeout(() => setJustAssigned(false), 1500)
+    })
   }
 
   const handleCreate = () => {

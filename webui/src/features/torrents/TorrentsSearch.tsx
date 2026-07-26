@@ -12,13 +12,15 @@ import { TorrentsTable, allColumns, compactColumns } from './TorrentsTable'
 import { TorrentsBulkActions } from './TorrentsBulkActions'
 import { useTorrentSearchControls } from './useTorrentSearchControls'
 import { useTorrentSearch } from './useTorrentSearch'
-import { orderByOptions } from './searchControls'
+import { useFavorite } from './useFavorite'
+import { applyFavoriteOverrides, orderByOptions } from './searchControls'
 
 export function TorrentsSearch() {
   const { t } = useTranslation()
   const isDesktop = useIsDesktop()
   const [controls, updateControls] = useTorrentSearchControls()
   const { result, refresh } = useTorrentSearch(controls)
+  const { favoritesListId, overrides, assign, remove, assignMany } = useFavorite(refresh)
   const [queryInput, setQueryInput] = useState(controls.queryString ?? '')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [drawerOpen, setDrawerOpen] = useState(true)
@@ -62,6 +64,14 @@ export function TorrentsSearch() {
 
   const selectedItems = useMemo(() => filteredItems.filter((i) => selected.has(i.infoHash)), [filteredItems, selected])
 
+  // Reflects not-yet-confirmed favorite assignments/removals in the sidebar's favorites-list
+  // counts immediately, rather than waiting on the refetch that `useFavorite`'s onChanged
+  // callback (`refresh`, above) eventually triggers to reconcile with the server.
+  const sidebarResult = useMemo(
+    () => ({ ...result, aggregations: applyFavoriteOverrides(result.aggregations, result.items, overrides) }),
+    [result, overrides],
+  )
+
   const commitQuery = (value: string) =>
     updateControls((c) => ({ ...c, queryString: value || undefined, page: value === c.queryString ? c.page : 1 }))
 
@@ -79,7 +89,7 @@ export function TorrentsSearch() {
 
   return (
     <div className="flex flex-1">
-      {drawerOpen && <FacetsSidebar controls={controls} result={result} onUpdate={updateControls} />}
+      {drawerOpen && <FacetsSidebar controls={controls} result={sidebarResult} onUpdate={updateControls} />}
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <SimpleTooltip label={t('torrents.toggle_drawer')}>
@@ -157,7 +167,7 @@ export function TorrentsSearch() {
         </div>
 
         <div className="mb-3 rounded-lg border border-border bg-bg p-2">
-          <TorrentsBulkActions selectedItems={selectedItems} />
+          <TorrentsBulkActions selectedItems={selectedItems} onAssignFavorites={assignMany} />
         </div>
 
         <div className="rounded-lg border border-border bg-bg">
@@ -181,6 +191,9 @@ export function TorrentsSearch() {
               })
             }
             onSelectControls={updateControls}
+            favoritesListId={favoritesListId}
+            onAssignFavorite={assign}
+            onRemoveFavorite={remove}
           />
         </div>
 

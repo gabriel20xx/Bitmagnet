@@ -15,11 +15,29 @@ type Query {
   favoritesLists: [FavoritesList!]!
   databaseStats: DatabaseStatsQuery!
   tmdb: TmdbQuery!
+  """
+  techStack reports the Go toolchain and a curated set of backend dependency versions this
+  server was actually built with (sourced from the binary's embedded build info, not a
+  hand-maintained list), for display on the admin page.
+  """
+  techStack: TechStackResult!
 }
 
 type DatabaseStatsQuery {
   torrentsCount: Int!
   sizeBytes: Int!
+}
+
+type TechStackDependency {
+  name: String!
+  version: String!
+}
+
+type TechStackResult {
+  goVersion: String!
+  os: String!
+  arch: String!
+  dependencies: [TechStackDependency!]!
 }
 
 type TorrentQuery {

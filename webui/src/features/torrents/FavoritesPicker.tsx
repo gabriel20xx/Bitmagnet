@@ -53,7 +53,7 @@ export function FavoritesPicker({
             <Star
               className={cn(
                 'size-4',
-                isFavorited ? 'fill-yellow-400 text-yellow-400' : 'text-muted-fg hover:text-yellow-400',
+                isFavorited ? 'fill-yellow-400 text-yellow-400' : 'text-primary hover:text-yellow-400',
               )}
             />
           </button>

@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { formatIntEstimate } from '@/lib/utils/intEstimate'
 import { useFavoritesLists } from './useFavoritesLists'
-import { activateFilter, deactivateFilter, favoritesListFacet, type TorrentSearchControls } from './searchControls'
+import { favoritesListFacet, toggleInclusiveFilter, type TorrentSearchControls } from './searchControls'
 
 const inputClass =
   'h-7 w-full min-w-0 rounded-md border border-border bg-bg px-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
@@ -33,7 +33,6 @@ export function FavoritesListFacetContent({
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
   const countsByListId = new Map(aggregations.map((a) => [a.value, a]))
-  const allListIds = lists.map((l) => l.id)
 
   const handleCreate = () => {
     const name = newName.trim()
@@ -135,18 +134,14 @@ export function FavoritesListFacetContent({
         }
 
         const agg = countsByListId.get(list.id)
-        const checked = filter?.length ? filter.includes(list.id) : true
+        const checked = !!filter?.includes(list.id)
 
         return (
           <li key={list.id} className="flex items-center gap-2 px-2 text-sm">
             <Checkbox
               checked={checked}
               onCheckedChange={(isChecked) =>
-                onUpdate((c) =>
-                  isChecked
-                    ? activateFilter(c, favoritesListFacet, list.id)
-                    : deactivateFilter(c, favoritesListFacet, list.id, allListIds),
-                )
+                onUpdate((c) => toggleInclusiveFilter(c, favoritesListFacet, list.id, !!isChecked))
               }
             />
             <span className="flex-1 truncate">{list.name}</span>

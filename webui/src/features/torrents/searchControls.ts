@@ -4,6 +4,7 @@ import type {
   ContentType,
   FileType,
   Language,
+  TorrentContentFragment,
   TorrentContentOrderByField,
   TorrentContentSearchQueryVariables,
   TorrentContentSearchResultFragment,
@@ -244,6 +245,43 @@ export function controlsToQueryVariables(ctrl: TorrentSearchControls): TorrentCo
   }
 }
 
+// Adjusts the favoritesList aggregation counts to reflect not-yet-confirmed local favorite
+// assignments/removals (see useFavorite's `overrides`), so the sidebar count next to a list
+// updates in lockstep with the star icon instead of lagging behind the server round trip that
+// eventually reconciles it. Only affects items present in the current result set, which is
+// always true for `overrides` since they're only ever set for currently-visible/selected items.
+export function applyFavoriteOverrides(
+  aggregations: TorrentContentSearchResultFragment['aggregations'],
+  items: TorrentContentFragment[],
+  overrides: Record<string, string | null>,
+): TorrentContentSearchResultFragment['aggregations'] {
+  const pending = Object.entries(overrides)
+  if (pending.length === 0) return aggregations
+
+  const itemsByHash = new Map(items.map((item) => [item.infoHash, item]))
+  const counts = new Map((aggregations.favoritesList ?? []).map((agg) => [agg.value, { ...agg }]))
+
+  for (const [infoHash, overrideListId] of pending) {
+    const item = itemsByHash.get(infoHash)
+    if (!item) continue
+
+    const serverListId = item.torrent.favoritesListId ?? null
+    if (serverListId === overrideListId) continue
+
+    if (serverListId) {
+      const entry = counts.get(serverListId)
+      if (entry) entry.count = Math.max(0, entry.count - 1)
+    }
+    if (overrideListId) {
+      const entry = counts.get(overrideListId)
+      if (entry) entry.count += 1
+      else counts.set(overrideListId, { value: overrideListId, label: overrideListId, count: 1, isEstimate: false })
+    }
+  }
+
+  return { ...aggregations, favoritesList: Array.from(counts.values()) }
+}
+
 export function hasSizeFilter(ctrl: TorrentSearchControls): boolean {
   return ctrl.sizeMin != null || ctrl.sizeMax != null
 }
@@ -314,6 +352,27 @@ export function deactivateFilter(
     ...ctrl,
     page: 1,
     facets: def.patchInput(ctrl.facets, { ...input, filter: nextFilter?.length ? nextFilter : undefined }),
+  }
+}
+
+// Unlike activateFilter/deactivateFilter (which model an "opt-out" facet where nothing
+// selected means everything included, and unchecking one excludes just that one), the
+// favorites-list facet is "opt-in": nothing selected means no filtering at all, and checking
+// an entry narrows results to that list (plus any others also checked).
+export function toggleInclusiveFilter(
+  ctrl: TorrentSearchControls,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  def: FacetDefinition<any, any>,
+  value: unknown,
+  include: boolean,
+): TorrentSearchControls {
+  const input = def.extractInput(ctrl.facets)
+  const current = (input.filter as unknown[] | undefined) ?? []
+  const next = include ? Array.from(new Set([...current, value])) : current.filter((v) => v !== value)
+  return {
+    ...ctrl,
+    page: 1,
+    facets: def.patchInput(ctrl.facets, { ...input, filter: next.length ? next.sort() : undefined }),
   }
 }
 

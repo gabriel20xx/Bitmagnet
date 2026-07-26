@@ -1,0 +1,11 @@
+query TechStack {
+  techStack {
+    goVersion
+    os
+    arch
+    dependencies {
+      name
+      version
+    }
+  }
+}

@@ -11,6 +11,7 @@ export const languages: Language[] = [
   { id: 'es', label: 'Español' },
   { id: 'fr', label: 'Français' },
   { id: 'hi', label: 'हिन्दी' },
+  { id: 'it', label: 'Italiano' },
   { id: 'ja', label: '日本語' },
   { id: 'nl', label: 'Nederlands' },
   { id: 'pt', label: 'Português' },

@@ -15,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/bitmagnet-io/bitmagnet/internal/archive"
+	"github.com/bitmagnet-io/bitmagnet/internal/buildinfo"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel"
@@ -228,6 +229,7 @@ type ComplexityRoot struct {
 		IntegrationActiveTorrents func(childComplexity int, id string, input *gen.IntegrationActiveTorrentsQueryInput) int
 		Integrations              func(childComplexity int) int
 		Queue                     func(childComplexity int) int
+		TechStack                 func(childComplexity int) int
 		Tmdb                      func(childComplexity int) int
 		Torrent                   func(childComplexity int) int
 		TorrentContent            func(childComplexity int) int
@@ -312,6 +314,18 @@ type ComplexityRoot struct {
 	SuggestedTag struct {
 		Count func(childComplexity int) int
 		Name  func(childComplexity int) int
+	}
+
+	TechStackDependency struct {
+		Name    func(childComplexity int) int
+		Version func(childComplexity int) int
+	}
+
+	TechStackResult struct {
+		Arch         func(childComplexity int) int
+		Dependencies func(childComplexity int) int
+		GoVersion    func(childComplexity int) int
+		OS           func(childComplexity int) int
 	}
 
 	TmdbMutation struct {
@@ -576,6 +590,7 @@ type QueryResolver interface {
 	FavoritesLists(ctx context.Context) ([]model.FavoritesList, error)
 	DatabaseStats(ctx context.Context) (gqlmodel.DatabaseStatsQuery, error)
 	Tmdb(ctx context.Context) (gqlmodel.TmdbQuery, error)
+	TechStack(ctx context.Context) (buildinfo.Info, error)
 }
 type QueueJobResolver interface {
 	RanAt(ctx context.Context, obj *model.QueueJob) (*time.Time, error)
@@ -1358,6 +1373,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.Queue(childComplexity), true
+	case "Query.techStack":
+		if e.ComplexityRoot.Query.TechStack == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.TechStack(childComplexity), true
 	case "Query.tmdb":
 		if e.ComplexityRoot.Query.Tmdb == nil {
 			break
@@ -1678,6 +1699,44 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SuggestedTag.Name(childComplexity), true
+
+	case "TechStackDependency.name":
+		if e.ComplexityRoot.TechStackDependency.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TechStackDependency.Name(childComplexity), true
+	case "TechStackDependency.version":
+		if e.ComplexityRoot.TechStackDependency.Version == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TechStackDependency.Version(childComplexity), true
+
+	case "TechStackResult.arch":
+		if e.ComplexityRoot.TechStackResult.Arch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TechStackResult.Arch(childComplexity), true
+	case "TechStackResult.dependencies":
+		if e.ComplexityRoot.TechStackResult.Dependencies == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TechStackResult.Dependencies(childComplexity), true
+	case "TechStackResult.goVersion":
+		if e.ComplexityRoot.TechStackResult.GoVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TechStackResult.GoVersion(childComplexity), true
+	case "TechStackResult.os":
+		if e.ComplexityRoot.TechStackResult.OS == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TechStackResult.OS(childComplexity), true
 
 	case "TmdbMutation.clearApiKey":
 		if e.ComplexityRoot.TmdbMutation.ClearApiKey == nil {
@@ -3314,11 +3373,29 @@ input TorrentReprocessInput {
   favoritesLists: [FavoritesList!]!
   databaseStats: DatabaseStatsQuery!
   tmdb: TmdbQuery!
+  """
+  techStack reports the Go toolchain and a curated set of backend dependency versions this
+  server was actually built with (sourced from the binary's embedded build info, not a
+  hand-maintained list), for display on the admin page.
+  """
+  techStack: TechStackResult!
 }
 
 type DatabaseStatsQuery {
   torrentsCount: Int!
   sizeBytes: Int!
+}
+
+type TechStackDependency {
+  name: String!
+  version: String!
+}
+
+type TechStackResult {
+  goVersion: String!
+  os: String!
+  arch: String!
+  dependencies: [TechStackDependency!]!
 }
 
 type TorrentQuery {
@@ -4305,6 +4382,30 @@ func (ec *executionContext) childFields_SuggestedTag(ctx context.Context, field 
 		return ec.fieldContext_SuggestedTag_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SuggestedTag", field.Name)
+}
+
+func (ec *executionContext) childFields_TechStackDependency(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_TechStackDependency_name(ctx, field)
+	case "version":
+		return ec.fieldContext_TechStackDependency_version(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TechStackDependency", field.Name)
+}
+
+func (ec *executionContext) childFields_TechStackResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "goVersion":
+		return ec.fieldContext_TechStackResult_goVersion(ctx, field)
+	case "os":
+		return ec.fieldContext_TechStackResult_os(ctx, field)
+	case "arch":
+		return ec.fieldContext_TechStackResult_arch(ctx, field)
+	case "dependencies":
+		return ec.fieldContext_TechStackResult_dependencies(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TechStackResult", field.Name)
 }
 
 func (ec *executionContext) childFields_TmdbMutation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -8609,6 +8710,38 @@ func (ec *executionContext) fieldContext_Query_tmdb(_ context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_techStack(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_techStack(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().TechStack(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v buildinfo.Info) graphql.Marshaler {
+			return ec.marshalNTechStackResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋbuildinfoᚐInfo(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_techStack(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TechStackResult(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9778,6 +9911,153 @@ func (ec *executionContext) _SuggestedTag_count(ctx context.Context, field graph
 }
 func (ec *executionContext) fieldContext_SuggestedTag_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SuggestedTag", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TechStackDependency_name(ctx context.Context, field graphql.CollectedField, obj *buildinfo.Dependency) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TechStackDependency_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TechStackDependency_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TechStackDependency", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TechStackDependency_version(ctx context.Context, field graphql.CollectedField, obj *buildinfo.Dependency) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TechStackDependency_version(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Version, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TechStackDependency_version(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TechStackDependency", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TechStackResult_goVersion(ctx context.Context, field graphql.CollectedField, obj *buildinfo.Info) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TechStackResult_goVersion(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.GoVersion, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TechStackResult_goVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TechStackResult", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TechStackResult_os(ctx context.Context, field graphql.CollectedField, obj *buildinfo.Info) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TechStackResult_os(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.OS, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TechStackResult_os(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TechStackResult", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TechStackResult_arch(ctx context.Context, field graphql.CollectedField, obj *buildinfo.Info) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TechStackResult_arch(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Arch, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TechStackResult_arch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TechStackResult", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TechStackResult_dependencies(ctx context.Context, field graphql.CollectedField, obj *buildinfo.Info) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TechStackResult_dependencies(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Dependencies, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []buildinfo.Dependency) graphql.Marshaler {
+			return ec.marshalNTechStackDependency2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋbuildinfoᚐDependencyᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TechStackResult_dependencies(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TechStackResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TechStackDependency(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _TmdbMutation_setApiKey(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TmdbMutation) (ret graphql.Marshaler) {
@@ -18668,6 +18948,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "techStack":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_techStack(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -19450,6 +19752,102 @@ func (ec *executionContext) _SuggestedTag(ctx context.Context, sel ast.Selection
 			}
 		case "count":
 			out.Values[i] = ec._SuggestedTag_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var techStackDependencyImplementors = []string{"TechStackDependency"}
+
+func (ec *executionContext) _TechStackDependency(ctx context.Context, sel ast.SelectionSet, obj *buildinfo.Dependency) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, techStackDependencyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TechStackDependency")
+		case "name":
+			out.Values[i] = ec._TechStackDependency_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "version":
+			out.Values[i] = ec._TechStackDependency_version(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var techStackResultImplementors = []string{"TechStackResult"}
+
+func (ec *executionContext) _TechStackResult(ctx context.Context, sel ast.SelectionSet, obj *buildinfo.Info) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, techStackResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TechStackResult")
+		case "goVersion":
+			out.Values[i] = ec._TechStackResult_goVersion(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "os":
+			out.Values[i] = ec._TechStackResult_os(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "arch":
+			out.Values[i] = ec._TechStackResult_arch(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "dependencies":
+			out.Values[i] = ec._TechStackResult_dependencies(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -22912,6 +23310,30 @@ func (ec *executionContext) marshalNSuggestedTag2ᚕgithubᚗcomᚋbitmagnetᚑi
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNTechStackDependency2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋbuildinfoᚐDependency(ctx context.Context, sel ast.SelectionSet, v buildinfo.Dependency) graphql.Marshaler {
+	return ec._TechStackDependency(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTechStackDependency2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋbuildinfoᚐDependencyᚄ(ctx context.Context, sel ast.SelectionSet, v []buildinfo.Dependency) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTechStackDependency2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋbuildinfoᚐDependency(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTechStackResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋbuildinfoᚐInfo(ctx context.Context, sel ast.SelectionSet, v buildinfo.Info) graphql.Marshaler {
+	return ec._TechStackResult(ctx, sel, &v)
 }
 
 func (ec *executionContext) unmarshalNTestIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐTestIntegrationInput(ctx context.Context, v any) (gen.TestIntegrationInput, error) {

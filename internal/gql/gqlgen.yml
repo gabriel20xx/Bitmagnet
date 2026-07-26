@@ -192,3 +192,9 @@ models:
   ArchiveEntry:
     model:
       - github.com/bitmagnet-io/bitmagnet/internal/archive.Entry
+  TechStackResult:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/buildinfo.Info
+  TechStackDependency:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/buildinfo.Dependency

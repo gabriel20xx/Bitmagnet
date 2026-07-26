@@ -5,6 +5,7 @@ import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { PurgeJobsDialog } from './PurgeJobsDialog'
 import { EnqueueReprocessBatchDialog } from './EnqueueReprocessBatchDialog'
 import { SetTmdbApiKeyDialog } from './SetTmdbApiKeyDialog'
+import { TechStackSection } from './TechStackSection'
 
 // Port of webui/src/app/dashboard/queue/queue-admin.component.ts/.html
 
@@ -45,6 +46,7 @@ export function QueueAdmin() {
         <EnqueueReprocessBatchDialog open={enqueueOpen} onOpenChange={setEnqueueOpen} />
         <SetTmdbApiKeyDialog open={tmdbApiKeyOpen} onOpenChange={setTmdbApiKeyOpen} />
       </div>
+      <TechStackSection />
     </div>
   )
 }
