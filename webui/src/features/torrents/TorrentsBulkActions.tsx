@@ -35,35 +35,31 @@ export function TorrentsBulkActions({
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
-        <SendToIntegrationButtons infoHashes={infoHashes} />
-        <AddToFavoritesButton items={selectedItems} onAssign={onAssignFavorites} />
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          disabled={!hasSelection}
-          onClick={() => copyMagnets(selectedItems.map((i) => i.torrent.magnetUri).join('\n'))}
-        >
-          {magnetsCopied ? <Check className="size-4" /> : <Magnet className="size-4" />}
-          {t('torrents.copy')} {t('torrents.magnet_links')}
-        </Button>
-        <Button type="button" variant="outline" disabled={!hasSelection} onClick={downloadTorrents}>
-          <Download className="size-4" />
-          {t('torrents.download_torrents')}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={!hasSelection}
-          onClick={() => copyInfoHashes(infoHashes.join('\n'))}
-        >
-          {infoHashesCopied ? <Check className="size-4" /> : <Fingerprint className="size-4" />}
-          {t('torrents.copy')} {t('torrents.info_hashes')}
-        </Button>
-      </div>
+    <div className="flex flex-wrap gap-2">
+      <AddToFavoritesButton items={selectedItems} onAssign={onAssignFavorites} />
+      <SendToIntegrationButtons infoHashes={infoHashes} />
+      <Button
+        type="button"
+        variant="outline"
+        disabled={!hasSelection}
+        onClick={() => copyMagnets(selectedItems.map((i) => i.torrent.magnetUri).join('\n'))}
+      >
+        {magnetsCopied ? <Check className="size-4" /> : <Magnet className="size-4" />}
+        {t('torrents.copy')} {t('torrents.magnet_links')}
+      </Button>
+      <Button type="button" variant="outline" disabled={!hasSelection} onClick={downloadTorrents}>
+        <Download className="size-4" />
+        {t('torrents.download_torrents')}
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        disabled={!hasSelection}
+        onClick={() => copyInfoHashes(infoHashes.join('\n'))}
+      >
+        {infoHashesCopied ? <Check className="size-4" /> : <Fingerprint className="size-4" />}
+        {t('torrents.copy')} {t('torrents.info_hashes')}
+      </Button>
     </div>
   )
 }

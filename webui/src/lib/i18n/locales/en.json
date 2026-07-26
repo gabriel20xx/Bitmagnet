@@ -363,7 +363,7 @@
     },
     "s_l": "S / L",
     "search": "Search",
-    "add_to_favorites": "Add to favorites",
+    "add_to_favorites": "Add To Favorites List",
     "confirm_delete_favorites_list": "Are you sure you want to delete \"{{name}}\"? Torrents in it will no longer be favorited.",
     "create_favorites_list": "Create list",
     "delete_favorites_list": "Delete list",
