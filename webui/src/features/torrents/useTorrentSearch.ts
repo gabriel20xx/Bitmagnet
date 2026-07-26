@@ -12,7 +12,7 @@ function withoutFacetActiveFlags(ctrl: TorrentSearchControls) {
   return { ...ctrl, facets }
 }
 
-export const emptyResult: TorrentContentSearchResultFragment = {
+const emptyResult: TorrentContentSearchResultFragment = {
   items: [],
   totalCount: 0,
   totalCountIsEstimate: false,

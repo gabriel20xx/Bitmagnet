@@ -20,7 +20,9 @@ export type EventName = (typeof eventNames)[number]
 
 export const statusNames = ['pending', 'processed', 'retry', 'failed'] as const satisfies readonly QueueJobStatus[]
 
-export const timeframeNames = [
+// Only used to derive TimeframeName below; the array itself isn't iterated at runtime in this file.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const timeframeNames = [
   'minutes_15',
   'minutes_30',
   'hours_1',
@@ -69,12 +71,6 @@ export type BucketParams<WithAuto extends boolean = boolean> = {
   timeframe: TimeframeName
 }
 
-export const defaultBucketParams: BucketParams = {
-  duration: 'hour',
-  multiplier: 1,
-  timeframe: 'all',
-}
-
 export type StatusCounts = Record<QueueJobStatus, number>
 
 export type Params<WithAuto extends boolean = boolean> = {
@@ -84,12 +80,7 @@ export type Params<WithAuto extends boolean = boolean> = {
   autoRefresh: AutoRefreshInterval
 }
 
-export const emptyParams: Params = {
-  buckets: defaultBucketParams,
-  autoRefresh: 'off',
-}
-
-export type EventBucketEntry = {
+type EventBucketEntry = {
   startTime: Date
   count: number
   latency: number
@@ -113,7 +104,7 @@ export type QueueEvents = BucketSpan & {
   eventBuckets: EventBuckets
 }
 
-export type QueueSummary<IsEmpty extends boolean = boolean> = {
+type QueueSummary<IsEmpty extends boolean = boolean> = {
   queue: string
   isEmpty: IsEmpty
   statusCounts: StatusCounts
@@ -124,9 +115,4 @@ export type Result = {
   params: Params<false>
   bucketSpan?: BucketSpan
   queues: QueueSummary[]
-}
-
-export const emptyResult: Result = {
-  params: emptyParams as Params<false>,
-  queues: [],
 }

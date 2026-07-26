@@ -14,7 +14,7 @@ import {
 // Port of webui/src/app/dashboard/queue/queue-jobs.controller.ts + queue-jobs.datasource.ts, adapted
 // to this app's URL-synced controls + Apollo hook conventions (src/features/torrents/useTorrentSearch.ts).
 
-export const emptyResult: QueueJobsQueryResultFragment = {
+const emptyResult: QueueJobsQueryResultFragment = {
   items: [],
   hasNextPage: false,
   totalCount: 0,

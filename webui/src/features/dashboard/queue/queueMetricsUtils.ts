@@ -44,7 +44,7 @@ export const normalizeBucket = (
  * full `ISO8601-duration` package with calendar-accurate month/year handling) this uses fixed
  * 365-day years / 30-day months, which is never exercised in practice for this field.
  */
-export const parseIso8601DurationSeconds = (value: string): number => {
+const parseIso8601DurationSeconds = (value: string): number => {
   const match =
     /^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+(?:[.,]\d+)?)H)?(?:(\d+(?:[.,]\d+)?)M)?(?:(\d+(?:[.,]\d+)?)S)?)?$/.exec(
       value.replace(/,/g, '.'),
@@ -68,7 +68,7 @@ const emptyRawResult: QueueMetricsQuery = { queue: { metrics: { buckets: [] } } 
 const fromEntries = <K extends string, V>(entries: Array<[K, V]>): Partial<Record<K, V>> =>
   Object.fromEntries(entries) as Partial<Record<K, V>>
 
-export const createBucketParams = (
+const createBucketParams = (
   params: Params,
   rawResult: QueueMetricsQuery,
 ): {

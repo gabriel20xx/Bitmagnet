@@ -17,7 +17,7 @@ interface ContentTypeInfo {
   icon: LucideIcon
 }
 
-export const contentTypeMap: Record<ContentType | 'null', ContentTypeInfo> = {
+const contentTypeMap: Record<ContentType | 'null', ContentTypeInfo> = {
   movie: { icon: Clapperboard },
   tv_show: { icon: Tv },
   music: { icon: Music },

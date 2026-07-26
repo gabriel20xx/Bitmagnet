@@ -40,7 +40,7 @@ const STORAGE_KEY = 'bitmagnet-language'
 
 const rtlLanguages = new Set(['ar'])
 
-export function applyDocumentDirection(lang: string) {
+function applyDocumentDirection(lang: string) {
   document.documentElement.lang = lang
   document.documentElement.dir = rtlLanguages.has(lang) ? 'rtl' : 'ltr'
 }
@@ -59,7 +59,7 @@ export function setStoredLanguage(lang: string) {
   window.localStorage.setItem(STORAGE_KEY, lang)
 }
 
-export const preferredLanguage = getStoredLanguage() ?? getAutoLanguage()
+const preferredLanguage = getStoredLanguage() ?? getAutoLanguage()
 
 void i18n.use(initReactI18next).init({
   resources,
@@ -72,5 +72,3 @@ void i18n.use(initReactI18next).init({
 applyDocumentDirection(preferredLanguage)
 
 i18n.on('languageChanged', applyDocumentDirection)
-
-export default i18n

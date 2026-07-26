@@ -15,18 +15,18 @@ import { stringListParam, stringParam, intParam } from '@/lib/utils/queryString'
 
 export type ContentTypeSelection = ContentType | 'null' | null
 
-export interface TorrentSelection {
+interface TorrentSelection {
   infoHash: string
 }
 
-export interface FacetInput<TValue = unknown> {
+interface FacetInput<TValue = unknown> {
   active: boolean
   filter?: TValue[]
 }
 
-export const inactiveFacet: FacetInput<never> = { active: false }
+const inactiveFacet: FacetInput<never> = { active: false }
 
-export interface TorrentSearchFacets {
+interface TorrentSearchFacets {
   genre: FacetInput<string>
   language: FacetInput<Language>
   fileType: FacetInput<FileType>
@@ -53,12 +53,11 @@ export interface TorrentSearchControls {
   sizeMax?: number
 }
 
-export const defaultLimit = 20
+const defaultLimit = 20
 
-export const defaultOrderBy: OrderBySelection = { field: 'published_at', descending: true }
-export const defaultQueryOrderBy: OrderBySelection = { field: 'relevance', descending: true }
+const defaultOrderBy: OrderBySelection = { field: 'published_at', descending: true }
 
-export const initControls: TorrentSearchControls = {
+const initControls: TorrentSearchControls = {
   page: 1,
   limit: defaultLimit,
   contentType: null,
@@ -76,7 +75,7 @@ export const initControls: TorrentSearchControls = {
   sizeMax: undefined,
 }
 
-export type Agg<T, AllowNull extends boolean> = {
+type Agg<T, AllowNull extends boolean> = {
   value: AllowNull extends true ? T | null : T
   label: string
   count: number
@@ -94,7 +93,7 @@ export interface FacetDefinition<T, AllowNull extends boolean = boolean> {
   resolveLabel: (agg: Agg<T, AllowNull>, t: TFunction) => string
 }
 
-export const torrentSourceFacet: FacetDefinition<string, false> = {
+const torrentSourceFacet: FacetDefinition<string, false> = {
   key: 'torrent_source',
   icon: Share2,
   allowNull: false,
@@ -104,7 +103,7 @@ export const torrentSourceFacet: FacetDefinition<string, false> = {
   resolveLabel: (agg) => agg.label,
 }
 
-export const fileTypeFacet: FacetDefinition<FileType, false> = {
+const fileTypeFacet: FacetDefinition<FileType, false> = {
   key: 'file_type',
   icon: FileText,
   allowNull: false,
@@ -114,7 +113,7 @@ export const fileTypeFacet: FacetDefinition<FileType, false> = {
   resolveLabel: (agg, t) => t(`file_types.${agg.value}`),
 }
 
-export const languageFacet: FacetDefinition<Language, false> = {
+const languageFacet: FacetDefinition<Language, false> = {
   key: 'language',
   icon: Languages,
   allowNull: false,
@@ -124,7 +123,7 @@ export const languageFacet: FacetDefinition<Language, false> = {
   resolveLabel: (agg, t) => t(`languages.${agg.value}`),
 }
 
-export const genreFacet: FacetDefinition<string, false> = {
+const genreFacet: FacetDefinition<string, false> = {
   key: 'genre',
   icon: Drama,
   allowNull: false,
@@ -135,7 +134,7 @@ export const genreFacet: FacetDefinition<string, false> = {
   resolveLabel: (agg) => agg.label,
 }
 
-export const videoResolutionFacet: FacetDefinition<VideoResolution, true> = {
+const videoResolutionFacet: FacetDefinition<VideoResolution, true> = {
   key: 'video_resolution',
   icon: Ratio,
   allowNull: true,
@@ -146,7 +145,7 @@ export const videoResolutionFacet: FacetDefinition<VideoResolution, true> = {
   resolveLabel: (agg) => (agg.value as string | undefined)?.slice(1) ?? '?',
 }
 
-export const videoSourceFacet: FacetDefinition<VideoSource, true> = {
+const videoSourceFacet: FacetDefinition<VideoSource, true> = {
   key: 'video_source',
   icon: Album,
   allowNull: true,
@@ -191,7 +190,7 @@ export const orderByOptions: OrderBySelection[] = [
   { field: 'name', descending: false },
 ]
 
-export function isDefaultOrdering(ctrl: TorrentSearchControls): boolean {
+function isDefaultOrdering(ctrl: TorrentSearchControls): boolean {
   if (!ctrl.orderBy.descending) return false
   return ctrl.orderBy.field === (ctrl.queryString ? 'relevance' : 'published_at')
 }
@@ -374,33 +373,6 @@ export function toggleInclusiveFilter(
     page: 1,
     facets: def.patchInput(ctrl.facets, { ...input, filter: next.length ? next.sort() : undefined }),
   }
-}
-
-export function setQueryString(ctrl: TorrentSearchControls, str: string | null | undefined): TorrentSearchControls {
-  str = str || undefined
-  let orderBy = ctrl.orderBy
-  if (str) {
-    if (str !== ctrl.queryString) orderBy = defaultQueryOrderBy
-  } else if (orderBy.field === 'relevance') {
-    orderBy = defaultOrderBy
-  }
-  return { ...ctrl, queryString: str, orderBy, page: str === ctrl.queryString ? ctrl.page : 1 }
-}
-
-export function selectOrderBy(ctrl: TorrentSearchControls, field: TorrentContentOrderByField): TorrentSearchControls {
-  const orderBy: OrderBySelection = {
-    field,
-    descending: orderByOptions.find((option) => option.field === field)?.descending ?? false,
-  }
-  return {
-    ...ctrl,
-    orderBy: orderBy.field !== 'relevance' || ctrl.queryString ? orderBy : defaultOrderBy,
-    page: 1,
-  }
-}
-
-export function toggleOrderByDirection(ctrl: TorrentSearchControls): TorrentSearchControls {
-  return { ...ctrl, orderBy: { ...ctrl.orderBy, descending: !ctrl.orderBy.descending }, page: 1 }
 }
 
 const contentTypeValues = new Set<string>([

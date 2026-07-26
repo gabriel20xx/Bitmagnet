@@ -2,8 +2,6 @@ import type { MetricsBucketDuration } from '@/lib/graphql/generated'
 
 // Port of webui/src/app/dashboard/torrents/torrent-metrics.constants.ts + torrent-metrics.types.ts
 
-export const resolutionNames = ['day', 'hour', 'minute'] as const
-
 export const durationSeconds: Record<MetricsBucketDuration, number> = {
   minute: 60,
   hour: 60 * 60,
@@ -34,7 +32,9 @@ export const timeframeLengths: Record<TimeframeName, number> = {
   weeks_1: 60 * 60 * 24 * 7,
 }
 
-export const autoRefreshIntervalNames = ['off', 'seconds_10', 'seconds_30', 'minutes_1', 'minutes_5'] as const
+// Only used to derive AutoRefreshInterval below; the array itself isn't iterated at runtime in this file.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const autoRefreshIntervalNames = ['off', 'seconds_10', 'seconds_30', 'minutes_1', 'minutes_5'] as const
 export type AutoRefreshInterval = (typeof autoRefreshIntervalNames)[number]
 
 export const autoRefreshIntervals: Record<AutoRefreshInterval, number | null> = {
@@ -51,12 +51,6 @@ export type BucketParams<WithAuto extends boolean = boolean> = {
   timeframe: TimeframeName
 }
 
-export const defaultBucketParams: BucketParams = {
-  duration: 'minute',
-  multiplier: 1,
-  timeframe: 'hours_1',
-}
-
 export type Params<WithAuto extends boolean = boolean> = {
   buckets: BucketParams<WithAuto>
   source?: string
@@ -64,19 +58,14 @@ export type Params<WithAuto extends boolean = boolean> = {
   autoRefresh: AutoRefreshInterval
 }
 
-export const emptyParams: Params = {
-  buckets: defaultBucketParams,
-  autoRefresh: 'off',
-}
-
-export type EventBucketEntry = {
+type EventBucketEntry = {
   startTime: Date
   count: number
 }
 
-export type EventBucketEntries = Partial<Record<string, EventBucketEntry>>
+type EventBucketEntries = Partial<Record<string, EventBucketEntry>>
 
-export type BucketSpan = {
+type BucketSpan = {
   earliestBucket: number
   latestBucket: number
 }
@@ -92,13 +81,13 @@ export type TorrentEvents = BucketSpan & {
   eventBuckets: EventBuckets
 }
 
-export type SourceSummary<IsEmpty extends boolean = boolean> = {
+type SourceSummary<IsEmpty extends boolean = boolean> = {
   source: string
   isEmpty: IsEmpty
   events: IsEmpty extends false ? TorrentEvents : undefined
 }
 
-export type AvailableSource = { key: string; name: string }
+type AvailableSource = { key: string; name: string }
 
 export type Result = {
   params: Params<false>

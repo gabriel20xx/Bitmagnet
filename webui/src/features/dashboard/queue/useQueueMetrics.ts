@@ -93,4 +93,3 @@ export function useQueueMetrics(initParams: Params) {
   }
 }
 
-export type QueueMetricsHandle = ReturnType<typeof useQueueMetrics>

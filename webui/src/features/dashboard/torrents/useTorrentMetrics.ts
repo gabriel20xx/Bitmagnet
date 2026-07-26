@@ -75,7 +75,7 @@ const createBucketParams = (
   }
 }
 
-export const createResult = (params: Params, rawResult: TorrentMetricsQuery = emptyRawResult): Result => {
+const createResult = (params: Params, rawResult: TorrentMetricsQuery = emptyRawResult): Result => {
   const { bucketParams, earliestBucket } = createBucketParams(params, rawResult)
   const sources = Object.entries(
     rawResult.torrent.metrics.buckets.reduce<

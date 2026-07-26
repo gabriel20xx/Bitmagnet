@@ -38,7 +38,7 @@ function formatBucketKey(params: BucketParams<false>, key: number, locale: strin
 }
 
 /** Mirrors the Angular adapter's bespoke duration formatter: collapses to the two most significant units. */
-export function formatQueueLatency(d: number, locale: string): string {
+function formatQueueLatency(d: number, locale: string): string {
   if (d === 0) return '0'
   let seconds = d
   let minutes = 0

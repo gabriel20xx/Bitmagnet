@@ -12,7 +12,7 @@ import { statusNames } from './queueConstants'
 // Port of webui/src/app/dashboard/queue/queue-jobs.controller.ts, adapted to this app's URL-synced
 // controls convention (see src/features/torrents/searchControls.ts) rather than pure in-memory state.
 
-export type FacetInput<TValue = unknown> = {
+type FacetInput<TValue = unknown> = {
   filter?: TValue[]
 }
 
@@ -31,7 +31,7 @@ export interface QueueJobsControls {
   }
 }
 
-export const defaultLimit = 20
+const defaultLimit = 20
 
 export const orderByOptions: OrderBySelection[] = [
   { field: 'created_at', descending: true },
@@ -39,19 +39,9 @@ export const orderByOptions: OrderBySelection[] = [
   { field: 'priority', descending: false },
 ]
 
-export const defaultOrderBy: OrderBySelection = { field: 'ran_at', descending: true }
+const defaultOrderBy: OrderBySelection = { field: 'ran_at', descending: true }
 
-export const initControls: QueueJobsControls = {
-  limit: defaultLimit,
-  page: 1,
-  orderBy: defaultOrderBy,
-  facets: {
-    queue: {},
-    status: {},
-  },
-}
-
-export type Agg<T> = {
+type Agg<T> = {
   value: T
   label: string
   count: number
@@ -66,7 +56,7 @@ export interface FacetDefinition<T> {
   resolveLabel: (agg: Agg<T>, t: TFunction) => string
 }
 
-export const queueFacet: FacetDefinition<string> = {
+const queueFacet: FacetDefinition<string> = {
   key: 'queue',
   icon: Boxes,
   extractInput: (f) => f.queue,
@@ -75,7 +65,7 @@ export const queueFacet: FacetDefinition<string> = {
   resolveLabel: (agg) => agg.label,
 }
 
-export const statusFacet: FacetDefinition<QueueJobStatus> = {
+const statusFacet: FacetDefinition<QueueJobStatus> = {
   key: 'status',
   icon: ListChecks,
   extractInput: (f) => f.status,
@@ -134,18 +124,6 @@ export function deactivateFilter(
     page: 1,
     facets: def.patchInput(ctrl.facets, { ...input, filter: nextFilter?.length ? nextFilter : undefined }),
   }
-}
-
-export function selectOrderBy(ctrl: QueueJobsControls, field: QueueJobsOrderByField): QueueJobsControls {
-  const orderBy: OrderBySelection = {
-    field,
-    descending: orderByOptions.find((o) => o.field === field)?.descending ?? false,
-  }
-  return { ...ctrl, orderBy, page: 1 }
-}
-
-export function toggleOrderByDirection(ctrl: QueueJobsControls): QueueJobsControls {
-  return { ...ctrl, orderBy: { ...ctrl.orderBy, descending: !ctrl.orderBy.descending }, page: 1 }
 }
 
 function orderByParam(params: URLSearchParams): OrderBySelection {

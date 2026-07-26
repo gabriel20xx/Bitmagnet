@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client/react'
 import { AlertCircle, AlertTriangle, CheckCircle2, Circle, HelpCircle, PlayCircle, type LucideIcon } from 'lucide-react'
 import { HealthCheckDocument, type HealthStatus as GqlHealthStatus } from '@/lib/graphql/generated'
 
-export type HealthStatus = GqlHealthStatus | 'started' | 'error' | 'degraded'
+type HealthStatus = GqlHealthStatus | 'started' | 'error' | 'degraded'
 
 const icons: Record<HealthStatus, LucideIcon> = {
   error: AlertCircle,
@@ -14,14 +14,14 @@ const icons: Record<HealthStatus, LucideIcon> = {
   started: PlayCircle,
 }
 
-export interface HealthCheckItem {
+interface HealthCheckItem {
   key: string
   status: GqlHealthStatus
   error?: string | null
   icon: LucideIcon
 }
 
-export interface HealthWorkerItem {
+interface HealthWorkerItem {
   key: string
   started: boolean
   icon: LucideIcon
