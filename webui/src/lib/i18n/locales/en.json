@@ -324,6 +324,7 @@
     "info_hashes": "Info Hashes",
     "languages": "Languages",
     "leechers": "Leechers",
+    "loading": "Loading torrent…",
     "magnet": "Magnet",
     "magnet_links": "Magnet Links",
     "no_duplicates_found": "No duplicates found",
