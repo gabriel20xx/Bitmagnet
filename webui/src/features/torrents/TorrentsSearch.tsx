@@ -8,6 +8,7 @@ import { Paginator } from '@/components/ui/paginator'
 import { LoadingBar } from '@/components/ui/loading-bar'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
+import { useLiveTorrentSearch } from '@/lib/preferences/searchPreferences'
 import { cn } from '@/lib/utils/cn'
 import { FilterSidebar } from '@/features/dashboard/FilterSidebar'
 import { FacetsSidebar } from './FacetsSidebar'
@@ -24,6 +25,7 @@ export function TorrentsSearch() {
   const [controls, updateControls] = useTorrentSearchControls()
   const { result, refresh, loading } = useTorrentSearch(controls)
   const { favoritesListId, overrides, assign, remove, assignMany } = useFavorite(refresh)
+  const [liveSearchEnabled] = useLiveTorrentSearch()
   const [queryInput, setQueryInput] = useState(controls.queryString ?? '')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [drawerOpen, setDrawerOpen] = useState(isDesktop)
@@ -78,8 +80,11 @@ export function TorrentsSearch() {
   const commitQuery = (value: string) =>
     updateControls((c) => ({ ...c, queryString: value || undefined, page: value === c.queryString ? c.page : 1 }))
 
-  // Auto-search shortly after the user stops typing; Enter (below) still commits immediately.
+  // Auto-search shortly after the user stops typing, only when opted into via the admin page
+  // (see QueueAdmin); otherwise Enter (below) is the only way to commit a search.
   useEffect(() => {
+    if (!liveSearchEnabled) return
+
     const handle = setTimeout(() => {
       updateControls((c) => ({
         ...c,
@@ -88,7 +93,7 @@ export function TorrentsSearch() {
       }))
     }, 300)
     return () => clearTimeout(handle)
-  }, [queryInput, updateControls])
+  }, [queryInput, updateControls, liveSearchEnabled])
 
   return (
     <div className="flex flex-1">

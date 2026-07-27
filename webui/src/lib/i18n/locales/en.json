@@ -77,6 +77,8 @@
       "frontend": "Frontend",
       "jobs_enqueued": "Jobs enqueued",
       "latency": "Latency",
+      "live_torrent_search": "Search torrents as you type",
+      "live_torrent_search_description": "Start searching the torrents list as soon as you type, instead of waiting for Enter.",
       "payload": "Payload",
       "pending": "Pending",
       "platform": "Platform",
