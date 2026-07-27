@@ -81,6 +81,23 @@ func GenericQuery[T interface{}](
 	}()
 	wg.Wait()
 
+	// doCount's budgeted estimate can be wildly inaccurate for filters whose true selectivity
+	// Postgres's planner misjudges (e.g. a narrow size range on a huge table), reporting a total
+	// far higher than the results actually returned. But whenever there's no next page, every
+	// matching row up to this page has already been fetched (offset + returned items) - that's
+	// the exact total, known for free, so prefer it over the estimate rather than showing a
+	// nonsensical mismatch between "~1000 results" and 5 rows on screen.
+	//
+	// The one case this can't be trusted is offset > 0 with zero items returned: that's
+	// ambiguous between "the total is exactly this offset" and "a bogus earlier estimate sent
+	// the user past the real last page", and offset + 0 would wrongly assert the former.
+	exactTotalKnown := gq.builder.offsetValue() == 0 || len(gq.result.Items) > 0
+	if len(gq.errs) == 0 && gq.builder.withTotalCount() && gq.builder.needsNextPage() &&
+		!gq.result.HasNextPage && exactTotalKnown {
+		gq.result.TotalCount = gq.builder.offsetValue() + uint(len(gq.result.Items))
+		gq.result.TotalCountIsEstimate = false
+	}
+
 	return gq.result, errors.Join(gq.errs...)
 }
 
@@ -391,6 +408,7 @@ type OptionBuilder interface {
 	hasZeroLimit() bool
 	needsNextPage() bool
 	hasNextPage(nItems int) bool
+	offsetValue() uint
 	withCurrentFacet(string) OptionBuilder
 	shouldTryCteStrategy() bool
 	createContext(context.Context) context.Context
@@ -571,6 +589,10 @@ func (b optionBuilder) hasNextPage(nItems int) bool {
 	}
 
 	return nItems > int(b.limit.Uint)
+}
+
+func (b optionBuilder) offsetValue() uint {
+	return b.offset
 }
 
 func (b optionBuilder) WithAggregationBudget(budget float64) OptionBuilder {
