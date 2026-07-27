@@ -1,0 +1,26 @@
+query DbDiagnostics {
+  dbDiagnostics {
+    slowQueries {
+      available
+      unavailableReason
+      queries {
+        query
+        calls
+        totalExecMs
+        meanExecMs
+        rows
+        pctOfTotal
+      }
+    }
+    tableScanStats {
+      tables {
+        tableName
+        seqScan
+        seqTupRead
+        idxScan
+        liveRows
+        seqScanRatio
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ import { useLiveTorrentSearch } from '@/lib/preferences/searchPreferences'
 import { PurgeJobsDialog } from './PurgeJobsDialog'
 import { EnqueueReprocessBatchDialog } from './EnqueueReprocessBatchDialog'
 import { SetTmdbApiKeyDialog } from './SetTmdbApiKeyDialog'
+import { DbDiagnosticsSection } from './DbDiagnosticsSection'
 import { TechStackSection } from './TechStackSection'
 
 // Port of webui/src/app/dashboard/queue/queue-admin.component.ts/.html
@@ -63,6 +64,7 @@ export function QueueAdmin() {
         <EnqueueReprocessBatchDialog open={enqueueOpen} onOpenChange={setEnqueueOpen} />
         <SetTmdbApiKeyDialog open={tmdbApiKeyOpen} onOpenChange={setTmdbApiKeyOpen} />
       </div>
+      <DbDiagnosticsSection />
       <TechStackSection />
     </div>
   )

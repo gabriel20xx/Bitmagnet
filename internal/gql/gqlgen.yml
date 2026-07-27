@@ -198,3 +198,15 @@ models:
   TechStackDependency:
     model:
       - github.com/bitmagnet-io/bitmagnet/internal/buildinfo.Dependency
+  SlowQueriesResult:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics.SlowQueriesResult
+  SlowQuery:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics.SlowQuery
+  TableScanStatsResult:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics.TableScanStatsResult
+  TableScanStat:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics.TableScanStat

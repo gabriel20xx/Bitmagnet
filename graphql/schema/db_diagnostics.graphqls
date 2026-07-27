@@ -1,0 +1,47 @@
+type DbDiagnosticsQuery {
+  slowQueries: SlowQueriesResult!
+  tableScanStats: TableScanStatsResult!
+}
+
+"""
+Top query shapes by cumulative execution time, from Postgres's pg_stat_statements extension.
+"""
+type SlowQueriesResult {
+  """
+  available is false when the pg_stat_statements extension isn't installed and active, in
+  which case queries is always empty and unavailableReason explains why.
+  """
+  available: Boolean!
+  unavailableReason: String
+  queries: [SlowQuery!]!
+}
+
+type SlowQuery {
+  query: String!
+  calls: Int!
+  totalExecMs: Float!
+  meanExecMs: Float!
+  rows: Int!
+  pctOfTotal: Float!
+}
+
+"""
+Tables read the most via sequential scans, from Postgres's always-available pg_stat_user_tables
+view - a version-agnostic signal for tables that are likely missing a useful index.
+"""
+type TableScanStatsResult {
+  tables: [TableScanStat!]!
+}
+
+type TableScanStat {
+  tableName: String!
+  seqScan: Int!
+  seqTupRead: Int!
+  idxScan: Int!
+  liveRows: Int!
+  """
+  seqScanRatio is seqScan / (seqScan + idxScan): how often a scan of this table went
+  sequential rather than through an index, from 0 (always indexed) to 1 (never indexed).
+  """
+  seqScanRatio: Float!
+}

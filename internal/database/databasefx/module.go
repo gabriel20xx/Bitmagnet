@@ -5,6 +5,7 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/database"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/cache"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
+	"github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/healthcheck"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/migrations"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/postgres"
@@ -22,6 +23,7 @@ func New() fx.Option {
 			cache.NewPlugin,
 			dao.New,
 			database.New,
+			diagnostics.New,
 			healthcheck.New,
 			migrations.New,
 			postgres.New,

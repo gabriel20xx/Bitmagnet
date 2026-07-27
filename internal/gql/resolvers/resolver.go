@@ -3,6 +3,7 @@ package resolvers
 import (
 	"github.com/bitmagnet-io/bitmagnet/internal/blocking"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
+	"github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
 	"github.com/bitmagnet-io/bitmagnet/internal/favorites"
 	"github.com/bitmagnet-io/bitmagnet/internal/health"
@@ -38,4 +39,5 @@ type Resolver struct {
 	SettingsManager      settings.Manager
 	TmdbClient           tmdb.Client
 	MediaStreamService   *mediastream.Service
+	DiagnosticsClient    diagnostics.Client
 }

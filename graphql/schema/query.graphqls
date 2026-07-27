@@ -14,6 +14,12 @@ type Query {
   workflows: [Workflow!]!
   favoritesLists: [FavoritesList!]!
   databaseStats: DatabaseStatsQuery!
+  """
+  dbDiagnostics surfaces Postgres query-performance diagnostics - slow query shapes (from the
+  optional pg_stat_statements extension) and tables read mostly via sequential scans - to help
+  identify which indexes are worth adding, for display on the admin page.
+  """
+  dbDiagnostics: DbDiagnosticsQuery!
   tmdb: TmdbQuery!
   """
   techStack reports the Go toolchain and a curated set of backend dependency versions this

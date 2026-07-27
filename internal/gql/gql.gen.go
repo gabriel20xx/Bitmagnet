@@ -16,6 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/bitmagnet-io/bitmagnet/internal/archive"
 	"github.com/bitmagnet-io/bitmagnet/internal/buildinfo"
+	"github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel"
@@ -115,6 +116,11 @@ type ComplexityRoot struct {
 	DatabaseStatsQuery struct {
 		SizeBytes     func(childComplexity int) int
 		TorrentsCount func(childComplexity int) int
+	}
+
+	DbDiagnosticsQuery struct {
+		SlowQueries    func(childComplexity int) int
+		TableScanStats func(childComplexity int) int
 	}
 
 	Episodes struct {
@@ -224,6 +230,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		DatabaseStats             func(childComplexity int) int
+		DbDiagnostics             func(childComplexity int) int
 		FavoritesLists            func(childComplexity int) int
 		Health                    func(childComplexity int) int
 		IntegrationActiveTorrents func(childComplexity int, id string, input *gen.IntegrationActiveTorrentsQueryInput) int
@@ -311,9 +318,37 @@ type ComplexityRoot struct {
 		Season   func(childComplexity int) int
 	}
 
+	SlowQueriesResult struct {
+		Available         func(childComplexity int) int
+		Queries           func(childComplexity int) int
+		UnavailableReason func(childComplexity int) int
+	}
+
+	SlowQuery struct {
+		Calls       func(childComplexity int) int
+		MeanExecMs  func(childComplexity int) int
+		PctOfTotal  func(childComplexity int) int
+		Query       func(childComplexity int) int
+		Rows        func(childComplexity int) int
+		TotalExecMs func(childComplexity int) int
+	}
+
 	SuggestedTag struct {
 		Count func(childComplexity int) int
 		Name  func(childComplexity int) int
+	}
+
+	TableScanStat struct {
+		IdxScan      func(childComplexity int) int
+		LiveRows     func(childComplexity int) int
+		SeqScan      func(childComplexity int) int
+		SeqScanRatio func(childComplexity int) int
+		SeqTupRead   func(childComplexity int) int
+		TableName    func(childComplexity int) int
+	}
+
+	TableScanStatsResult struct {
+		Tables func(childComplexity int) int
 	}
 
 	TechStackDependency struct {
@@ -589,6 +624,7 @@ type QueryResolver interface {
 	Workflows(ctx context.Context) ([]model.Workflow, error)
 	FavoritesLists(ctx context.Context) ([]model.FavoritesList, error)
 	DatabaseStats(ctx context.Context) (gqlmodel.DatabaseStatsQuery, error)
+	DbDiagnostics(ctx context.Context) (gqlmodel.DbDiagnosticsQuery, error)
 	Tmdb(ctx context.Context) (gqlmodel.TmdbQuery, error)
 	TechStack(ctx context.Context) (buildinfo.Info, error)
 }
@@ -900,6 +936,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DatabaseStatsQuery.TorrentsCount(childComplexity), true
+
+	case "DbDiagnosticsQuery.slowQueries":
+		if e.ComplexityRoot.DbDiagnosticsQuery.SlowQueries == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DbDiagnosticsQuery.SlowQueries(childComplexity), true
+	case "DbDiagnosticsQuery.tableScanStats":
+		if e.ComplexityRoot.DbDiagnosticsQuery.TableScanStats == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DbDiagnosticsQuery.TableScanStats(childComplexity), true
 
 	case "Episodes.label":
 		if e.ComplexityRoot.Episodes.Label == nil {
@@ -1337,6 +1386,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.DatabaseStats(childComplexity), true
+	case "Query.dbDiagnostics":
+		if e.ComplexityRoot.Query.DbDiagnostics == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.DbDiagnostics(childComplexity), true
 	case "Query.favoritesLists":
 		if e.ComplexityRoot.Query.FavoritesLists == nil {
 			break
@@ -1687,6 +1742,62 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Season.Season(childComplexity), true
 
+	case "SlowQueriesResult.available":
+		if e.ComplexityRoot.SlowQueriesResult.Available == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQueriesResult.Available(childComplexity), true
+	case "SlowQueriesResult.queries":
+		if e.ComplexityRoot.SlowQueriesResult.Queries == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQueriesResult.Queries(childComplexity), true
+	case "SlowQueriesResult.unavailableReason":
+		if e.ComplexityRoot.SlowQueriesResult.UnavailableReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQueriesResult.UnavailableReason(childComplexity), true
+
+	case "SlowQuery.calls":
+		if e.ComplexityRoot.SlowQuery.Calls == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQuery.Calls(childComplexity), true
+	case "SlowQuery.meanExecMs":
+		if e.ComplexityRoot.SlowQuery.MeanExecMs == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQuery.MeanExecMs(childComplexity), true
+	case "SlowQuery.pctOfTotal":
+		if e.ComplexityRoot.SlowQuery.PctOfTotal == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQuery.PctOfTotal(childComplexity), true
+	case "SlowQuery.query":
+		if e.ComplexityRoot.SlowQuery.Query == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQuery.Query(childComplexity), true
+	case "SlowQuery.rows":
+		if e.ComplexityRoot.SlowQuery.Rows == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQuery.Rows(childComplexity), true
+	case "SlowQuery.totalExecMs":
+		if e.ComplexityRoot.SlowQuery.TotalExecMs == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SlowQuery.TotalExecMs(childComplexity), true
+
 	case "SuggestedTag.count":
 		if e.ComplexityRoot.SuggestedTag.Count == nil {
 			break
@@ -1699,6 +1810,50 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SuggestedTag.Name(childComplexity), true
+
+	case "TableScanStat.idxScan":
+		if e.ComplexityRoot.TableScanStat.IdxScan == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TableScanStat.IdxScan(childComplexity), true
+	case "TableScanStat.liveRows":
+		if e.ComplexityRoot.TableScanStat.LiveRows == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TableScanStat.LiveRows(childComplexity), true
+	case "TableScanStat.seqScan":
+		if e.ComplexityRoot.TableScanStat.SeqScan == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TableScanStat.SeqScan(childComplexity), true
+	case "TableScanStat.seqScanRatio":
+		if e.ComplexityRoot.TableScanStat.SeqScanRatio == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TableScanStat.SeqScanRatio(childComplexity), true
+	case "TableScanStat.seqTupRead":
+		if e.ComplexityRoot.TableScanStat.SeqTupRead == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TableScanStat.SeqTupRead(childComplexity), true
+	case "TableScanStat.tableName":
+		if e.ComplexityRoot.TableScanStat.TableName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TableScanStat.TableName(childComplexity), true
+
+	case "TableScanStatsResult.tables":
+		if e.ComplexityRoot.TableScanStatsResult.Tables == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TableScanStatsResult.Tables(childComplexity), true
 
 	case "TechStackDependency.name":
 		if e.ComplexityRoot.TechStackDependency.Name == nil {
@@ -2838,6 +2993,54 @@ func newExecutionContext(
 }
 
 var sources = []*ast.Source{
+	{Name: "../../graphql/schema/db_diagnostics.graphqls", Input: `type DbDiagnosticsQuery {
+  slowQueries: SlowQueriesResult!
+  tableScanStats: TableScanStatsResult!
+}
+
+"""
+Top query shapes by cumulative execution time, from Postgres's pg_stat_statements extension.
+"""
+type SlowQueriesResult {
+  """
+  available is false when the pg_stat_statements extension isn't installed and active, in
+  which case queries is always empty and unavailableReason explains why.
+  """
+  available: Boolean!
+  unavailableReason: String
+  queries: [SlowQuery!]!
+}
+
+type SlowQuery {
+  query: String!
+  calls: Int!
+  totalExecMs: Float!
+  meanExecMs: Float!
+  rows: Int!
+  pctOfTotal: Float!
+}
+
+"""
+Tables read the most via sequential scans, from Postgres's always-available pg_stat_user_tables
+view - a version-agnostic signal for tables that are likely missing a useful index.
+"""
+type TableScanStatsResult {
+  tables: [TableScanStat!]!
+}
+
+type TableScanStat {
+  tableName: String!
+  seqScan: Int!
+  seqTupRead: Int!
+  idxScan: Int!
+  liveRows: Int!
+  """
+  seqScanRatio is seqScan / (seqScan + idxScan): how often a scan of this table went
+  sequential rather than through an index, from 0 (always indexed) to 1 (never indexed).
+  """
+  seqScanRatio: Float!
+}
+`, BuiltIn: false},
 	{Name: "../../graphql/schema/enums.graphqls", Input: `enum ContentType {
   movie
   tv_show
@@ -3372,6 +3575,12 @@ input TorrentReprocessInput {
   workflows: [Workflow!]!
   favoritesLists: [FavoritesList!]!
   databaseStats: DatabaseStatsQuery!
+  """
+  dbDiagnostics surfaces Postgres query-performance diagnostics - slow query shapes (from the
+  optional pg_stat_statements extension) and tables read mostly via sequential scans - to help
+  identify which indexes are worth adding, for display on the admin page.
+  """
+  dbDiagnostics: DbDiagnosticsQuery!
   tmdb: TmdbQuery!
   """
   techStack reports the Go toolchain and a curated set of backend dependency versions this
@@ -4036,6 +4245,16 @@ func (ec *executionContext) childFields_DatabaseStatsQuery(ctx context.Context, 
 	return nil, fmt.Errorf("no field named %q was found under type DatabaseStatsQuery", field.Name)
 }
 
+func (ec *executionContext) childFields_DbDiagnosticsQuery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "slowQueries":
+		return ec.fieldContext_DbDiagnosticsQuery_slowQueries(ctx, field)
+	case "tableScanStats":
+		return ec.fieldContext_DbDiagnosticsQuery_tableScanStats(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DbDiagnosticsQuery", field.Name)
+}
+
 func (ec *executionContext) childFields_Episodes(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "label":
@@ -4374,6 +4593,36 @@ func (ec *executionContext) childFields_Season(ctx context.Context, field graphq
 	return nil, fmt.Errorf("no field named %q was found under type Season", field.Name)
 }
 
+func (ec *executionContext) childFields_SlowQueriesResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "available":
+		return ec.fieldContext_SlowQueriesResult_available(ctx, field)
+	case "unavailableReason":
+		return ec.fieldContext_SlowQueriesResult_unavailableReason(ctx, field)
+	case "queries":
+		return ec.fieldContext_SlowQueriesResult_queries(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SlowQueriesResult", field.Name)
+}
+
+func (ec *executionContext) childFields_SlowQuery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "query":
+		return ec.fieldContext_SlowQuery_query(ctx, field)
+	case "calls":
+		return ec.fieldContext_SlowQuery_calls(ctx, field)
+	case "totalExecMs":
+		return ec.fieldContext_SlowQuery_totalExecMs(ctx, field)
+	case "meanExecMs":
+		return ec.fieldContext_SlowQuery_meanExecMs(ctx, field)
+	case "rows":
+		return ec.fieldContext_SlowQuery_rows(ctx, field)
+	case "pctOfTotal":
+		return ec.fieldContext_SlowQuery_pctOfTotal(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SlowQuery", field.Name)
+}
+
 func (ec *executionContext) childFields_SuggestedTag(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "name":
@@ -4382,6 +4631,32 @@ func (ec *executionContext) childFields_SuggestedTag(ctx context.Context, field 
 		return ec.fieldContext_SuggestedTag_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type SuggestedTag", field.Name)
+}
+
+func (ec *executionContext) childFields_TableScanStat(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "tableName":
+		return ec.fieldContext_TableScanStat_tableName(ctx, field)
+	case "seqScan":
+		return ec.fieldContext_TableScanStat_seqScan(ctx, field)
+	case "seqTupRead":
+		return ec.fieldContext_TableScanStat_seqTupRead(ctx, field)
+	case "idxScan":
+		return ec.fieldContext_TableScanStat_idxScan(ctx, field)
+	case "liveRows":
+		return ec.fieldContext_TableScanStat_liveRows(ctx, field)
+	case "seqScanRatio":
+		return ec.fieldContext_TableScanStat_seqScanRatio(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TableScanStat", field.Name)
+}
+
+func (ec *executionContext) childFields_TableScanStatsResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "tables":
+		return ec.fieldContext_TableScanStatsResult_tables(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TableScanStatsResult", field.Name)
 }
 
 func (ec *executionContext) childFields_TechStackDependency(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -6622,6 +6897,70 @@ func (ec *executionContext) fieldContext_DatabaseStatsQuery_sizeBytes(_ context.
 	return graphql.NewScalarFieldContext("DatabaseStatsQuery", field, true, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _DbDiagnosticsQuery_slowQueries(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DbDiagnosticsQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_DbDiagnosticsQuery_slowQueries(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SlowQueries(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v diagnostics.SlowQueriesResult) graphql.Marshaler {
+			return ec.marshalNSlowQueriesResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐSlowQueriesResult(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_DbDiagnosticsQuery_slowQueries(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DbDiagnosticsQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_SlowQueriesResult(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DbDiagnosticsQuery_tableScanStats(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DbDiagnosticsQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_DbDiagnosticsQuery_tableScanStats(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TableScanStats(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v diagnostics.TableScanStatsResult) graphql.Marshaler {
+			return ec.marshalNTableScanStatsResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐTableScanStatsResult(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_DbDiagnosticsQuery_tableScanStats(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DbDiagnosticsQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TableScanStatsResult(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Episodes_label(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Episodes) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -8678,6 +9017,38 @@ func (ec *executionContext) fieldContext_Query_databaseStats(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_dbDiagnostics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_dbDiagnostics(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().DbDiagnostics(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.DbDiagnosticsQuery) graphql.Marshaler {
+			return ec.marshalNDbDiagnosticsQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐDbDiagnosticsQuery(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_dbDiagnostics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_DbDiagnosticsQuery(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_tmdb(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9867,6 +10238,222 @@ func (ec *executionContext) fieldContext_Season_episodes(_ context.Context, fiel
 	return graphql.NewScalarFieldContext("Season", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
+func (ec *executionContext) _SlowQueriesResult_available(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQueriesResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQueriesResult_available(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Available, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQueriesResult_available(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SlowQueriesResult", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _SlowQueriesResult_unavailableReason(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQueriesResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQueriesResult_unavailableReason(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.UnavailableReason, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQueriesResult_unavailableReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SlowQueriesResult", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _SlowQueriesResult_queries(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQueriesResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQueriesResult_queries(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Queries, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []diagnostics.SlowQuery) graphql.Marshaler {
+			return ec.marshalNSlowQuery2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐSlowQueryᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQueriesResult_queries(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SlowQueriesResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_SlowQuery(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SlowQuery_query(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQuery_query(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Query, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQuery_query(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SlowQuery", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _SlowQuery_calls(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQuery_calls(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Calls, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v uint) graphql.Marshaler {
+			return ec.marshalNInt2uint(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQuery_calls(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SlowQuery", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _SlowQuery_totalExecMs(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQuery_totalExecMs(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TotalExecMs, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQuery_totalExecMs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SlowQuery", field, false, false, errors.New("field of type Float does not have child fields"))
+}
+
+func (ec *executionContext) _SlowQuery_meanExecMs(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQuery_meanExecMs(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.MeanExecMs, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQuery_meanExecMs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SlowQuery", field, false, false, errors.New("field of type Float does not have child fields"))
+}
+
+func (ec *executionContext) _SlowQuery_rows(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQuery_rows(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Rows, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v uint) graphql.Marshaler {
+			return ec.marshalNInt2uint(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQuery_rows(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SlowQuery", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _SlowQuery_pctOfTotal(ctx context.Context, field graphql.CollectedField, obj *diagnostics.SlowQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_SlowQuery_pctOfTotal(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PctOfTotal, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_SlowQuery_pctOfTotal(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("SlowQuery", field, false, false, errors.New("field of type Float does not have child fields"))
+}
+
 func (ec *executionContext) _SuggestedTag_name(ctx context.Context, field graphql.CollectedField, obj *search.SuggestedTag) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9911,6 +10498,176 @@ func (ec *executionContext) _SuggestedTag_count(ctx context.Context, field graph
 }
 func (ec *executionContext) fieldContext_SuggestedTag_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SuggestedTag", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TableScanStat_tableName(ctx context.Context, field graphql.CollectedField, obj *diagnostics.TableScanStat) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TableScanStat_tableName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TableName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TableScanStat_tableName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TableScanStat", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TableScanStat_seqScan(ctx context.Context, field graphql.CollectedField, obj *diagnostics.TableScanStat) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TableScanStat_seqScan(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SeqScan, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v uint) graphql.Marshaler {
+			return ec.marshalNInt2uint(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TableScanStat_seqScan(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TableScanStat", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TableScanStat_seqTupRead(ctx context.Context, field graphql.CollectedField, obj *diagnostics.TableScanStat) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TableScanStat_seqTupRead(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SeqTupRead, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v uint) graphql.Marshaler {
+			return ec.marshalNInt2uint(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TableScanStat_seqTupRead(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TableScanStat", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TableScanStat_idxScan(ctx context.Context, field graphql.CollectedField, obj *diagnostics.TableScanStat) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TableScanStat_idxScan(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.IdxScan, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v uint) graphql.Marshaler {
+			return ec.marshalNInt2uint(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TableScanStat_idxScan(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TableScanStat", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TableScanStat_liveRows(ctx context.Context, field graphql.CollectedField, obj *diagnostics.TableScanStat) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TableScanStat_liveRows(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.LiveRows, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v uint) graphql.Marshaler {
+			return ec.marshalNInt2uint(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TableScanStat_liveRows(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TableScanStat", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TableScanStat_seqScanRatio(ctx context.Context, field graphql.CollectedField, obj *diagnostics.TableScanStat) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TableScanStat_seqScanRatio(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SeqScanRatio, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TableScanStat_seqScanRatio(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TableScanStat", field, false, false, errors.New("field of type Float does not have child fields"))
+}
+
+func (ec *executionContext) _TableScanStatsResult_tables(ctx context.Context, field graphql.CollectedField, obj *diagnostics.TableScanStatsResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TableScanStatsResult_tables(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Tables, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []diagnostics.TableScanStat) graphql.Marshaler {
+			return ec.marshalNTableScanStat2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐTableScanStatᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TableScanStatsResult_tables(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TableScanStatsResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TableScanStat(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _TechStackDependency_name(ctx context.Context, field graphql.CollectedField, obj *buildinfo.Dependency) (ret graphql.Marshaler) {
@@ -17486,6 +18243,115 @@ func (ec *executionContext) _DatabaseStatsQuery(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var dbDiagnosticsQueryImplementors = []string{"DbDiagnosticsQuery"}
+
+func (ec *executionContext) _DbDiagnosticsQuery(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DbDiagnosticsQuery) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, dbDiagnosticsQueryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DbDiagnosticsQuery")
+		case "slowQueries":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DbDiagnosticsQuery_slowQueries(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "tableScanStats":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DbDiagnosticsQuery_tableScanStats(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var episodesImplementors = []string{"Episodes"}
 
 func (ec *executionContext) _Episodes(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Episodes) graphql.Marshaler {
@@ -18926,6 +19792,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "dbDiagnostics":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_dbDiagnostics(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "tmdb":
 			field := field
 
@@ -19733,6 +20621,117 @@ func (ec *executionContext) _Season(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var slowQueriesResultImplementors = []string{"SlowQueriesResult"}
+
+func (ec *executionContext) _SlowQueriesResult(ctx context.Context, sel ast.SelectionSet, obj *diagnostics.SlowQueriesResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, slowQueriesResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SlowQueriesResult")
+		case "available":
+			out.Values[i] = ec._SlowQueriesResult_available(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unavailableReason":
+			out.Values[i] = ec._SlowQueriesResult_unavailableReason(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		case "queries":
+			out.Values[i] = ec._SlowQueriesResult_queries(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var slowQueryImplementors = []string{"SlowQuery"}
+
+func (ec *executionContext) _SlowQuery(ctx context.Context, sel ast.SelectionSet, obj *diagnostics.SlowQuery) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, slowQueryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SlowQuery")
+		case "query":
+			out.Values[i] = ec._SlowQuery_query(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "calls":
+			out.Values[i] = ec._SlowQuery_calls(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalExecMs":
+			out.Values[i] = ec._SlowQuery_totalExecMs(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "meanExecMs":
+			out.Values[i] = ec._SlowQuery_meanExecMs(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rows":
+			out.Values[i] = ec._SlowQuery_rows(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pctOfTotal":
+			out.Values[i] = ec._SlowQuery_pctOfTotal(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var suggestedTagImplementors = []string{"SuggestedTag"}
 
 func (ec *executionContext) _SuggestedTag(ctx context.Context, sel ast.SelectionSet, obj *search.SuggestedTag) graphql.Marshaler {
@@ -19752,6 +20751,107 @@ func (ec *executionContext) _SuggestedTag(ctx context.Context, sel ast.Selection
 			}
 		case "count":
 			out.Values[i] = ec._SuggestedTag_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var tableScanStatImplementors = []string{"TableScanStat"}
+
+func (ec *executionContext) _TableScanStat(ctx context.Context, sel ast.SelectionSet, obj *diagnostics.TableScanStat) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tableScanStatImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TableScanStat")
+		case "tableName":
+			out.Values[i] = ec._TableScanStat_tableName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "seqScan":
+			out.Values[i] = ec._TableScanStat_seqScan(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "seqTupRead":
+			out.Values[i] = ec._TableScanStat_seqTupRead(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "idxScan":
+			out.Values[i] = ec._TableScanStat_idxScan(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveRows":
+			out.Values[i] = ec._TableScanStat_liveRows(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "seqScanRatio":
+			out.Values[i] = ec._TableScanStat_seqScanRatio(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var tableScanStatsResultImplementors = []string{"TableScanStatsResult"}
+
+func (ec *executionContext) _TableScanStatsResult(ctx context.Context, sel ast.SelectionSet, obj *diagnostics.TableScanStatsResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tableScanStatsResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TableScanStatsResult")
+		case "tables":
+			out.Values[i] = ec._TableScanStatsResult_tables(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -22743,6 +23843,10 @@ func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, se
 	return res
 }
 
+func (ec *executionContext) marshalNDbDiagnosticsQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐDbDiagnosticsQuery(ctx context.Context, sel ast.SelectionSet, v gqlmodel.DbDiagnosticsQuery) graphql.Marshaler {
+	return ec._DbDiagnosticsQuery(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNExternalLink2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐExternalLink(ctx context.Context, sel ast.SelectionSet, v model.ExternalLink) graphql.Marshaler {
 	return ec._ExternalLink(ctx, sel, &v)
 }
@@ -23247,6 +24351,30 @@ func (ec *executionContext) unmarshalNSetFavoriteInput2githubᚗcomᚋbitmagnet�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNSlowQueriesResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐSlowQueriesResult(ctx context.Context, sel ast.SelectionSet, v diagnostics.SlowQueriesResult) graphql.Marshaler {
+	return ec._SlowQueriesResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSlowQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐSlowQuery(ctx context.Context, sel ast.SelectionSet, v diagnostics.SlowQuery) graphql.Marshaler {
+	return ec._SlowQuery(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSlowQuery2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐSlowQueryᚄ(ctx context.Context, sel ast.SelectionSet, v []diagnostics.SlowQuery) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNSlowQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐSlowQuery(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -23310,6 +24438,30 @@ func (ec *executionContext) marshalNSuggestedTag2ᚕgithubᚗcomᚋbitmagnetᚑi
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNTableScanStat2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐTableScanStat(ctx context.Context, sel ast.SelectionSet, v diagnostics.TableScanStat) graphql.Marshaler {
+	return ec._TableScanStat(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTableScanStat2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐTableScanStatᚄ(ctx context.Context, sel ast.SelectionSet, v []diagnostics.TableScanStat) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNTableScanStat2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐTableScanStat(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTableScanStatsResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋdatabaseᚋdiagnosticsᚐTableScanStatsResult(ctx context.Context, sel ast.SelectionSet, v diagnostics.TableScanStatsResult) graphql.Marshaler {
+	return ec._TableScanStatsResult(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNTechStackDependency2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋbuildinfoᚐDependency(ctx context.Context, sel ast.SelectionSet, v buildinfo.Dependency) graphql.Marshaler {

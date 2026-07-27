@@ -154,6 +154,11 @@ func (r *queryResolver) DatabaseStats(ctx context.Context) (gqlmodel.DatabaseSta
 	return gqlmodel.DatabaseStatsQuery{Dao: r.Dao}, nil
 }
 
+// DbDiagnostics is the resolver for the dbDiagnostics field.
+func (r *queryResolver) DbDiagnostics(ctx context.Context) (gqlmodel.DbDiagnosticsQuery, error) {
+	return gqlmodel.DbDiagnosticsQuery{Client: r.DiagnosticsClient}, nil
+}
+
 // Tmdb is the resolver for the tmdb field.
 func (r *queryResolver) Tmdb(ctx context.Context) (gqlmodel.TmdbQuery, error) {
 	return gqlmodel.TmdbQuery{SettingsManager: r.SettingsManager}, nil

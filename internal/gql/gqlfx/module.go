@@ -4,6 +4,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/bitmagnet-io/bitmagnet/internal/blocking"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
+	"github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
 	"github.com/bitmagnet-io/bitmagnet/internal/favorites"
 	"github.com/bitmagnet-io/bitmagnet/internal/gql"
@@ -100,6 +101,10 @@ func New() fx.Option {
 						if err != nil {
 							return nil, err
 						}
+						dc, err := p.DiagnosticsClient.Get()
+						if err != nil {
+							return nil, err
+						}
 						return &resolvers.Resolver{
 							Dao:                  d,
 							Search:               s,
@@ -115,6 +120,7 @@ func New() fx.Option {
 							SettingsManager:      sm,
 							TmdbClient:           tc,
 							MediaStreamService:   p.MediaStreamService,
+							DiagnosticsClient:    dc,
 						}, nil
 					}),
 				}
@@ -148,6 +154,7 @@ type Params struct {
 	FavoritesManager     lazy.Lazy[favorites.Manager]
 	SettingsManager      lazy.Lazy[settings.Manager]
 	TmdbClient           lazy.Lazy[tmdb.Client]
+	DiagnosticsClient    lazy.Lazy[diagnostics.Client]
 	// MediaStreamService is injected directly (unlike every other field above) since
 	// mediastreamfx provides *mediastream.Service eagerly rather than as a lazy.Lazy, and
 	// there's no circular dependency here requiring the deferred-resolution trick the other
