@@ -55,19 +55,7 @@ export function TorrentsSearch() {
     t('routes.torrents'),
   )
 
-  const filteredItems = useMemo(() => {
-    const sizeMin = controls.sizeMin
-    const sizeMax = controls.sizeMax
-    if (!sizeMin && !sizeMax) return result.items
-    return result.items.filter((item) => {
-      const size = item.torrent.size
-      if (sizeMin != null && size < sizeMin) return false
-      if (sizeMax != null && size > sizeMax) return false
-      return true
-    })
-  }, [result.items, controls.sizeMin, controls.sizeMax])
-
-  const selectedItems = useMemo(() => filteredItems.filter((i) => selected.has(i.infoHash)), [filteredItems, selected])
+  const selectedItems = useMemo(() => result.items.filter((i) => selected.has(i.infoHash)), [result.items, selected])
 
   // Reflects not-yet-confirmed favorite assignments/removals in the sidebar's favorites-list
   // counts immediately, rather than waiting on the refetch that `useFavorite`'s onChanged
@@ -188,7 +176,7 @@ export function TorrentsSearch() {
           )}
         >
           <TorrentsTable
-            items={filteredItems}
+            items={result.items}
             controls={controls}
             displayedColumns={isDesktop ? allColumns : compactColumns}
             selected={selected}
@@ -202,8 +190,8 @@ export function TorrentsSearch() {
             }
             onToggleAll={() =>
               setSelected((prev) => {
-                const allSelected = filteredItems.every((i) => prev.has(i.infoHash))
-                return allSelected ? new Set() : new Set(filteredItems.map((i) => i.infoHash))
+                const allSelected = result.items.every((i) => prev.has(i.infoHash))
+                return allSelected ? new Set() : new Set(result.items.map((i) => i.infoHash))
               })
             }
             onSelectControls={updateControls}
@@ -216,7 +204,7 @@ export function TorrentsSearch() {
         <Paginator
           page={controls.page}
           pageSize={controls.limit}
-          pageLength={filteredItems.length}
+          pageLength={result.items.length}
           totalLength={result.totalCount}
           totalIsEstimate={result.totalCountIsEstimate}
           hasNextPage={result.hasNextPage}
