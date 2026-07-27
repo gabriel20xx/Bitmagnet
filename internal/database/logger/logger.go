@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"go.uber.org/fx"
@@ -17,26 +18,41 @@ import (
 // maxSQLLogLength caps how much of the interpolated SQL (parameter values included) gets
 // logged - queries like the DHT crawler's info-hash triage embed up to ~1000 raw hash values,
 // which otherwise dumps kilobytes of near-unreadable text per log line.
-const maxSQLLogLength = 2000
+const maxSQLLogLength = 500
 
-// sanitizeSQL keeps a gorm trace line to a single physical log line. Interpolated parameters
-// (e.g. raw info-hash bytes) can contain control characters like \n that would otherwise split
-// one log entry across multiple lines, so those are collapsed to spaces before truncating.
+// sanitizeSQL keeps a gorm trace line to a single short, readable physical log line. gorm's own
+// ExplainSQL only masks a []byte parameter as "<binary>" if it fails a UTF-8 validity check, but
+// raw info-hash bytes occasionally pass that check by coincidence while still containing control
+// characters or the replacement rune - which renders as mojibake and, for literal \n/\r, would
+// otherwise split one log entry across multiple physical lines. Collapsing every such run to a
+// single "<binary>" marker (matching gorm's own convention) and capping the overall length keeps
+// every trace to one glanceable line regardless of what a query happened to embed.
 func sanitizeSQL(sql string) string {
-	sql = strings.Map(func(r rune) rune {
-		if r == '\n' || r == '\r' {
-			return ' '
+	total := utf8.RuneCountInString(sql)
+
+	var b strings.Builder
+
+	inBadRun := false
+	for _, r := range sql {
+		if r == utf8.RuneError || unicode.IsControl(r) {
+			if !inBadRun {
+				b.WriteString("<binary>")
+				inBadRun = true
+			}
+
+			continue
 		}
 
-		return r
-	}, sql)
-
-	total := utf8.RuneCountInString(sql)
-	if total <= maxSQLLogLength {
-		return sql
+		inBadRun = false
+		b.WriteRune(r)
 	}
 
-	return string([]rune(sql)[:maxSQLLogLength]) + fmt.Sprintf("... [truncated, %d chars total]", total)
+	sanitized := []rune(b.String())
+	if len(sanitized) <= maxSQLLogLength {
+		return string(sanitized)
+	}
+
+	return string(sanitized[:maxSQLLogLength]) + fmt.Sprintf("... [truncated, %d chars total]", total)
 }
 
 type Config struct {
