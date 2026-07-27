@@ -77,6 +77,7 @@
       "enqueue_jobs": "Enqueue jobs",
       "enqueue_torrent_processing_batch": "Enqueue Torrent Processing Batch",
       "enqueue_torrent_processing_batch_description": "Re-run classification and metadata matching across torrents already in the database, in batches. Use this to re-classify existing torrents after changing classifier rules, or to fetch content metadata that wasn't available on first import.",
+      "export_for_ai": "Copy for AI",
       "failed": "Failed",
       "frontend": "Frontend",
       "idx_scan": "Index scans",
