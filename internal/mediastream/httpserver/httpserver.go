@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -18,6 +19,10 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
+
+// clientClosedRequest is nginx's de facto 499 status for a request whose client disconnected
+// before the server responded - net/http has no standard constant for it.
+const clientClosedRequest = 499
 
 type Params struct {
 	fx.In
@@ -164,6 +169,11 @@ func (b *builder) writeStreamError(ctx *gin.Context, openErr error) {
 		// Expected when the swarm has no responsive peers within the timeout - not a
 		// server malfunction, so this doesn't warrant an error-level log entry.
 		ctx.Status(http.StatusGatewayTimeout)
+	case errors.Is(openErr, context.Canceled):
+		// The client disconnected (a player seeking away, a closed browser tab) before the
+		// stream could open - not a server fault, so this doesn't warrant an error-level log
+		// entry. There's no standard net/http constant for this; 499 is nginx's convention.
+		ctx.Status(clientClosedRequest)
 	default:
 		b.logger.Errorw("error opening media stream", "error", openErr)
 		ctx.Status(http.StatusInternalServerError)

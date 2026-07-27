@@ -67,9 +67,7 @@ export function TorrentContent({
           {size && (
             <p>
               <strong>{t('torrents.size')}:</strong>{' '}
-              <span title={formatFilesize(torrentContent.torrent.size, i18n.language, 10)}>
-                {formatFilesize(torrentContent.torrent.size, i18n.language)}
-              </span>
+              <span>{formatFilesize(torrentContent.torrent.size, i18n.language)}</span>
             </p>
           )}
           {published && (

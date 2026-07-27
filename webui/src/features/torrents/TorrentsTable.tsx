@@ -93,9 +93,7 @@ function TorrentRow({
         )}
         {displayedColumns.includes('size') && (
           <td className="py-2">
-            <span title={formatFilesize(item.torrent.size, i18n.language, 10)}>
-              {formatFilesize(item.torrent.size, i18n.language)}
-            </span>
+            <span>{formatFilesize(item.torrent.size, i18n.language)}</span>
           </td>
         )}
         {displayedColumns.includes('publishedAt') && (
