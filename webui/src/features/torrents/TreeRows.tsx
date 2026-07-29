@@ -34,9 +34,7 @@ export function FileRow<TMeta>({
       <TypeIcon className={`size-4 shrink-0 ${previewable ? 'text-primary' : 'text-muted-fg'}`} />
       <span className="flex-1 truncate">{node.name}</span>
       <span className="w-20 shrink-0 text-xs text-muted-fg">{t(`file_types.${node.fileType ?? 'unknown'}`)}</span>
-      <span className="w-20 shrink-0 text-right text-xs text-muted-fg">
-        {formatFilesize(node.size, i18n.language)}
-      </span>
+      <span className="w-20 shrink-0 text-right text-xs text-muted-fg">{formatFilesize(node.size, i18n.language)}</span>
     </>
   )
 
@@ -110,9 +108,7 @@ export function FolderRow<TMeta>({
       <span className="w-20 shrink-0 text-right text-xs text-muted-fg">
         {t('torrents.files_count_n', { count: node.fileCount })}
       </span>
-      <span className="w-20 shrink-0 text-right text-xs text-muted-fg">
-        {formatFilesize(node.size, i18n.language)}
-      </span>
+      <span className="w-20 shrink-0 text-right text-xs text-muted-fg">{formatFilesize(node.size, i18n.language)}</span>
     </button>
   )
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@apollo/client/react'
 import { Plus, X } from 'lucide-react'
@@ -141,85 +141,78 @@ function CriteriaSection({
 
 const NONE = '_none'
 
-export function WorkflowDialog({
-  open,
-  onOpenChange,
-  workflow,
-  integrations,
-  favoritesLists,
-  onSaved,
-}: {
+type WorkflowDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   workflow?: WorkflowFragment | null
   integrations: IntegrationFragment[]
   favoritesLists: FavoritesListFragment[]
   onSaved: () => void
-}) {
+}
+
+export function WorkflowDialog(props: WorkflowDialogProps) {
+  const formKey = props.open ? `open-${props.workflow?.id ?? 'new'}-${props.workflow?.updatedAt ?? ''}` : 'closed'
+  return <WorkflowDialogContent key={formKey} {...props} />
+}
+
+function WorkflowDialogContent({
+  open,
+  onOpenChange,
+  workflow,
+  integrations,
+  favoritesLists,
+  onSaved,
+}: WorkflowDialogProps) {
   const { t } = useTranslation()
   const isEdit = workflow != null
+  const initialCriteria = workflow?.criteria
 
-  const [name, setName] = useState('')
-  const [enabled, setEnabled] = useState(true)
-  const [integrationId, setIntegrationId] = useState('')
-  const [favoritesListId, setFavoritesListId] = useState('')
-  const [matchOnRematch, setMatchOnRematch] = useState(false)
-  const [contentTypes, setContentTypes] = useState<ContentType[]>([])
-  const [videoResolutions, setVideoResolutions] = useState<VideoResolution[]>([])
-  const [videoSources, setVideoSources] = useState<VideoSource[]>([])
-  const [genresText, setGenresText] = useState('')
-  const [languagesText, setLanguagesText] = useState('')
-  const [titlePatternsText, setTitlePatternsText] = useState('')
-  const [sizeMinGb, setSizeMinGb] = useState('')
-  const [sizeMaxGb, setSizeMaxGb] = useState('')
-  const [minSeeders, setMinSeeders] = useState('')
-  const [activeCriteria, setActiveCriteria] = useState<CriteriaKey[]>([])
+  const [name, setName] = useState(workflow?.name ?? '')
+  const [enabled, setEnabled] = useState(workflow?.enabled ?? true)
+  const [integrationId, setIntegrationId] = useState(workflow?.integrationId ?? '')
+  const [favoritesListId, setFavoritesListId] = useState(workflow?.favoritesListId ?? '')
+  const [matchOnRematch, setMatchOnRematch] = useState(workflow?.matchOnRematch ?? false)
+  const [contentTypes, setContentTypes] = useState<ContentType[]>(initialCriteria?.contentTypes ?? [])
+  const [videoResolutions, setVideoResolutions] = useState<VideoResolution[]>(initialCriteria?.videoResolutions ?? [])
+  const [videoSources, setVideoSources] = useState<VideoSource[]>(initialCriteria?.videoSources ?? [])
+  const [genresText, setGenresText] = useState(initialCriteria?.genres?.join(', ') ?? '')
+  const [languagesText, setLanguagesText] = useState(initialCriteria?.languages?.join(', ') ?? '')
+  const [titlePatternsText, setTitlePatternsText] = useState(initialCriteria?.titlePatterns?.join('\n') ?? '')
+  const [sizeMinGb, setSizeMinGb] = useState(
+    initialCriteria?.sizeMin != null ? String(bytesToGb(initialCriteria.sizeMin)) : '',
+  )
+  const [sizeMaxGb, setSizeMaxGb] = useState(
+    initialCriteria?.sizeMax != null ? String(bytesToGb(initialCriteria.sizeMax)) : '',
+  )
+  const [minSeeders, setMinSeeders] = useState(
+    initialCriteria?.minSeeders != null ? String(initialCriteria.minSeeders) : '',
+  )
+  const [activeCriteria, setActiveCriteria] = useState<CriteriaKey[]>(() =>
+    CRITERIA_KEYS.filter((key) => {
+      switch (key) {
+        case 'contentTypes':
+          return !!initialCriteria?.contentTypes?.length
+        case 'videoResolutions':
+          return !!initialCriteria?.videoResolutions?.length
+        case 'videoSources':
+          return !!initialCriteria?.videoSources?.length
+        case 'genres':
+          return !!initialCriteria?.genres?.length
+        case 'languages':
+          return !!initialCriteria?.languages?.length
+        case 'titlePatterns':
+          return !!initialCriteria?.titlePatterns?.length
+        case 'size':
+          return initialCriteria?.sizeMin != null || initialCriteria?.sizeMax != null
+        case 'minSeeders':
+          return initialCriteria?.minSeeders != null
+      }
+    }),
+  )
 
   const [create, { loading: creating }] = useMutation(CreateWorkflowDocument)
   const [update, { loading: updating }] = useMutation(UpdateWorkflowDocument)
   const saving = creating || updating
-
-  useEffect(() => {
-    if (!open) return
-
-    const criteria = workflow?.criteria
-    setName(workflow?.name ?? '')
-    setEnabled(workflow?.enabled ?? true)
-    setIntegrationId(workflow?.integrationId ?? '')
-    setFavoritesListId(workflow?.favoritesListId ?? '')
-    setMatchOnRematch(workflow?.matchOnRematch ?? false)
-    setContentTypes(criteria?.contentTypes ?? [])
-    setVideoResolutions(criteria?.videoResolutions ?? [])
-    setVideoSources(criteria?.videoSources ?? [])
-    setGenresText(criteria?.genres?.join(', ') ?? '')
-    setLanguagesText(criteria?.languages?.join(', ') ?? '')
-    setTitlePatternsText(criteria?.titlePatterns?.join('\n') ?? '')
-    setSizeMinGb(criteria?.sizeMin != null ? String(bytesToGb(criteria.sizeMin)) : '')
-    setSizeMaxGb(criteria?.sizeMax != null ? String(bytesToGb(criteria.sizeMax)) : '')
-    setMinSeeders(criteria?.minSeeders != null ? String(criteria.minSeeders) : '')
-    setActiveCriteria(
-      CRITERIA_KEYS.filter((key) => {
-        switch (key) {
-          case 'contentTypes':
-            return !!criteria?.contentTypes?.length
-          case 'videoResolutions':
-            return !!criteria?.videoResolutions?.length
-          case 'videoSources':
-            return !!criteria?.videoSources?.length
-          case 'genres':
-            return !!criteria?.genres?.length
-          case 'languages':
-            return !!criteria?.languages?.length
-          case 'titlePatterns':
-            return !!criteria?.titlePatterns?.length
-          case 'size':
-            return criteria?.sizeMin != null || criteria?.sizeMax != null
-          case 'minSeeders':
-            return criteria?.minSeeders != null
-        }
-      }),
-    )
-  }, [open, workflow, integrations])
 
   const contentTypeKeys = contentTypeList.filter((ct) => ct.key !== 'null').map((ct) => ct.key as ContentType)
 

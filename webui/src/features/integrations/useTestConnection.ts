@@ -39,10 +39,10 @@ export function useTestConnection(durationMs = 3000) {
     [testMutation, settle],
   )
 
-  const testSaved = useCallback((id: string) => settle(testSavedMutation({ variables: { id } })), [
-    testSavedMutation,
-    settle,
-  ])
+  const testSaved = useCallback(
+    (id: string) => settle(testSavedMutation({ variables: { id } })),
+    [testSavedMutation, settle],
+  )
 
   return { status, test, testSaved }
 }

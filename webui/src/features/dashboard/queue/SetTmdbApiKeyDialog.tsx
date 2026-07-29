@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery } from '@apollo/client/react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -9,22 +9,22 @@ import { ClearTmdbApiKeyDocument, SetTmdbApiKeyDocument, TmdbSettingsDocument } 
 const inputClass =
   'h-9 w-full rounded-md border border-border bg-bg px-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
-export function SetTmdbApiKeyDialog({
-  open,
-  onOpenChange,
-}: {
+type SetTmdbApiKeyDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-}) {
+}
+
+export function SetTmdbApiKeyDialog(props: SetTmdbApiKeyDialogProps) {
+  const formKey = props.open ? 'open' : 'closed'
+  return <SetTmdbApiKeyDialogContent key={formKey} {...props} />
+}
+
+function SetTmdbApiKeyDialogContent({ open, onOpenChange }: SetTmdbApiKeyDialogProps) {
   const { t } = useTranslation()
   const { data, refetch } = useQuery(TmdbSettingsDocument, { skip: !open, fetchPolicy: 'network-only' })
   const [apiKey, setApiKey] = useState('')
   const [setApiKeyMutation, { loading: saving }] = useMutation(SetTmdbApiKeyDocument)
   const [clearApiKeyMutation, { loading: clearing }] = useMutation(ClearTmdbApiKeyDocument)
-
-  useEffect(() => {
-    if (open) setApiKey('')
-  }, [open])
 
   const hasCustomKey = data?.tmdb.hasCustomApiKey ?? false
 

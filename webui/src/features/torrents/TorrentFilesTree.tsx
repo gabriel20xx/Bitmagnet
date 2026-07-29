@@ -53,6 +53,7 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
   const [pendingScan, setPendingScan] = useState<(PendingSequentialScan & { path: string }) | null>(null)
 
   const toggle = (path: string) => {
+    setRowsPaging((p) => (p.page === 1 ? p : { ...p, page: 1 }))
     setToggled((prev) => {
       const next = new Set(prev)
       if (next.has(path)) next.delete(path)
@@ -82,12 +83,6 @@ export function TorrentFilesTree({ torrent }: { torrent: TorrentFragment }) {
   }
 
   const visibleRows = useMemo(() => flattenVisibleRows(tree.children, 0, toggled), [tree, toggled])
-
-  // Expanding/collapsing a folder changes how many rows there are to page through, so the
-  // previous page position is no longer meaningful once that happens.
-  useEffect(() => {
-    setRowsPaging((p) => ({ ...p, page: 1 }))
-  }, [tree, toggled])
 
   const rowsStart = (rowsPaging.page - 1) * rowsPaging.pageSize
   const pageRows = visibleRows.slice(rowsStart, rowsStart + rowsPaging.pageSize)

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@apollo/client/react'
 import { Check, Loader2, PlugZap, X } from 'lucide-react'
@@ -29,26 +29,28 @@ const inputClass =
 
 type AuthMethod = 'password' | 'apiKey'
 
-export function IntegrationDialog({
-  open,
-  onOpenChange,
-  integration,
-  onSaved,
-}: {
+type IntegrationDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   integration?: IntegrationFragment | null
   onSaved: () => void
-}) {
+}
+
+export function IntegrationDialog(props: IntegrationDialogProps) {
+  const formKey = props.open ? `open-${props.integration?.id ?? 'new'}-${props.integration?.updatedAt ?? ''}` : 'closed'
+  return <IntegrationDialogContent key={formKey} {...props} />
+}
+
+function IntegrationDialogContent({ open, onOpenChange, integration, onSaved }: IntegrationDialogProps) {
   const { t } = useTranslation()
   const isEdit = integration != null
 
-  const [type, setType] = useState<IntegrationType>('qbittorrent')
-  const [name, setName] = useState('')
-  const [enabled, setEnabled] = useState(true)
-  const [url, setUrl] = useState('')
+  const [type, setType] = useState<IntegrationType>(integration?.type ?? 'qbittorrent')
+  const [name, setName] = useState(integration?.name ?? '')
+  const [enabled, setEnabled] = useState(integration?.enabled ?? true)
+  const [url, setUrl] = useState(integration?.url ?? '')
   const [authMethod, setAuthMethod] = useState<AuthMethod>('password')
-  const [username, setUsername] = useState('')
+  const [username, setUsername] = useState(integration?.username ?? '')
   const [password, setPassword] = useState('')
   const [apiKey, setApiKey] = useState('')
 
@@ -56,18 +58,6 @@ export function IntegrationDialog({
   const [update, { loading: updating }] = useMutation(UpdateIntegrationDocument)
   const saving = creating || updating
   const { status: testStatus, test, testSaved } = useTestConnection()
-
-  useEffect(() => {
-    if (!open) return
-    setType(integration?.type ?? 'qbittorrent')
-    setName(integration?.name ?? '')
-    setEnabled(integration?.enabled ?? true)
-    setUrl(integration?.url ?? '')
-    setAuthMethod('password')
-    setUsername(integration?.username ?? '')
-    setPassword('')
-    setApiKey('')
-  }, [open, integration])
 
   const canSave = name.trim().length > 0 && url.trim().length > 0
   const canTest = url.trim().length > 0

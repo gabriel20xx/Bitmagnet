@@ -9,29 +9,36 @@ export type IntegrationStatus = 'checking' | 'connected' | 'disconnected' | 'dis
 // change, so the status column reflects the latest edit.
 export function useIntegrationStatus(integration: IntegrationFragment): IntegrationStatus {
   const [testSaved] = useMutation(TestSavedIntegrationDocument)
-  const [status, setStatus] = useState<IntegrationStatus>(integration.enabled ? 'checking' : 'disabled')
+  const requestKey = JSON.stringify([
+    integration.id,
+    integration.enabled,
+    integration.url,
+    integration.username,
+    integration.updatedAt,
+  ])
+  const [statusState, setStatusState] = useState<{ key: string; status: IntegrationStatus }>(() => ({
+    key: requestKey,
+    status: integration.enabled ? 'checking' : 'disabled',
+  }))
 
   useEffect(() => {
-    if (!integration.enabled) {
-      setStatus('disabled')
-      return
-    }
+    if (!integration.enabled) return
 
     let cancelled = false
-    setStatus('checking')
 
     testSaved({ variables: { id: integration.id } })
       .then(() => {
-        if (!cancelled) setStatus('connected')
+        if (!cancelled) setStatusState({ key: requestKey, status: 'connected' })
       })
       .catch(() => {
-        if (!cancelled) setStatus('disconnected')
+        if (!cancelled) setStatusState({ key: requestKey, status: 'disconnected' })
       })
 
     return () => {
       cancelled = true
     }
-  }, [integration.id, integration.enabled, integration.url, integration.username, integration.updatedAt, testSaved])
+  }, [integration.enabled, integration.id, requestKey, testSaved])
 
-  return status
+  if (statusState.key !== requestKey) return integration.enabled ? 'checking' : 'disabled'
+  return statusState.status
 }
