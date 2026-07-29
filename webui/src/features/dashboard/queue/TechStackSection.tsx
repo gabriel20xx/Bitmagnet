@@ -24,7 +24,7 @@ export function TechStackSection() {
   const techStack = techStackData?.techStack
 
   return (
-    <div className="mt-4 rounded-lg border border-border bg-surface p-4">
+    <div className="rounded-lg border border-border bg-surface p-4">
       <h3 className="mb-2 text-sm font-medium">{t('dashboard.queues.tech_stack')}</h3>
       {versionData?.version && <InfoRow label={t('dashboard.queues.app_version')} value={versionData.version} />}
 

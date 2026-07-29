@@ -136,14 +136,16 @@ export function buildQueueTimelineChart(
             }, null)
           latencySeries.push(acc ? acc[0] / acc[1] : null)
         }
-        const secondaryColor = getChartColor('secondary')
+        const latencyColors = seriesColors('warning')
         datasets.push({
           yAxisID: 'yLatency',
           label: queue.queue + ': ' + t('dashboard.queues.latency'),
           data: latencySeries,
-          borderColor: secondaryColor,
-          pointHoverBackgroundColor: secondaryColor,
-          pointHoverBorderColor: secondaryColor,
+          borderColor: latencyColors.border,
+          pointBackgroundColor: latencyColors.pointBackground,
+          pointBorderColor: latencyColors.pointBorder,
+          pointHoverBackgroundColor: latencyColors.pointHoverBackground,
+          pointHoverBorderColor: latencyColors.pointHoverBorder,
         })
       }
 

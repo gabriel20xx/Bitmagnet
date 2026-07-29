@@ -39,11 +39,7 @@ export function Header() {
     <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-bg px-3">
       <Link to="/torrents" className="flex shrink-0 items-center gap-2 pr-1 font-semibold">
         <Magnet className="size-5 text-primary" />
-        {isDesktop && (
-          <span>
-            <span className="text-lg">B</span>itmagnet
-          </span>
-        )}
+        {isDesktop && <span>Bitmagnet</span>}
       </Link>
       <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {navItems.map((item) =>
