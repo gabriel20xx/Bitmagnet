@@ -285,7 +285,7 @@
     "x_to_y_of_z": "{{x}} إلى {{y}} من {{z}}"
   },
   "routes": {
-    "admin": "المسؤول",
+    "settings": "الإعدادات",
     "dashboard": "لوحة التحكم",
     "integrations": "التكاملات",
     "jobs": "الوظائف",

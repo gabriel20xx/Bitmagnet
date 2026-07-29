@@ -285,7 +285,7 @@
     "x_to_y_of_z": "{{x}} - {{y}} di {{z}}"
   },
   "routes": {
-    "admin": "Amministrazione",
+    "settings": "Impostazioni",
     "dashboard": "Dashboard",
     "integrations": "Integrazioni",
     "jobs": "Lavori",

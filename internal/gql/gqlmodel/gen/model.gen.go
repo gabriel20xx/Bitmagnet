@@ -16,6 +16,20 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
 )
 
+type AuthResult struct {
+	User AuthUser `json:"user"`
+}
+
+type AuthStatus struct {
+	SetupRequired bool      `json:"setupRequired"`
+	Authenticated bool      `json:"authenticated"`
+	User          *AuthUser `json:"user,omitempty"`
+}
+
+type AuthUser struct {
+	Username string `json:"username"`
+}
+
 type ContentTypeAgg struct {
 	Value      *model.ContentType `json:"value,omitempty"`
 	Label      string             `json:"label"`
@@ -30,6 +44,11 @@ type ContentTypeFacetInput struct {
 
 type CreateFavoritesListInput struct {
 	Name string `json:"name"`
+}
+
+type CreateInitialUserInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type CreateIntegrationInput struct {
@@ -97,6 +116,11 @@ type LanguageAgg struct {
 type LanguageFacetInput struct {
 	Aggregate graphql.Omittable[*bool]            `json:"aggregate,omitempty"`
 	Filter    graphql.Omittable[[]model.Language] `json:"filter,omitempty"`
+}
+
+type LoginInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type Mutation struct {
@@ -297,6 +321,12 @@ type TorrentTagFacetInput struct {
 	Aggregate graphql.Omittable[*bool]             `json:"aggregate,omitempty"`
 	Logic     graphql.Omittable[*model.FacetLogic] `json:"logic,omitempty"`
 	Filter    graphql.Omittable[[]string]          `json:"filter,omitempty"`
+}
+
+type UpdateCredentialsInput struct {
+	CurrentPassword string                     `json:"currentPassword"`
+	Username        graphql.Omittable[*string] `json:"username,omitempty"`
+	NewPassword     graphql.Omittable[*string] `json:"newPassword,omitempty"`
 }
 
 type UpdateIntegrationInput struct {

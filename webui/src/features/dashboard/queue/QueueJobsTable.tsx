@@ -32,8 +32,8 @@ export function QueueJobsTable({
   }
 
   return (
-    <div>
-      <table className="w-full text-left text-sm">
+    <div className="overflow-x-auto">
+      <table className="min-w-max w-full text-left text-sm">
         <thead>
           <tr className="text-muted-fg">
             {displayedColumns.includes('id') && <th className="py-2 pl-3 font-medium">ID</th>}

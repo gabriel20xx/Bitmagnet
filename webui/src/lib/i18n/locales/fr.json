@@ -285,7 +285,7 @@
     "x_to_y_of_z": "{{x}} à {{y}} sur {{z}}"
   },
   "routes": {
-    "admin": "Admin",
+    "settings": "Paramètres",
     "dashboard": "Tableau de bord",
     "integrations": "Intégrations",
     "jobs": "Tâches",

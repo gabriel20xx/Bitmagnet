@@ -2,6 +2,7 @@ package gqlfx
 
 import (
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/bitmagnet-io/bitmagnet/internal/auth"
 	"github.com/bitmagnet-io/bitmagnet/internal/blocking"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics"
@@ -106,6 +107,7 @@ func New() fx.Option {
 							return nil, err
 						}
 						return &resolvers.Resolver{
+							AuthService:          p.AuthService,
 							Dao:                  d,
 							Search:               s,
 							Checker:              ch,
@@ -141,6 +143,7 @@ func New() fx.Option {
 
 type Params struct {
 	fx.In
+	AuthService          auth.Service
 	Search               lazy.Lazy[search.Search]
 	Dao                  lazy.Lazy[*dao.Query]
 	Checker              lazy.Lazy[health.Checker]

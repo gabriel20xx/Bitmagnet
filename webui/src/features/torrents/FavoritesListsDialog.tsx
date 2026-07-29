@@ -113,9 +113,9 @@ export function FavoritesListsDialog({ open, onOpenChange }: { open: boolean; on
           ))}
         </div>
 
-        <div className="flex items-center gap-2 border-t border-border pt-3">
+        <div className="flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:items-center">
           <input
-            className={inputClass}
+            className={`${inputClass} min-w-0 flex-1`}
             placeholder={t('torrents.new_list_name')}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}

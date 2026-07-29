@@ -1,0 +1,9 @@
+mutation AuthCreateInitialUser($input: CreateInitialUserInput!) {
+  auth {
+    createInitialUser(input: $input) {
+      user {
+        username
+      }
+    }
+  }
+}

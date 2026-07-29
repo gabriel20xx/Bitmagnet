@@ -285,7 +285,7 @@
     "x_to_y_of_z": "{{x}} a {{y}} de {{z}}"
   },
   "routes": {
-    "admin": "Administració",
+    "settings": "Configuració",
     "dashboard": "Tauler de control",
     "integrations": "Integracions",
     "jobs": "Tasques",

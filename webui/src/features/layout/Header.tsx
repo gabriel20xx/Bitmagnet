@@ -11,7 +11,7 @@ import { LanguageMenu } from './LanguageMenu'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-surface-hover',
+    'inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-surface-hover',
     isActive && 'bg-surface-hover text-primary',
   )
 
@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
   { to: '/dashboard/jobs', icon: ListChecks, labelKey: 'routes.jobs' },
   { to: '/dashboard/integrations', icon: Plug, labelKey: 'routes.integrations' },
   { to: '/dashboard/workflows', icon: Workflow, labelKey: 'routes.workflows' },
-  { to: '/dashboard/admin', icon: Wrench, labelKey: 'routes.admin' },
+  { to: '/dashboard/admin', icon: Wrench, labelKey: 'routes.settings' },
 ]
 
 export function Header() {

@@ -75,6 +75,12 @@ autobind:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  AuthMutation:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel.AuthMutation
+  AuthQuery:
+    model:
+      - github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel.AuthQuery
   ID:
     model:
       - github.com/99designs/gqlgen/graphql.ID

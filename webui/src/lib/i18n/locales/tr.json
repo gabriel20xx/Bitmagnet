@@ -285,7 +285,7 @@
     "x_to_y_of_z": "{{x}} ile {{y}} arası, toplam {{z}}"
   },
   "routes": {
-    "admin": "Yönetici",
+    "settings": "Ayarlar",
     "dashboard": "Kontrol Paneli",
     "integrations": "Entegrasyonlar",
     "jobs": "Görevler",

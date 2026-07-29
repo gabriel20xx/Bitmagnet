@@ -134,7 +134,7 @@ export function EnqueueReprocessBatchDialog({
 
             <div>
               <h4 className="mb-2 text-sm font-semibold">{t('facets.content_type')}</h4>
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 <label className="flex items-center gap-2 text-sm">
                   <Checkbox
                     checked={contentTypes.includes('all')}

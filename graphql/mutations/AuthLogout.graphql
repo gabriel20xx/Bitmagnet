@@ -1,0 +1,5 @@
+mutation AuthLogout {
+  auth {
+    logout
+  }
+}

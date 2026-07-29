@@ -318,7 +318,7 @@ export function WorkflowDialog({
             <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium">{t('workflows.integration')}</label>
               <Select value={integrationId || NONE} onValueChange={(v) => setIntegrationId(v === NONE ? '' : v)}>
@@ -493,7 +493,7 @@ export function WorkflowDialog({
 
             {activeCriteria.includes('size') && (
               <CriteriaSection label={criteriaLabels.size} onRemove={() => removeCriteria('size')}>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-xs text-muted-fg">{t('torrents.size_min')}</label>
                     <input

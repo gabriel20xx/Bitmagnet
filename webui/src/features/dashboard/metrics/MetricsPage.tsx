@@ -532,19 +532,19 @@ export function MetricsPage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="rounded-lg border border-border bg-surface p-3">
             <h4 className="mb-2 text-sm font-semibold">{t('dashboard.queues.total_counts_by_status')}</h4>
-            <div className="h-[400px]">
+            <div className="h-[280px] sm:h-[400px]">
               <Bar data={totals.data} options={totals.options} />
             </div>
           </div>
           <div className="rounded-lg border border-border bg-surface p-3">
             <h4 className="mb-2 text-sm font-semibold">{t('dashboard.metrics.queue_throughput')}</h4>
-            <div className="h-[400px]">
+            <div className="h-[280px] sm:h-[400px]">
               <Line data={timeline.data} options={timeline.options} />
             </div>
           </div>
           <div className="rounded-lg border border-border bg-surface p-3">
             <h4 className="mb-2 text-sm font-semibold">{t('dashboard.metrics.torrent_throughput')}</h4>
-            <div className="h-[400px]">
+            <div className="h-[280px] sm:h-[400px]">
               <Line data={torrentTimeline.data} options={torrentTimeline.options} />
             </div>
           </div>

@@ -1,0 +1,11 @@
+query AuthStatus {
+  auth {
+    status {
+      setupRequired
+      authenticated
+      user {
+        username
+      }
+    }
+  }
+}

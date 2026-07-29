@@ -95,7 +95,7 @@ export function TorrentsSearch() {
               {drawerOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
             </Button>
           </SimpleTooltip>
-          <div className="relative min-w-48 flex-1">
+          <div className="relative min-w-0 flex-1 basis-full sm:basis-auto">
             <input
               value={queryInput}
               onChange={(e) => setQueryInput(e.target.value)}
@@ -133,7 +133,7 @@ export function TorrentsSearch() {
               })
             }
           >
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-full sm:w-44">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

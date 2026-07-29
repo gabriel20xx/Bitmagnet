@@ -1,0 +1,42 @@
+directive @authenticated on FIELD_DEFINITION
+
+type AuthQuery {
+  status: AuthStatus!
+}
+
+type AuthMutation {
+  createInitialUser(input: CreateInitialUserInput!): AuthResult!
+  login(input: LoginInput!): AuthResult!
+  logout: Boolean!
+  updateCredentials(input: UpdateCredentialsInput!): AuthResult!
+}
+
+type AuthStatus {
+  setupRequired: Boolean!
+  authenticated: Boolean!
+  user: AuthUser
+}
+
+type AuthUser {
+  username: String!
+}
+
+type AuthResult {
+  user: AuthUser!
+}
+
+input CreateInitialUserInput {
+  username: String!
+  password: String!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+input UpdateCredentialsInput {
+  currentPassword: String!
+  username: String
+  newPassword: String
+}

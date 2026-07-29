@@ -88,7 +88,7 @@ export function IntegrationActiveTorrentsPanel({ integrationId }: { integrationI
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Select
           value={orderBy.field}
           onValueChange={(field) => {
@@ -96,7 +96,7 @@ export function IntegrationActiveTorrentsPanel({ integrationId }: { integrationI
             setPage(1)
           }}
         >
-          <SelectTrigger className="w-44">
+          <SelectTrigger className="min-w-0 flex-1 sm:w-44 sm:flex-none">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -134,32 +134,34 @@ export function IntegrationActiveTorrentsPanel({ integrationId }: { integrationI
       )}
 
       {torrents.length > 0 && (
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="text-muted-fg">
-              <th className="py-1.5 font-medium">{t('torrents.title')}</th>
-              <th className="py-1.5 font-medium">{t('integrations.progress')}</th>
-              <th className="py-1.5 font-medium">{t('integrations.state')}</th>
-              <th className="py-1.5 font-medium">{t('integrations.download_speed')}</th>
-              <th className="py-1.5 font-medium">{t('integrations.eta')}</th>
-              <th className="py-1.5 font-medium">{t('torrents.size')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {torrents.map((torrent) => (
-              <tr key={torrent.hash} className="border-t border-border">
-                <td className="max-w-xs truncate py-1.5" title={torrent.name}>
-                  {torrent.name}
-                </td>
-                <td className="py-1.5">{Math.round(torrent.progress * 100)}%</td>
-                <td className="py-1.5 text-muted-fg">{torrent.state}</td>
-                <td className="py-1.5">{formatFilesize(torrent.downloadSpeed, i18n.language)}/s</td>
-                <td className="py-1.5">{formatEta(torrent.eta, t)}</td>
-                <td className="py-1.5">{formatFilesize(torrent.size, i18n.language)}</td>
+        <div className="overflow-x-auto">
+          <table className="min-w-[42rem] w-full text-left text-sm">
+            <thead>
+              <tr className="text-muted-fg">
+                <th className="py-1.5 font-medium">{t('torrents.title')}</th>
+                <th className="py-1.5 font-medium">{t('integrations.progress')}</th>
+                <th className="py-1.5 font-medium">{t('integrations.state')}</th>
+                <th className="py-1.5 font-medium">{t('integrations.download_speed')}</th>
+                <th className="py-1.5 font-medium">{t('integrations.eta')}</th>
+                <th className="py-1.5 font-medium">{t('torrents.size')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {torrents.map((torrent) => (
+                <tr key={torrent.hash} className="border-t border-border">
+                  <td className="max-w-xs truncate py-1.5" title={torrent.name}>
+                    {torrent.name}
+                  </td>
+                  <td className="py-1.5">{Math.round(torrent.progress * 100)}%</td>
+                  <td className="py-1.5 text-muted-fg">{torrent.state}</td>
+                  <td className="py-1.5">{formatFilesize(torrent.downloadSpeed, i18n.language)}/s</td>
+                  <td className="py-1.5">{formatEta(torrent.eta, t)}</td>
+                  <td className="py-1.5">{formatFilesize(torrent.size, i18n.language)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {totalCount > 0 && (

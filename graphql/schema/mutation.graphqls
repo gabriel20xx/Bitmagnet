@@ -1,10 +1,11 @@
 type Mutation {
-  torrent: TorrentMutation!
-  queue: QueueMutation!
-  integrations: IntegrationsMutation!
-  workflows: WorkflowsMutation!
-  favorites: FavoritesMutation!
-  tmdb: TmdbMutation!
+  auth: AuthMutation!
+  torrent: TorrentMutation! @authenticated
+  queue: QueueMutation! @authenticated
+  integrations: IntegrationsMutation! @authenticated
+  workflows: WorkflowsMutation! @authenticated
+  favorites: FavoritesMutation! @authenticated
+  tmdb: TmdbMutation! @authenticated
 }
 
 type TorrentMutation {

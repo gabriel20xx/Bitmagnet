@@ -285,7 +285,7 @@
     "x_to_y_of_z": "{{x}}到{{y}}，共{{z}}"
   },
   "routes": {
-    "admin": "管理员",
+    "settings": "设置",
     "dashboard": "仪表盘",
     "integrations": "集成",
     "jobs": "任务",

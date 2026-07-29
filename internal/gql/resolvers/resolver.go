@@ -1,6 +1,10 @@
 package resolvers
 
 import (
+	"context"
+
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/bitmagnet-io/bitmagnet/internal/auth"
 	"github.com/bitmagnet-io/bitmagnet/internal/blocking"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/diagnostics"
@@ -24,6 +28,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
+	AuthService          auth.Service
 	Dao                  *dao.Query
 	Search               search.Search
 	Workers              worker.Registry
@@ -40,4 +45,15 @@ type Resolver struct {
 	TmdbClient           tmdb.Client
 	MediaStreamService   *mediastream.Service
 	DiagnosticsClient    diagnostics.Client
+}
+
+func (r *Resolver) Authenticated(ctx context.Context, _ any, next graphql.Resolver) (any, error) {
+	user, err := r.AuthService.CurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, auth.ErrUnauthorized
+	}
+	return next(ctx)
 }

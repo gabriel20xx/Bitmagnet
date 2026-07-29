@@ -54,6 +54,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Authenticated func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -62,6 +63,31 @@ type ComplexityRoot struct {
 		Index    func(childComplexity int) int
 		Path     func(childComplexity int) int
 		Size     func(childComplexity int) int
+	}
+
+	AuthMutation struct {
+		CreateInitialUser func(childComplexity int, input gen.CreateInitialUserInput) int
+		Login             func(childComplexity int, input gen.LoginInput) int
+		Logout            func(childComplexity int) int
+		UpdateCredentials func(childComplexity int, input gen.UpdateCredentialsInput) int
+	}
+
+	AuthQuery struct {
+		Status func(childComplexity int) int
+	}
+
+	AuthResult struct {
+		User func(childComplexity int) int
+	}
+
+	AuthStatus struct {
+		Authenticated func(childComplexity int) int
+		SetupRequired func(childComplexity int) int
+		User          func(childComplexity int) int
+	}
+
+	AuthUser struct {
+		Username func(childComplexity int) int
 	}
 
 	Content struct {
@@ -220,6 +246,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		Auth         func(childComplexity int) int
 		Favorites    func(childComplexity int) int
 		Integrations func(childComplexity int) int
 		Queue        func(childComplexity int) int
@@ -229,6 +256,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Auth                      func(childComplexity int) int
 		DatabaseStats             func(childComplexity int) int
 		DbDiagnostics             func(childComplexity int) int
 		FavoritesLists            func(childComplexity int) int
@@ -605,6 +633,7 @@ type ContentResolver interface {
 	OriginalLanguage(ctx context.Context, obj *model.Content) (*model.Language, error)
 }
 type MutationResolver interface {
+	Auth(ctx context.Context) (gqlmodel.AuthMutation, error)
 	Torrent(ctx context.Context) (gqlmodel.TorrentMutation, error)
 	Queue(ctx context.Context) (gqlmodel.QueueMutation, error)
 	Integrations(ctx context.Context) (gqlmodel.IntegrationsMutation, error)
@@ -613,6 +642,7 @@ type MutationResolver interface {
 	Tmdb(ctx context.Context) (gqlmodel.TmdbMutation, error)
 }
 type QueryResolver interface {
+	Auth(ctx context.Context) (gqlmodel.AuthQuery, error)
 	Version(ctx context.Context) (string, error)
 	Workers(ctx context.Context) (gen.WorkersQuery, error)
 	Health(ctx context.Context) (gen.HealthQuery, error)
@@ -697,6 +727,86 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ArchiveEntry.Size(childComplexity), true
+
+	case "AuthMutation.createInitialUser":
+		if e.ComplexityRoot.AuthMutation.CreateInitialUser == nil {
+			break
+		}
+
+		args, err := ec.field_AuthMutation_createInitialUser_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.AuthMutation.CreateInitialUser(childComplexity, args["input"].(gen.CreateInitialUserInput)), true
+	case "AuthMutation.login":
+		if e.ComplexityRoot.AuthMutation.Login == nil {
+			break
+		}
+
+		args, err := ec.field_AuthMutation_login_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.AuthMutation.Login(childComplexity, args["input"].(gen.LoginInput)), true
+	case "AuthMutation.logout":
+		if e.ComplexityRoot.AuthMutation.Logout == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AuthMutation.Logout(childComplexity), true
+	case "AuthMutation.updateCredentials":
+		if e.ComplexityRoot.AuthMutation.UpdateCredentials == nil {
+			break
+		}
+
+		args, err := ec.field_AuthMutation_updateCredentials_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.AuthMutation.UpdateCredentials(childComplexity, args["input"].(gen.UpdateCredentialsInput)), true
+
+	case "AuthQuery.status":
+		if e.ComplexityRoot.AuthQuery.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AuthQuery.Status(childComplexity), true
+
+	case "AuthResult.user":
+		if e.ComplexityRoot.AuthResult.User == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AuthResult.User(childComplexity), true
+
+	case "AuthStatus.authenticated":
+		if e.ComplexityRoot.AuthStatus.Authenticated == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AuthStatus.Authenticated(childComplexity), true
+	case "AuthStatus.setupRequired":
+		if e.ComplexityRoot.AuthStatus.SetupRequired == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AuthStatus.SetupRequired(childComplexity), true
+	case "AuthStatus.user":
+		if e.ComplexityRoot.AuthStatus.User == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AuthStatus.User(childComplexity), true
+
+	case "AuthUser.username":
+		if e.ComplexityRoot.AuthUser.Username == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AuthUser.Username(childComplexity), true
 
 	case "Content.adult":
 		if e.ComplexityRoot.Content.Adult == nil {
@@ -1343,6 +1453,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.MetadataSource.Name(childComplexity), true
 
+	case "Mutation.auth":
+		if e.ComplexityRoot.Mutation.Auth == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Mutation.Auth(childComplexity), true
 	case "Mutation.favorites":
 		if e.ComplexityRoot.Mutation.Favorites == nil {
 			break
@@ -1380,6 +1496,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.Workflows(childComplexity), true
 
+	case "Query.auth":
+		if e.ComplexityRoot.Query.Auth == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.Auth(childComplexity), true
 	case "Query.databaseStats":
 		if e.ComplexityRoot.Query.DatabaseStats == nil {
 			break
@@ -2883,12 +3005,14 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputContentTypeFacetInput,
 		ec.unmarshalInputCreateFavoritesListInput,
+		ec.unmarshalInputCreateInitialUserInput,
 		ec.unmarshalInputCreateIntegrationInput,
 		ec.unmarshalInputCreateWorkflowInput,
 		ec.unmarshalInputGenreFacetInput,
 		ec.unmarshalInputIntegrationActiveTorrentsOrderByInput,
 		ec.unmarshalInputIntegrationActiveTorrentsQueryInput,
 		ec.unmarshalInputLanguageFacetInput,
+		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputQueueEnqueueReprocessTorrentsBatchInput,
 		ec.unmarshalInputQueueJobQueueFacetInput,
 		ec.unmarshalInputQueueJobStatusFacetInput,
@@ -2913,6 +3037,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTorrentReprocessInput,
 		ec.unmarshalInputTorrentSourceFacetInput,
 		ec.unmarshalInputTorrentTagFacetInput,
+		ec.unmarshalInputUpdateCredentialsInput,
 		ec.unmarshalInputUpdateIntegrationInput,
 		ec.unmarshalInputUpdateWorkflowInput,
 		ec.unmarshalInputVideoResolutionFacetInput,
@@ -2993,6 +3118,49 @@ func newExecutionContext(
 }
 
 var sources = []*ast.Source{
+	{Name: "../../graphql/schema/auth.graphqls", Input: `directive @authenticated on FIELD_DEFINITION
+
+type AuthQuery {
+  status: AuthStatus!
+}
+
+type AuthMutation {
+  createInitialUser(input: CreateInitialUserInput!): AuthResult!
+  login(input: LoginInput!): AuthResult!
+  logout: Boolean!
+  updateCredentials(input: UpdateCredentialsInput!): AuthResult!
+}
+
+type AuthStatus {
+  setupRequired: Boolean!
+  authenticated: Boolean!
+  user: AuthUser
+}
+
+type AuthUser {
+  username: String!
+}
+
+type AuthResult {
+  user: AuthUser!
+}
+
+input CreateInitialUserInput {
+  username: String!
+  password: String!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+input UpdateCredentialsInput {
+  currentPassword: String!
+  username: String
+  newPassword: String
+}
+`, BuiltIn: false},
 	{Name: "../../graphql/schema/db_diagnostics.graphqls", Input: `type DbDiagnosticsQuery {
   slowQueries: SlowQueriesResult!
   tableScanStats: TableScanStatsResult!
@@ -3535,12 +3703,13 @@ type ContentCollection {
 }
 `, BuiltIn: false},
 	{Name: "../../graphql/schema/mutation.graphqls", Input: `type Mutation {
-  torrent: TorrentMutation!
-  queue: QueueMutation!
-  integrations: IntegrationsMutation!
-  workflows: WorkflowsMutation!
-  favorites: FavoritesMutation!
-  tmdb: TmdbMutation!
+  auth: AuthMutation!
+  torrent: TorrentMutation! @authenticated
+  queue: QueueMutation! @authenticated
+  integrations: IntegrationsMutation! @authenticated
+  workflows: WorkflowsMutation! @authenticated
+  favorites: FavoritesMutation! @authenticated
+  tmdb: TmdbMutation! @authenticated
 }
 
 type TorrentMutation {
@@ -3560,34 +3729,35 @@ input TorrentReprocessInput {
 }
 `, BuiltIn: false},
 	{Name: "../../graphql/schema/query.graphqls", Input: `type Query {
-  version: String!
-  workers: WorkersQuery!
-  health: HealthQuery!
-  queue: QueueQuery!
-  torrent: TorrentQuery!
-  torrentContent: TorrentContentQuery!
-  integrations: [Integration!]!
+  auth: AuthQuery!
+  version: String! @authenticated
+  workers: WorkersQuery! @authenticated
+  health: HealthQuery! @authenticated
+  queue: QueueQuery! @authenticated
+  torrent: TorrentQuery! @authenticated
+  torrentContent: TorrentContentQuery! @authenticated
+  integrations: [Integration!]! @authenticated
   """
   integrationActiveTorrents queries the integration's own client for what it currently reports
   as downloading. This is a live call to the external client, not a cached value.
   """
-  integrationActiveTorrents(id: ID!, input: IntegrationActiveTorrentsQueryInput): IntegrationActiveTorrentsResult!
-  workflows: [Workflow!]!
-  favoritesLists: [FavoritesList!]!
-  databaseStats: DatabaseStatsQuery!
+  integrationActiveTorrents(id: ID!, input: IntegrationActiveTorrentsQueryInput): IntegrationActiveTorrentsResult! @authenticated
+  workflows: [Workflow!]! @authenticated
+  favoritesLists: [FavoritesList!]! @authenticated
+  databaseStats: DatabaseStatsQuery! @authenticated
   """
   dbDiagnostics surfaces Postgres query-performance diagnostics - slow query shapes (from the
   optional pg_stat_statements extension) and tables read mostly via sequential scans - to help
   identify which indexes are worth adding, for display on the admin page.
   """
-  dbDiagnostics: DbDiagnosticsQuery!
-  tmdb: TmdbQuery!
+  dbDiagnostics: DbDiagnosticsQuery! @authenticated
+  tmdb: TmdbQuery! @authenticated
   """
   techStack reports the Go toolchain and a curated set of backend dependency versions this
   server was actually built with (sourced from the binary's embedded build info, not a
   hand-maintained list), for display on the admin page.
   """
-  techStack: TechStackResult!
+  techStack: TechStackResult! @authenticated
 }
 
 type DatabaseStatsQuery {
@@ -4135,6 +4305,56 @@ func (ec *executionContext) childFields_ArchiveEntry(ctx context.Context, field 
 		return ec.fieldContext_ArchiveEntry_fileType(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ArchiveEntry", field.Name)
+}
+
+func (ec *executionContext) childFields_AuthMutation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "createInitialUser":
+		return ec.fieldContext_AuthMutation_createInitialUser(ctx, field)
+	case "login":
+		return ec.fieldContext_AuthMutation_login(ctx, field)
+	case "logout":
+		return ec.fieldContext_AuthMutation_logout(ctx, field)
+	case "updateCredentials":
+		return ec.fieldContext_AuthMutation_updateCredentials(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AuthMutation", field.Name)
+}
+
+func (ec *executionContext) childFields_AuthQuery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "status":
+		return ec.fieldContext_AuthQuery_status(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AuthQuery", field.Name)
+}
+
+func (ec *executionContext) childFields_AuthResult(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "user":
+		return ec.fieldContext_AuthResult_user(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AuthResult", field.Name)
+}
+
+func (ec *executionContext) childFields_AuthStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "setupRequired":
+		return ec.fieldContext_AuthStatus_setupRequired(ctx, field)
+	case "authenticated":
+		return ec.fieldContext_AuthStatus_authenticated(ctx, field)
+	case "user":
+		return ec.fieldContext_AuthStatus_user(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AuthStatus", field.Name)
+}
+
+func (ec *executionContext) childFields_AuthUser(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "username":
+		return ec.fieldContext_AuthUser_username(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AuthUser", field.Name)
 }
 
 func (ec *executionContext) childFields_Content(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -5265,6 +5485,48 @@ func (ec *executionContext) childFields___Type(ctx context.Context, field graphq
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_AuthMutation_createInitialUser_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.CreateInitialUserInput, error) {
+			return ec.unmarshalNCreateInitialUserInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateInitialUserInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AuthMutation_login_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.LoginInput, error) {
+			return ec.unmarshalNLoginInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐLoginInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AuthMutation_updateCredentials_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (gen.UpdateCredentialsInput, error) {
+			return ec.unmarshalNUpdateCredentialsInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐUpdateCredentialsInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_FavoritesMutation_createList_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -5935,6 +6197,326 @@ func (ec *executionContext) _ArchiveEntry_fileType(ctx context.Context, field gr
 }
 func (ec *executionContext) fieldContext_ArchiveEntry_fileType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ArchiveEntry", field, false, false, errors.New("field of type FileType does not have child fields"))
+}
+
+func (ec *executionContext) _AuthMutation_createInitialUser(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AuthMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthMutation_createInitialUser(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.CreateInitialUser(ctx, fc.Args["input"].(gen.CreateInitialUserInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gen.AuthResult) graphql.Marshaler {
+			return ec.marshalNAuthResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthResult(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthMutation_createInitialUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthResult(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AuthMutation_createInitialUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthMutation_login(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AuthMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthMutation_login(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.Login(ctx, fc.Args["input"].(gen.LoginInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gen.AuthResult) graphql.Marshaler {
+			return ec.marshalNAuthResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthResult(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthMutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthResult(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AuthMutation_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthMutation_logout(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AuthMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthMutation_logout(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Logout(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthMutation_logout(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AuthMutation", field, true, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _AuthMutation_updateCredentials(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AuthMutation) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthMutation_updateCredentials(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.UpdateCredentials(ctx, fc.Args["input"].(gen.UpdateCredentialsInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gen.AuthResult) graphql.Marshaler {
+			return ec.marshalNAuthResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthResult(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthMutation_updateCredentials(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthResult(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AuthMutation_updateCredentials_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthQuery_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AuthQuery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthQuery_status(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Status(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gen.AuthStatus) graphql.Marshaler {
+			return ec.marshalNAuthStatus2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthStatus(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthQuery_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthStatus(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthResult_user(ctx context.Context, field graphql.CollectedField, obj *gen.AuthResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthResult_user(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.User, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gen.AuthUser) graphql.Marshaler {
+			return ec.marshalNAuthUser2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthUser(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthResult_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthUser(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthStatus_setupRequired(ctx context.Context, field graphql.CollectedField, obj *gen.AuthStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthStatus_setupRequired(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SetupRequired, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthStatus_setupRequired(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AuthStatus", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _AuthStatus_authenticated(ctx context.Context, field graphql.CollectedField, obj *gen.AuthStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthStatus_authenticated(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Authenticated, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthStatus_authenticated(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AuthStatus", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _AuthStatus_user(ctx context.Context, field graphql.CollectedField, obj *gen.AuthStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthStatus_user(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.User, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *gen.AuthUser) graphql.Marshaler {
+			return ec.marshalOAuthUser2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthUser(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_AuthStatus_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthUser(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthUser_username(ctx context.Context, field graphql.CollectedField, obj *gen.AuthUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthUser_username(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Username, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthUser_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AuthUser", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Content_type(ctx context.Context, field graphql.CollectedField, obj *model.Content) (ret graphql.Marshaler) {
@@ -8470,6 +9052,38 @@ func (ec *executionContext) fieldContext_MetadataSource_name(_ context.Context, 
 	return graphql.NewScalarFieldContext("MetadataSource", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _Mutation_auth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_auth(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Mutation().Auth(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.AuthMutation) graphql.Marshaler {
+			return ec.marshalNAuthMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐAuthMutation(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_auth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthMutation(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_torrent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -8481,7 +9095,20 @@ func (ec *executionContext) _Mutation_torrent(ctx context.Context, field graphql
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Mutation().Torrent(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.TorrentMutation
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.TorrentMutation) graphql.Marshaler {
 			return ec.marshalNTorrentMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTorrentMutation(ctx, selections, v)
 		},
@@ -8513,7 +9140,20 @@ func (ec *executionContext) _Mutation_queue(ctx context.Context, field graphql.C
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Mutation().Queue(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.QueueMutation
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.QueueMutation) graphql.Marshaler {
 			return ec.marshalNQueueMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐQueueMutation(ctx, selections, v)
 		},
@@ -8545,7 +9185,20 @@ func (ec *executionContext) _Mutation_integrations(ctx context.Context, field gr
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Mutation().Integrations(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.IntegrationsMutation
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.IntegrationsMutation) graphql.Marshaler {
 			return ec.marshalNIntegrationsMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐIntegrationsMutation(ctx, selections, v)
 		},
@@ -8577,7 +9230,20 @@ func (ec *executionContext) _Mutation_workflows(ctx context.Context, field graph
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Mutation().Workflows(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.WorkflowsMutation
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.WorkflowsMutation) graphql.Marshaler {
 			return ec.marshalNWorkflowsMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐWorkflowsMutation(ctx, selections, v)
 		},
@@ -8609,7 +9275,20 @@ func (ec *executionContext) _Mutation_favorites(ctx context.Context, field graph
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Mutation().Favorites(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.FavoritesMutation
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.FavoritesMutation) graphql.Marshaler {
 			return ec.marshalNFavoritesMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐFavoritesMutation(ctx, selections, v)
 		},
@@ -8641,7 +9320,20 @@ func (ec *executionContext) _Mutation_tmdb(ctx context.Context, field graphql.Co
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Mutation().Tmdb(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.TmdbMutation
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.TmdbMutation) graphql.Marshaler {
 			return ec.marshalNTmdbMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTmdbMutation(ctx, selections, v)
 		},
@@ -8662,6 +9354,38 @@ func (ec *executionContext) fieldContext_Mutation_tmdb(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_auth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_auth(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().Auth(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.AuthQuery) graphql.Marshaler {
+			return ec.marshalNAuthQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐAuthQuery(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_auth(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthQuery(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_version(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -8673,7 +9397,20 @@ func (ec *executionContext) _Query_version(ctx context.Context, field graphql.Co
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().Version(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal string
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
 			return ec.marshalNString2string(ctx, selections, v)
 		},
@@ -8696,7 +9433,20 @@ func (ec *executionContext) _Query_workers(ctx context.Context, field graphql.Co
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().Workers(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gen.WorkersQuery
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gen.WorkersQuery) graphql.Marshaler {
 			return ec.marshalNWorkersQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐWorkersQuery(ctx, selections, v)
 		},
@@ -8728,7 +9478,20 @@ func (ec *executionContext) _Query_health(ctx context.Context, field graphql.Col
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().Health(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gen.HealthQuery
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gen.HealthQuery) graphql.Marshaler {
 			return ec.marshalNHealthQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐHealthQuery(ctx, selections, v)
 		},
@@ -8760,7 +9523,20 @@ func (ec *executionContext) _Query_queue(ctx context.Context, field graphql.Coll
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().Queue(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.QueueQuery
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.QueueQuery) graphql.Marshaler {
 			return ec.marshalNQueueQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐQueueQuery(ctx, selections, v)
 		},
@@ -8792,7 +9568,20 @@ func (ec *executionContext) _Query_torrent(ctx context.Context, field graphql.Co
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().Torrent(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.TorrentQuery
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.TorrentQuery) graphql.Marshaler {
 			return ec.marshalNTorrentQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTorrentQuery(ctx, selections, v)
 		},
@@ -8824,7 +9613,20 @@ func (ec *executionContext) _Query_torrentContent(ctx context.Context, field gra
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().TorrentContent(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.TorrentContentQuery
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.TorrentContentQuery) graphql.Marshaler {
 			return ec.marshalNTorrentContentQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTorrentContentQuery(ctx, selections, v)
 		},
@@ -8856,7 +9658,20 @@ func (ec *executionContext) _Query_integrations(ctx context.Context, field graph
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().Integrations(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal []model.Integration
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v []model.Integration) graphql.Marshaler {
 			return ec.marshalNIntegration2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐIntegrationᚄ(ctx, selections, v)
 		},
@@ -8889,7 +9704,20 @@ func (ec *executionContext) _Query_integrationActiveTorrents(ctx context.Context
 			fc := graphql.GetFieldContext(ctx)
 			return ec.Resolvers.Query().IntegrationActiveTorrents(ctx, fc.Args["id"].(string), fc.Args["input"].(*gen.IntegrationActiveTorrentsQueryInput))
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal integrations.ListActiveTorrentsResult
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v integrations.ListActiveTorrentsResult) graphql.Marshaler {
 			return ec.marshalNIntegrationActiveTorrentsResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋintegrationsᚐListActiveTorrentsResult(ctx, selections, v)
 		},
@@ -8932,7 +9760,20 @@ func (ec *executionContext) _Query_workflows(ctx context.Context, field graphql.
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().Workflows(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal []model.Workflow
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v []model.Workflow) graphql.Marshaler {
 			return ec.marshalNWorkflow2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐWorkflowᚄ(ctx, selections, v)
 		},
@@ -8964,7 +9805,20 @@ func (ec *executionContext) _Query_favoritesLists(ctx context.Context, field gra
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().FavoritesLists(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal []model.FavoritesList
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v []model.FavoritesList) graphql.Marshaler {
 			return ec.marshalNFavoritesList2ᚕgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐFavoritesListᚄ(ctx, selections, v)
 		},
@@ -8996,7 +9850,20 @@ func (ec *executionContext) _Query_databaseStats(ctx context.Context, field grap
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().DatabaseStats(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.DatabaseStatsQuery
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.DatabaseStatsQuery) graphql.Marshaler {
 			return ec.marshalNDatabaseStatsQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐDatabaseStatsQuery(ctx, selections, v)
 		},
@@ -9028,7 +9895,20 @@ func (ec *executionContext) _Query_dbDiagnostics(ctx context.Context, field grap
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().DbDiagnostics(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.DbDiagnosticsQuery
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.DbDiagnosticsQuery) graphql.Marshaler {
 			return ec.marshalNDbDiagnosticsQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐDbDiagnosticsQuery(ctx, selections, v)
 		},
@@ -9060,7 +9940,20 @@ func (ec *executionContext) _Query_tmdb(ctx context.Context, field graphql.Colle
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().Tmdb(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal gqlmodel.TmdbQuery
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v gqlmodel.TmdbQuery) graphql.Marshaler {
 			return ec.marshalNTmdbQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐTmdbQuery(ctx, selections, v)
 		},
@@ -9092,7 +9985,20 @@ func (ec *executionContext) _Query_techStack(ctx context.Context, field graphql.
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Query().TechStack(ctx)
 		},
-		nil,
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				if ec.Directives.Authenticated == nil {
+					var zeroVal buildinfo.Info
+					return zeroVal, errors.New("directive authenticated is not implemented")
+				}
+				return ec.Directives.Authenticated(ctx, nil, directive0)
+			}
+
+			next = directive1
+			return next
+		},
 		func(ctx context.Context, selections ast.SelectionSet, v buildinfo.Info) graphql.Marshaler {
 			return ec.marshalNTechStackResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋbuildinfoᚐInfo(ctx, selections, v)
 		},
@@ -15859,6 +16765,43 @@ func (ec *executionContext) unmarshalInputCreateFavoritesListInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateInitialUserInput(ctx context.Context, obj any) (gen.CreateInitialUserInput, error) {
+	var it gen.CreateInitialUserInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"username", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "username":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = data
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateIntegrationInput(ctx context.Context, obj any) (gen.CreateIntegrationInput, error) {
 	var it gen.CreateIntegrationInput
 	if obj == nil {
@@ -16153,6 +17096,43 @@ func (ec *executionContext) unmarshalInputLanguageFacetInput(ctx context.Context
 				return it, err
 			}
 			it.Filter = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj any) (gen.LoginInput, error) {
+	var it gen.LoginInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"username", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "username":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = data
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
 		}
 	}
 	return it, nil
@@ -17433,6 +18413,50 @@ func (ec *executionContext) unmarshalInputTorrentTagFacetInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateCredentialsInput(ctx context.Context, obj any) (gen.UpdateCredentialsInput, error) {
+	var it gen.UpdateCredentialsInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"currentPassword", "username", "newPassword"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "currentPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currentPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CurrentPassword = data
+		case "username":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = graphql.OmittableOf(data)
+		case "newPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newPassword"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NewPassword = graphql.OmittableOf(data)
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateIntegrationInput(ctx context.Context, obj any) (gen.UpdateIntegrationInput, error) {
 	var it gen.UpdateIntegrationInput
 	if obj == nil {
@@ -17761,6 +18785,386 @@ func (ec *executionContext) _ArchiveEntry(ctx context.Context, sel ast.Selection
 		case "fileType":
 			out.Values[i] = ec._ArchiveEntry_fileType(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var authMutationImplementors = []string{"AuthMutation"}
+
+func (ec *executionContext) _AuthMutation(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AuthMutation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authMutationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthMutation")
+		case "createInitialUser":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthMutation_createInitialUser(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "login":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthMutation_login(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "logout":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthMutation_logout(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "updateCredentials":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthMutation_updateCredentials(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var authQueryImplementors = []string{"AuthQuery"}
+
+func (ec *executionContext) _AuthQuery(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AuthQuery) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authQueryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthQuery")
+		case "status":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthQuery_status(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var authResultImplementors = []string{"AuthResult"}
+
+func (ec *executionContext) _AuthResult(ctx context.Context, sel ast.SelectionSet, obj *gen.AuthResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthResult")
+		case "user":
+			out.Values[i] = ec._AuthResult_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var authStatusImplementors = []string{"AuthStatus"}
+
+func (ec *executionContext) _AuthStatus(ctx context.Context, sel ast.SelectionSet, obj *gen.AuthStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthStatus")
+		case "setupRequired":
+			out.Values[i] = ec._AuthStatus_setupRequired(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "authenticated":
+			out.Values[i] = ec._AuthStatus_authenticated(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "user":
+			out.Values[i] = ec._AuthStatus_user(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var authUserImplementors = []string{"AuthUser"}
+
+func (ec *executionContext) _AuthUser(ctx context.Context, sel ast.SelectionSet, obj *gen.AuthUser) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authUserImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthUser")
+		case "username":
+			out.Values[i] = ec._AuthUser_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		default:
@@ -19467,6 +20871,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "auth":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_auth(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "torrent":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_torrent(ctx, field)
@@ -19550,6 +20961,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "auth":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_auth(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "version":
 			field := field
 
@@ -23731,6 +25164,26 @@ func (ec *executionContext) marshalNArchiveEntry2ᚕgithubᚗcomᚋbitmagnetᚑi
 	return ret
 }
 
+func (ec *executionContext) marshalNAuthMutation2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐAuthMutation(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AuthMutation) graphql.Marshaler {
+	return ec._AuthMutation(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthQuery2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚐAuthQuery(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AuthQuery) graphql.Marshaler {
+	return ec._AuthQuery(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthResult2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthResult(ctx context.Context, sel ast.SelectionSet, v gen.AuthResult) graphql.Marshaler {
+	return ec._AuthResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthStatus2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthStatus(ctx context.Context, sel ast.SelectionSet, v gen.AuthStatus) graphql.Marshaler {
+	return ec._AuthStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthUser2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthUser(ctx context.Context, sel ast.SelectionSet, v gen.AuthUser) graphql.Marshaler {
+	return ec._AuthUser(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -23810,6 +25263,11 @@ func (ec *executionContext) marshalNContentTypeAgg2githubᚗcomᚋbitmagnetᚑio
 
 func (ec *executionContext) unmarshalNCreateFavoritesListInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateFavoritesListInput(ctx context.Context, v any) (gen.CreateFavoritesListInput, error) {
 	res, err := ec.unmarshalInputCreateFavoritesListInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateInitialUserInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐCreateInitialUserInput(ctx context.Context, v any) (gen.CreateInitialUserInput, error) {
+	res, err := ec.unmarshalInputCreateInitialUserInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -24180,6 +25638,11 @@ func (ec *executionContext) marshalNLanguageAgg2githubᚗcomᚋbitmagnetᚑioᚋ
 
 func (ec *executionContext) marshalNLanguageInfo2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐLanguage(ctx context.Context, sel ast.SelectionSet, v model.Language) graphql.Marshaler {
 	return ec._LanguageInfo(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐLoginInput(ctx context.Context, v any) (gen.LoginInput, error) {
+	res, err := ec.unmarshalInputLoginInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNMetadataSource2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋmodelᚐMetadataSource(ctx context.Context, sel ast.SelectionSet, v model.MetadataSource) graphql.Marshaler {
@@ -24713,6 +26176,11 @@ func (ec *executionContext) marshalNTorrentTagAgg2githubᚗcomᚋbitmagnetᚑio�
 	return ec._TorrentTagAgg(ctx, sel, &v)
 }
 
+func (ec *executionContext) unmarshalNUpdateCredentialsInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐUpdateCredentialsInput(ctx context.Context, v any) (gen.UpdateCredentialsInput, error) {
+	res, err := ec.unmarshalInputUpdateCredentialsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNUpdateIntegrationInput2githubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐUpdateIntegrationInput(ctx context.Context, v any) (gen.UpdateIntegrationInput, error) {
 	res, err := ec.unmarshalInputUpdateIntegrationInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -24964,6 +26432,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOAuthUser2ᚖgithubᚗcomᚋbitmagnetᚑioᚋbitmagnetᚋinternalᚋgqlᚋgqlmodelᚋgenᚐAuthUser(ctx context.Context, sel ast.SelectionSet, v *gen.AuthUser) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AuthUser(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v any) (bool, error) {

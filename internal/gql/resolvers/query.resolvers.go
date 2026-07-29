@@ -20,6 +20,11 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/version"
 )
 
+// Auth is the resolver for the auth field.
+func (r *queryResolver) Auth(ctx context.Context) (gqlmodel.AuthQuery, error) {
+	return gqlmodel.AuthQuery{Service: r.AuthService}, nil
+}
+
 // Version is the resolver for the version field.
 func (r *queryResolver) Version(ctx context.Context) (string, error) {
 	return version.GitTag, nil

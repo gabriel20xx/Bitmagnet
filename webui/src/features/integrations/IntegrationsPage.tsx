@@ -105,8 +105,8 @@ export function IntegrationsPage() {
         ) : !loading && visibleIntegrations.length === 0 ? (
           <p className="text-sm text-muted-fg">{t('general.no_matching_filters')}</p>
         ) : (
-          <div className="rounded-lg border border-border bg-bg">
-            <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto rounded-lg border border-border bg-bg">
+            <table className="min-w-max w-full text-left text-sm">
               <thead>
                 <tr className="text-muted-fg">
                   <th className="py-2 pl-3 font-medium">{t('integrations.status')}</th>

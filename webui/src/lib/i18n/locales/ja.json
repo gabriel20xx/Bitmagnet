@@ -285,7 +285,7 @@
     "x_to_y_of_z": "{{x}} から {{y}} までの {{z}}"
   },
   "routes": {
-    "admin": "管理者",
+    "settings": "設定",
     "dashboard": "ダッシュボード",
     "integrations": "連携",
     "jobs": "ジョブ",

@@ -1,32 +1,33 @@
 type Query {
-  version: String!
-  workers: WorkersQuery!
-  health: HealthQuery!
-  queue: QueueQuery!
-  torrent: TorrentQuery!
-  torrentContent: TorrentContentQuery!
-  integrations: [Integration!]!
+  auth: AuthQuery!
+  version: String! @authenticated
+  workers: WorkersQuery! @authenticated
+  health: HealthQuery! @authenticated
+  queue: QueueQuery! @authenticated
+  torrent: TorrentQuery! @authenticated
+  torrentContent: TorrentContentQuery! @authenticated
+  integrations: [Integration!]! @authenticated
   """
   integrationActiveTorrents queries the integration's own client for what it currently reports
   as downloading. This is a live call to the external client, not a cached value.
   """
-  integrationActiveTorrents(id: ID!, input: IntegrationActiveTorrentsQueryInput): IntegrationActiveTorrentsResult!
-  workflows: [Workflow!]!
-  favoritesLists: [FavoritesList!]!
-  databaseStats: DatabaseStatsQuery!
+  integrationActiveTorrents(id: ID!, input: IntegrationActiveTorrentsQueryInput): IntegrationActiveTorrentsResult! @authenticated
+  workflows: [Workflow!]! @authenticated
+  favoritesLists: [FavoritesList!]! @authenticated
+  databaseStats: DatabaseStatsQuery! @authenticated
   """
   dbDiagnostics surfaces Postgres query-performance diagnostics - slow query shapes (from the
   optional pg_stat_statements extension) and tables read mostly via sequential scans - to help
   identify which indexes are worth adding, for display on the admin page.
   """
-  dbDiagnostics: DbDiagnosticsQuery!
-  tmdb: TmdbQuery!
+  dbDiagnostics: DbDiagnosticsQuery! @authenticated
+  tmdb: TmdbQuery! @authenticated
   """
   techStack reports the Go toolchain and a curated set of backend dependency versions this
   server was actually built with (sourced from the binary's embedded build info, not a
   hand-maintained list), for display on the admin page.
   """
-  techStack: TechStackResult!
+  techStack: TechStackResult! @authenticated
 }
 
 type DatabaseStatsQuery {

@@ -19,6 +19,11 @@ func New(p Params) lazy.Lazy[gql.Config] {
 			return gql.Config{}, err
 		}
 
-		return gql.Config{Resolvers: root}, nil
+		return gql.Config{
+			Resolvers: root,
+			Directives: gql.DirectiveRoot{
+				Authenticated: root.Authenticated,
+			},
+		}, nil
 	})
 }

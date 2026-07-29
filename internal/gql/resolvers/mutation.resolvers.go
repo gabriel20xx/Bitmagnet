@@ -16,6 +16,11 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
 )
 
+// Auth is the resolver for the auth field.
+func (r *mutationResolver) Auth(ctx context.Context) (gqlmodel.AuthMutation, error) {
+	return gqlmodel.AuthMutation{Service: r.AuthService}, nil
+}
+
 // Torrent is the resolver for the torrent field.
 func (r *mutationResolver) Torrent(ctx context.Context) (gqlmodel.TorrentMutation, error) {
 	return gqlmodel.TorrentMutation{}, nil

@@ -180,7 +180,7 @@ export function IntegrationDialog({
           </div>
 
           {authMethod === 'password' ? (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium">{t('integrations.username')}</label>
                 <input className={inputClass} value={username} onChange={(e) => setUsername(e.target.value)} />

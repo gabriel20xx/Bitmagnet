@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/bitmagnet-io/bitmagnet/internal/auth"
 	"github.com/bitmagnet-io/bitmagnet/internal/httpserver"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
 	"github.com/gin-gonic/gin"
@@ -53,7 +54,7 @@ func (b builder) Apply(e *gin.Engine) error {
 	gql := newServer(schema)
 
 	e.POST("/graphql", func(c *gin.Context) {
-		gql.ServeHTTP(c.Writer, c.Request)
+		gql.ServeHTTP(c.Writer, c.Request.WithContext(auth.WithHTTPContext(c.Request.Context(), c.Request, c.Writer)))
 	})
 
 	pg := playground.Handler("GraphQL playground", "/graphql")

@@ -285,7 +285,7 @@
     "x_to_y_of_z": "{{x}} से {{y}} तक {{z}} में"
   },
   "routes": {
-    "admin": "प्रशासक",
+    "settings": "सेटिंग्स",
     "dashboard": "डैशबोर्ड",
     "integrations": "इंटीग्रेशन",
     "jobs": "नौकरियां",
