@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RefreshCw, X, ArrowDown, ArrowUp, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { RefreshCw, X, ArrowDown, ArrowUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SimpleTooltip } from '@/components/ui/tooltip'
@@ -10,7 +10,7 @@ import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { useLiveTorrentSearch } from '@/lib/preferences/searchPreferences'
 import { cn } from '@/lib/utils/cn'
-import { FilterSidebar } from '@/features/dashboard/FilterSidebar'
+import { FilterBar } from '@/features/dashboard/FilterBar'
 import { FacetsSidebar } from './FacetsSidebar'
 import { TorrentsTable, allColumns, compactColumns } from './TorrentsTable'
 import { TorrentsBulkActions } from './TorrentsBulkActions'
@@ -28,7 +28,6 @@ export function TorrentsSearch() {
   const [liveSearchEnabled] = useLiveTorrentSearch()
   const [queryInput, setQueryInput] = useState(controls.queryString ?? '')
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [drawerOpen, setDrawerOpen] = useState(isDesktop)
 
   // Adjust local state in response to prop/query changes during render (React's
   // recommended alternative to a synchronizing effect), rather than in a useEffect.
@@ -84,17 +83,12 @@ export function TorrentsSearch() {
   }, [queryInput, updateControls, liveSearchEnabled])
 
   return (
-    <div className="flex flex-1">
-      <FilterSidebar open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+    <div className="flex flex-1 flex-col">
+      <FilterBar>
         <FacetsSidebar controls={controls} result={sidebarResult} onUpdate={updateControls} />
-      </FilterSidebar>
+      </FilterBar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <SimpleTooltip label={t('torrents.toggle_drawer')}>
-            <Button variant="ghost" size="icon" className="min-[960px]:hidden" onClick={() => setDrawerOpen((o) => !o)}>
-              {drawerOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
-            </Button>
-          </SimpleTooltip>
           <div className="relative min-w-0 flex-1 basis-full sm:basis-auto">
             <input
               value={queryInput}

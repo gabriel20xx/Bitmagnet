@@ -1,17 +1,15 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@apollo/client/react'
-import { Plug, Plus, Power, Star, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Plug, Plus, Power, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
-import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { addError } from '@/lib/toast/store'
 import { UpdateWorkflowDocument, type IntegrationType, type WorkflowFragment } from '@/lib/graphql/generated'
 import { useIntegrations } from '@/features/integrations/useIntegrations'
 import { integrationTypeLabels, integrationTypeList } from '@/features/integrations/integrationTypes'
 import { useFavoritesLists } from '@/features/torrents/useFavoritesLists'
-import { FilterSidebar, FilterSidebarSection } from '@/features/dashboard/FilterSidebar'
+import { FilterBar, FilterBarSection } from '@/features/dashboard/FilterBar'
 import { toggleFilterValue, type FilterOption } from '@/features/dashboard/filterUtils'
 import { useWorkflows } from './useWorkflows'
 import { WorkflowRow } from './WorkflowRow'
@@ -24,8 +22,6 @@ const statusFilterValues: StatusFilterValue[] = ['enabled', 'disabled']
 export function WorkflowsPage() {
   const { t } = useTranslation()
   useDocumentTitle(t('routes.workflows'), t('routes.dashboard'))
-  const isDesktop = useIsDesktop()
-
   const { workflows, loading, refetch } = useWorkflows()
   const { integrations } = useIntegrations()
   const { lists: favoritesLists } = useFavoritesLists()
@@ -33,7 +29,6 @@ export function WorkflowsPage() {
 
   const [editing, setEditing] = useState<WorkflowFragment | null | undefined>(undefined)
   const [deleting, setDeleting] = useState<WorkflowFragment | null>(null)
-  const [drawerOpen, setDrawerOpen] = useState(isDesktop)
   const [typeFilter, setTypeFilter] = useState<Set<IntegrationType>>(new Set())
   const [statusFilter, setStatusFilter] = useState<Set<StatusFilterValue>>(new Set())
   const [favoritesListFilter, setFavoritesListFilter] = useState<Set<string>>(new Set())
@@ -99,23 +94,23 @@ export function WorkflowsPage() {
   }))
 
   return (
-    <div className="flex flex-1">
-      <FilterSidebar open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <FilterSidebarSection
+    <div className="flex flex-1 flex-col">
+      <FilterBar>
+        <FilterBarSection
           icon={Plug}
           label={t('facets.type')}
           options={typeOptions}
           selected={typeFilter}
           onToggle={(v) => setTypeFilter((s) => toggleFilterValue(s, integrationTypeList, v))}
         />
-        <FilterSidebarSection
+        <FilterBarSection
           icon={Power}
           label={t('facets.status')}
           options={statusOptions}
           selected={statusFilter}
           onToggle={(v) => setStatusFilter((s) => toggleFilterValue(s, statusFilterValues, v))}
         />
-        <FilterSidebarSection
+        <FilterBarSection
           icon={Star}
           label={t('facets.favorites_list')}
           options={favoritesListOptions}
@@ -130,14 +125,9 @@ export function WorkflowsPage() {
             )
           }
         />
-      </FilterSidebar>
+      </FilterBar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <SimpleTooltip label={t('torrents.toggle_drawer')}>
-            <Button variant="ghost" size="icon" className="min-[960px]:hidden" onClick={() => setDrawerOpen((o) => !o)}>
-              {drawerOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
-            </Button>
-          </SimpleTooltip>
           <Button type="button" size="sm" disabled={!canAddWorkflow} onClick={() => setEditing(null)}>
             <Plus className="size-4" />
             {t('workflows.add_workflow')}

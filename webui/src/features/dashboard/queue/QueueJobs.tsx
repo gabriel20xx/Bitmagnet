@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RefreshCw, ArrowDown, ArrowUp, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { RefreshCw, ArrowDown, ArrowUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { Paginator } from '@/components/ui/paginator'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
-import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
-import { FilterSidebar } from '@/features/dashboard/FilterSidebar'
+import { FilterBar, FilterBarSection } from '@/features/dashboard/FilterBar'
 import { activateFilter, deactivateFilter, facets, orderByOptions } from './queueJobsControls'
 import { useQueueJobs, useQueueJobsControls } from './useQueueJobs'
 import { QueueJobsTable } from './QueueJobsTable'
@@ -17,13 +15,10 @@ import { jobsTableColumns } from './queueConstants'
 // Port of webui/src/app/dashboard/queue/queue-jobs.component.ts/.html
 
 export function QueueJobs() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   useDocumentTitle(t('routes.jobs'), t('routes.dashboard'))
-  const isDesktop = useIsDesktop()
-
   const [controls, updateControls] = useQueueJobsControls()
   const { result, refresh } = useQueueJobs(controls)
-  const [drawerOpen, setDrawerOpen] = useState(isDesktop)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   // Derived rather than reset via an effect: once the current page's items no longer contain the
   // expanded id (e.g. after a refresh or re-page), the detail row simply stops rendering expanded.
@@ -41,51 +36,27 @@ export function QueueJobs() {
   })
 
   return (
-    <div className="flex flex-1">
-      <FilterSidebar open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+    <div className="flex flex-1 flex-col">
+      <FilterBar>
         {facetInfos.map((facet) => (
-          <div key={facet.def.key} className="border-b border-border">
-            <div className="flex items-center gap-2 py-3 text-sm font-medium">
-              <facet.def.icon className="size-4" />
-              {t(`facets.${facet.def.key}`)}
-            </div>
-            <div className="pb-3">
-              {facet.aggregations.length === 0 ? (
-                <p className="px-2 text-sm text-muted-fg">{t('general.none')}</p>
-              ) : (
-                <ul className="space-y-1.5">
-                  {facet.aggregations.map((agg) => {
-                    const checked = facet.filter?.length ? (facet.filter as unknown[]).includes(agg.value) : true
-                    return (
-                      <li key={String(agg.value)} className="flex items-center gap-2 px-2 text-sm">
-                        <Checkbox
-                          checked={checked}
-                          onCheckedChange={(isChecked) =>
-                            updateControls((c) =>
-                              isChecked
-                                ? activateFilter(c, facet.def, agg.value)
-                                : deactivateFilter(c, facet.def, agg.value),
-                            )
-                          }
-                        />
-                        <span className="flex-1 truncate">{agg.label}</span>
-                        <small className="text-muted-fg">{agg.count.toLocaleString(i18n.language)}</small>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-            </div>
-          </div>
+          <FilterBarSection
+            key={facet.def.key}
+            icon={facet.def.icon}
+            label={t(`facets.${facet.def.key}`)}
+            options={facet.aggregations}
+            selected={new Set(facet.filter ?? [])}
+            onToggle={(value) =>
+              updateControls((c) =>
+                facet.filter?.includes(value)
+                  ? deactivateFilter(c, facet.def, value)
+                  : activateFilter(c, facet.def, value),
+              )
+            }
+          />
         ))}
-      </FilterSidebar>
+      </FilterBar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <SimpleTooltip label={t('torrents.toggle_drawer')}>
-            <Button variant="ghost" size="icon" className="min-[960px]:hidden" onClick={() => setDrawerOpen((o) => !o)}>
-              {drawerOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
-            </Button>
-          </SimpleTooltip>
           <Select
             value={controls.orderBy.field}
             onValueChange={(field) =>

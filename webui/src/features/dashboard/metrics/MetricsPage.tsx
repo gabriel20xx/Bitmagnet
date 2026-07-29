@@ -20,16 +20,13 @@ import {
   Clock,
   Ruler,
   Database,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from 'lucide-react'
 import '@/lib/charting/chartSetup'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
-import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
-import { FilterSidebar } from '@/features/dashboard/FilterSidebar'
+import { FilterBar } from '@/features/dashboard/FilterBar'
 import { cn } from '@/lib/utils/cn'
 import type { MetricsBucketDuration } from '@/lib/graphql/generated'
 import {
@@ -57,7 +54,6 @@ const initialTimeframe: TimeframeName = 'weeks_1'
 export function MetricsPage() {
   const { t, i18n } = useTranslation()
   useDocumentTitle(t('routes.metrics'), t('routes.dashboard'))
-  const isDesktop = useIsDesktop()
 
   const m = useQueueMetrics({
     buckets: { duration: 'AUTO', multiplier: 'AUTO', timeframe: initialTimeframe },
@@ -69,7 +65,6 @@ export function MetricsPage() {
   })
 
   const [legend, setLegend] = useState(true)
-  const [drawerOpen, setDrawerOpen] = useState(isDesktop)
 
   // AUTO bucket-duration heuristic: switch to finer resolution if there's less than 12 buckets of data
   // (webui/src/app/dashboard/queue/queue-visualize.component.ts ngOnInit).
@@ -129,8 +124,8 @@ export function MetricsPage() {
   }
 
   const filterSections = (
-    <>
-      <div className="border-b border-border">
+    <FilterBar>
+      <div className="min-w-60 flex-1 border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <Clock className="size-4" />
           {t('dashboard.metrics.timeframe')}
@@ -185,7 +180,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="border-b border-border">
+      <div className="min-w-60 flex-1 border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <Ruler className="size-4" />
           {t('dashboard.metrics.resolution')}
@@ -265,7 +260,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="border-b border-border">
+      <div className="min-w-60 flex-1 border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <Boxes className="size-4" />
           {t('dashboard.queues.queue')}
@@ -311,7 +306,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="border-b border-border">
+      <div className="min-w-60 flex-1 border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <CircleDot className="size-4" />
           {t('dashboard.metrics.queue_event')}
@@ -378,7 +373,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="border-b border-border">
+      <div className="min-w-60 flex-1 border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <Database className="size-4" />
           {t('torrents.source')}
@@ -424,7 +419,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="border-b border-border">
+      <div className="min-w-60 flex-1 border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <CircleDot className="size-4" />
           {t('dashboard.metrics.torrent_event')}
@@ -481,7 +476,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="border-b border-border">
+      <div className="min-w-60 flex-1 border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <RefreshCw className="size-4" />
           {t('general.refresh')}
@@ -513,27 +508,13 @@ export function MetricsPage() {
           </div>
         </div>
       </div>
-    </>
+    </FilterBar>
   )
 
   return (
-    <div className="flex flex-1">
-      <FilterSidebar open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        {filterSections}
-      </FilterSidebar>
-
+    <div className="flex flex-1 flex-col">
+      {filterSections}
       <div className="min-w-0 flex-1 p-4">
-        <SimpleTooltip label={t('torrents.toggle_drawer')}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mb-3 min-[960px]:hidden"
-            onClick={() => setDrawerOpen((o) => !o)}
-          >
-            {drawerOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
-          </Button>
-        </SimpleTooltip>
-
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="rounded-lg border border-border bg-surface p-3">
             <h4 className="mb-2 text-sm font-semibold">{t('dashboard.queues.total_counts_by_status')}</h4>

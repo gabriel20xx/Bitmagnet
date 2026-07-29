@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@apollo/client/react'
-import { Plug, Plus, Power, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Plug, Plus, Power } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
-import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { addError } from '@/lib/toast/store'
 import { UpdateIntegrationDocument, type IntegrationFragment, type IntegrationType } from '@/lib/graphql/generated'
-import { FilterSidebar, FilterSidebarSection } from '@/features/dashboard/FilterSidebar'
+import { FilterBar, FilterBarSection } from '@/features/dashboard/FilterBar'
 import { toggleFilterValue, type FilterOption } from '@/features/dashboard/filterUtils'
 import { useIntegrations } from './useIntegrations'
 import { IntegrationRow } from './IntegrationRow'
@@ -22,15 +20,12 @@ const statusFilterValues: StatusFilterValue[] = ['enabled', 'disabled']
 export function IntegrationsPage() {
   const { t } = useTranslation()
   useDocumentTitle(t('routes.integrations'), t('routes.dashboard'))
-  const isDesktop = useIsDesktop()
-
   const { integrations, loading, refetch } = useIntegrations()
   const [updateIntegration] = useMutation(UpdateIntegrationDocument)
 
   const [editing, setEditing] = useState<IntegrationFragment | null | undefined>(undefined)
   const [deleting, setDeleting] = useState<IntegrationFragment | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [drawerOpen, setDrawerOpen] = useState(isDesktop)
   const [typeFilter, setTypeFilter] = useState<Set<IntegrationType>>(new Set())
   const [statusFilter, setStatusFilter] = useState<Set<StatusFilterValue>>(new Set())
 
@@ -70,30 +65,25 @@ export function IntegrationsPage() {
   ]
 
   return (
-    <div className="flex flex-1">
-      <FilterSidebar open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <FilterSidebarSection
+    <div className="flex flex-1 flex-col">
+      <FilterBar>
+        <FilterBarSection
           icon={Plug}
           label={t('facets.type')}
           options={typeOptions}
           selected={typeFilter}
           onToggle={(v) => setTypeFilter((s) => toggleFilterValue(s, integrationTypeList, v))}
         />
-        <FilterSidebarSection
+        <FilterBarSection
           icon={Power}
           label={t('facets.status')}
           options={statusOptions}
           selected={statusFilter}
           onToggle={(v) => setStatusFilter((s) => toggleFilterValue(s, statusFilterValues, v))}
         />
-      </FilterSidebar>
+      </FilterBar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <SimpleTooltip label={t('torrents.toggle_drawer')}>
-            <Button variant="ghost" size="icon" className="min-[960px]:hidden" onClick={() => setDrawerOpen((o) => !o)}>
-              {drawerOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
-            </Button>
-          </SimpleTooltip>
           <Button type="button" size="sm" onClick={() => setEditing(null)}>
             <Plus className="size-4" />
             {t('integrations.add_integration')}
