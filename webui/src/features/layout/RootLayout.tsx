@@ -19,7 +19,7 @@ export function RootLayout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col min-[960px]:flex-row">
+    <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex min-w-0 flex-1 flex-col">
         <Outlet />

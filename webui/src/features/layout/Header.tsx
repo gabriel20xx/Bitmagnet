@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils/cn'
 import { Button } from '@/components/ui/button'
 import { SimpleTooltip } from '@/components/ui/tooltip'
+import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { HealthWidget } from '@/features/health/HealthWidget'
 import { DatabaseStatsWidget } from '@/features/dashboard/DatabaseStatsWidget'
 import { ThemeToggle } from './ThemeToggle'
@@ -34,12 +35,6 @@ import { CredentialsDialog } from '@/features/auth/CredentialsDialog'
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
     'inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-surface-hover',
-    isActive && 'bg-surface-hover text-primary',
-  )
-
-const sidebarNavLinkClass = ({ isActive }: { isActive: boolean }) =>
-  cn(
-    'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-surface-hover',
     isActive && 'bg-surface-hover text-primary',
   )
 
@@ -63,29 +58,24 @@ function AccountMenu({
   username,
   logout,
   onChangeCredentials,
-  sidebar = false,
+  showUsername = false,
 }: {
   username: string
   logout: () => Promise<void>
   onChangeCredentials: () => void
-  sidebar?: boolean
+  showUsername?: boolean
 }) {
   const { t } = useTranslation()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size={sidebar ? 'sm' : 'icon'}
-          className={cn(sidebar && 'w-full justify-start')}
-          aria-label={t('auth.account')}
-        >
+        <Button variant="ghost" size={showUsername ? 'sm' : 'icon'} aria-label={t('auth.account')}>
           <UserRound className="size-5" />
-          {sidebar && username}
+          {showUsername && username}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent {...(sidebar ? { side: 'right' as const } : {})}>
+      <DropdownMenuContent>
         <DropdownMenuItem onSelect={onChangeCredentials}>
           <KeyRound className="size-4" />
           {t('auth.change_credentials')}
@@ -102,6 +92,7 @@ function AccountMenu({
 
 export function Header() {
   const { t } = useTranslation()
+  const isDesktop = useIsDesktop()
   const { status, logout } = useAuth()
   const [credentialsOpen, setCredentialsOpen] = useState(false)
 
@@ -109,50 +100,26 @@ export function Header() {
 
   return (
     <>
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-bg min-[960px]:flex">
-        <Link
-          to="/torrents"
-          className="flex shrink-0 items-center gap-2 border-b border-border px-5 py-4 font-semibold"
-        >
-          <Magnet className="size-5 text-primary" />
-          <span>Bitmagnet</span>
-        </Link>
-        <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3">
-          {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className={sidebarNavLinkClass}>
-              <item.icon className="size-4" />
-              {t(item.labelKey)}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="space-y-2 border-t border-border p-3">
-          <div className="flex items-center justify-end gap-1">
-            <DatabaseStatsWidget />
-            <HealthWidget />
-            <ThemeToggle />
-            <LanguageMenu />
-          </div>
-          <AccountMenu
-            username={username}
-            logout={logout}
-            onChangeCredentials={() => setCredentialsOpen(true)}
-            sidebar
-          />
-        </div>
-      </aside>
-
-      <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-bg px-3 min-[960px]:hidden">
+      <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-bg px-3">
         <Link to="/torrents" className="flex shrink-0 items-center gap-2 pr-1 font-semibold">
           <Magnet className="size-5 text-primary" />
+          {isDesktop && <span>Bitmagnet</span>}
         </Link>
         <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {navItems.map((item) => (
-            <SimpleTooltip key={item.to} label={t(item.labelKey)}>
-              <NavLink to={item.to} end={item.end} className={navLinkClass}>
+          {navItems.map((item) =>
+            isDesktop ? (
+              <NavLink key={item.to} to={item.to} end={item.end} className={navLinkClass}>
                 <item.icon className="size-4" />
+                {t(item.labelKey)}
               </NavLink>
-            </SimpleTooltip>
-          ))}
+            ) : (
+              <SimpleTooltip key={item.to} label={t(item.labelKey)}>
+                <NavLink to={item.to} end={item.end} className={navLinkClass}>
+                  <item.icon className="size-4" />
+                </NavLink>
+              </SimpleTooltip>
+            ),
+          )}
         </nav>
 
         <div className="flex shrink-0 items-center gap-1">
@@ -160,7 +127,12 @@ export function Header() {
           <HealthWidget />
           <ThemeToggle />
           <LanguageMenu />
-          <AccountMenu username={username} logout={logout} onChangeCredentials={() => setCredentialsOpen(true)} />
+          <AccountMenu
+            username={username}
+            logout={logout}
+            onChangeCredentials={() => setCredentialsOpen(true)}
+            showUsername={isDesktop}
+          />
         </div>
       </header>
       <CredentialsDialog

@@ -10,7 +10,7 @@ import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { useLiveTorrentSearch } from '@/lib/preferences/searchPreferences'
 import { cn } from '@/lib/utils/cn'
-import { FilterBar } from '@/features/dashboard/FilterBar'
+import { FilterSidebar } from '@/features/dashboard/FilterSidebar'
 import { FacetsSidebar } from './FacetsSidebar'
 import { TorrentsTable, allColumns, compactColumns } from './TorrentsTable'
 import { TorrentsBulkActions } from './TorrentsBulkActions'
@@ -83,10 +83,10 @@ export function TorrentsSearch() {
   }, [queryInput, updateControls, liveSearchEnabled])
 
   return (
-    <div className="flex flex-1 flex-col">
-      <FilterBar>
+    <div className="flex flex-1 flex-col min-[960px]:flex-row">
+      <FilterSidebar>
         <FacetsSidebar controls={controls} result={sidebarResult} onUpdate={updateControls} />
-      </FilterBar>
+      </FilterSidebar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1 basis-full sm:basis-auto">

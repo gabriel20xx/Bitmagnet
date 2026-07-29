@@ -2,15 +2,15 @@ import { useTranslation } from 'react-i18next'
 import type { LucideIcon } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 
-export function FilterBar({ children }: { children: React.ReactNode }) {
+export function FilterSidebar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border-b border-border bg-bg px-4 py-3">
-      <div className="flex flex-wrap items-start gap-4">{children}</div>
-    </div>
+    <aside className="w-full shrink-0 border-b border-border p-3 min-[960px]:sticky min-[960px]:top-14 min-[960px]:max-h-[calc(100vh-3.5rem)] min-[960px]:w-64 min-[960px]:overflow-y-auto min-[960px]:border-b-0 min-[960px]:border-r">
+      {children}
+    </aside>
   )
 }
 
-export function FilterBarSection<T extends string>({
+export function FilterSidebarSection<T extends string>({
   icon: Icon,
   label,
   options,
@@ -26,7 +26,7 @@ export function FilterBarSection<T extends string>({
   const { t, i18n } = useTranslation()
 
   return (
-    <section className="min-w-60 flex-1 rounded-md border border-border bg-surface p-3">
+    <section className="border-b border-border py-3 last:border-b-0">
       <div className="mb-2 flex items-center gap-2 text-sm font-medium">
         <Icon className="size-4" />
         {label}
@@ -34,7 +34,7 @@ export function FilterBarSection<T extends string>({
       {options.length === 0 ? (
         <p className="text-sm text-muted-fg">{t('general.none')}</p>
       ) : (
-        <ul className="grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
+        <ul className="space-y-1.5">
           {options.map((opt) => (
             <li key={opt.value} className="flex min-w-0 items-center gap-2 text-sm">
               <Checkbox

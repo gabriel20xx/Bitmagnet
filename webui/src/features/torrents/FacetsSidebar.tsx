@@ -83,7 +83,7 @@ export function FacetsSidebar({
 
   return (
     <>
-      <div className="min-w-56 flex-1 border-b border-border">
+      <div className="border-b border-border">
         <div className="flex items-center justify-between gap-2 py-3 text-sm font-medium">
           <span className="flex items-center gap-2">
             <Shapes className="size-4" />
@@ -141,7 +141,7 @@ export function FacetsSidebar({
         </div>
       </div>
 
-      <div className="min-w-64 flex-[1.5] border-b border-border">
+      <div className="border-b border-border">
         <div className="flex items-center justify-between gap-2 py-3 text-sm font-medium">
           <span className="flex items-center gap-2">
             <HardDrive className="size-4" />
@@ -163,7 +163,6 @@ export function FacetsSidebar({
 
       <Accordion
         type="multiple"
-        className="min-w-72 flex-[2]"
         value={openAccordionValues}
         onValueChange={(values) => {
           const opened = values.filter((v) => !openAccordionValues.includes(v))

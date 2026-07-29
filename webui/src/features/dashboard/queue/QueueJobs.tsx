@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { Paginator } from '@/components/ui/paginator'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
-import { FilterBar, FilterBarSection } from '@/features/dashboard/FilterBar'
+import { FilterSidebar, FilterSidebarSection } from '@/features/dashboard/FilterSidebar'
 import { activateFilter, deactivateFilter, facets, orderByOptions } from './queueJobsControls'
 import { useQueueJobs, useQueueJobsControls } from './useQueueJobs'
 import { QueueJobsTable } from './QueueJobsTable'
@@ -36,10 +36,10 @@ export function QueueJobs() {
   })
 
   return (
-    <div className="flex flex-1 flex-col">
-      <FilterBar>
+    <div className="flex flex-1 flex-col min-[960px]:flex-row">
+      <FilterSidebar>
         {facetInfos.map((facet) => (
-          <FilterBarSection
+          <FilterSidebarSection
             key={facet.def.key}
             icon={facet.def.icon}
             label={t(`facets.${facet.def.key}`)}
@@ -54,7 +54,7 @@ export function QueueJobs() {
             }
           />
         ))}
-      </FilterBar>
+      </FilterSidebar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Select

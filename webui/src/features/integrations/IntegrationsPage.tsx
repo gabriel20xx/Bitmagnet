@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { addError } from '@/lib/toast/store'
 import { UpdateIntegrationDocument, type IntegrationFragment, type IntegrationType } from '@/lib/graphql/generated'
-import { FilterBar, FilterBarSection } from '@/features/dashboard/FilterBar'
+import { FilterSidebar, FilterSidebarSection } from '@/features/dashboard/FilterSidebar'
 import { toggleFilterValue, type FilterOption } from '@/features/dashboard/filterUtils'
 import { useIntegrations } from './useIntegrations'
 import { IntegrationRow } from './IntegrationRow'
@@ -65,23 +65,23 @@ export function IntegrationsPage() {
   ]
 
   return (
-    <div className="flex flex-1 flex-col">
-      <FilterBar>
-        <FilterBarSection
+    <div className="flex flex-1 flex-col min-[960px]:flex-row">
+      <FilterSidebar>
+        <FilterSidebarSection
           icon={Plug}
           label={t('facets.type')}
           options={typeOptions}
           selected={typeFilter}
           onToggle={(v) => setTypeFilter((s) => toggleFilterValue(s, integrationTypeList, v))}
         />
-        <FilterBarSection
+        <FilterSidebarSection
           icon={Power}
           label={t('facets.status')}
           options={statusOptions}
           selected={statusFilter}
           onToggle={(v) => setStatusFilter((s) => toggleFilterValue(s, statusFilterValues, v))}
         />
-      </FilterBar>
+      </FilterSidebar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <Button type="button" size="sm" onClick={() => setEditing(null)}>

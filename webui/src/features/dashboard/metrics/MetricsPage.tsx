@@ -26,7 +26,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
-import { FilterBar } from '@/features/dashboard/FilterBar'
+import { FilterSidebar } from '@/features/dashboard/FilterSidebar'
 import { cn } from '@/lib/utils/cn'
 import type { MetricsBucketDuration } from '@/lib/graphql/generated'
 import {
@@ -124,8 +124,8 @@ export function MetricsPage() {
   }
 
   const filterSections = (
-    <FilterBar>
-      <div className="min-w-60 flex-1 border-b border-border">
+    <>
+      <div className="border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <Clock className="size-4" />
           {t('dashboard.metrics.timeframe')}
@@ -180,7 +180,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="min-w-60 flex-1 border-b border-border">
+      <div className="border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <Ruler className="size-4" />
           {t('dashboard.metrics.resolution')}
@@ -260,7 +260,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="min-w-60 flex-1 border-b border-border">
+      <div className="border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <Boxes className="size-4" />
           {t('dashboard.queues.queue')}
@@ -306,7 +306,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="min-w-60 flex-1 border-b border-border">
+      <div className="border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <CircleDot className="size-4" />
           {t('dashboard.metrics.queue_event')}
@@ -373,7 +373,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="min-w-60 flex-1 border-b border-border">
+      <div className="border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <Database className="size-4" />
           {t('torrents.source')}
@@ -419,7 +419,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="min-w-60 flex-1 border-b border-border">
+      <div className="border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <CircleDot className="size-4" />
           {t('dashboard.metrics.torrent_event')}
@@ -476,7 +476,7 @@ export function MetricsPage() {
         </div>
       </div>
 
-      <div className="min-w-60 flex-1 border-b border-border">
+      <div className="border-b border-border">
         <div className="flex items-center gap-2 py-3 text-sm font-medium">
           <RefreshCw className="size-4" />
           {t('general.refresh')}
@@ -508,12 +508,12 @@ export function MetricsPage() {
           </div>
         </div>
       </div>
-    </FilterBar>
+    </>
   )
 
   return (
-    <div className="flex flex-1 flex-col">
-      {filterSections}
+    <div className="flex flex-1 flex-col min-[960px]:flex-row">
+      <FilterSidebar>{filterSections}</FilterSidebar>
       <div className="min-w-0 flex-1 p-4">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="rounded-lg border border-border bg-surface p-3">

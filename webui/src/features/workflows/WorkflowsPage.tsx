@@ -9,7 +9,7 @@ import { UpdateWorkflowDocument, type IntegrationType, type WorkflowFragment } f
 import { useIntegrations } from '@/features/integrations/useIntegrations'
 import { integrationTypeLabels, integrationTypeList } from '@/features/integrations/integrationTypes'
 import { useFavoritesLists } from '@/features/torrents/useFavoritesLists'
-import { FilterBar, FilterBarSection } from '@/features/dashboard/FilterBar'
+import { FilterSidebar, FilterSidebarSection } from '@/features/dashboard/FilterSidebar'
 import { toggleFilterValue, type FilterOption } from '@/features/dashboard/filterUtils'
 import { useWorkflows } from './useWorkflows'
 import { WorkflowRow } from './WorkflowRow'
@@ -94,23 +94,23 @@ export function WorkflowsPage() {
   }))
 
   return (
-    <div className="flex flex-1 flex-col">
-      <FilterBar>
-        <FilterBarSection
+    <div className="flex flex-1 flex-col min-[960px]:flex-row">
+      <FilterSidebar>
+        <FilterSidebarSection
           icon={Plug}
           label={t('facets.type')}
           options={typeOptions}
           selected={typeFilter}
           onToggle={(v) => setTypeFilter((s) => toggleFilterValue(s, integrationTypeList, v))}
         />
-        <FilterBarSection
+        <FilterSidebarSection
           icon={Power}
           label={t('facets.status')}
           options={statusOptions}
           selected={statusFilter}
           onToggle={(v) => setStatusFilter((s) => toggleFilterValue(s, statusFilterValues, v))}
         />
-        <FilterBarSection
+        <FilterSidebarSection
           icon={Star}
           label={t('facets.favorites_list')}
           options={favoritesListOptions}
@@ -125,7 +125,7 @@ export function WorkflowsPage() {
             )
           }
         />
-      </FilterBar>
+      </FilterSidebar>
       <div className="min-w-0 flex-1 p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <Button type="button" size="sm" disabled={!canAddWorkflow} onClick={() => setEditing(null)}>
