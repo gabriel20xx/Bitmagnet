@@ -524,7 +524,12 @@ export function MetricsPage() {
 
       <div className="min-w-0 flex-1 p-4">
         <SimpleTooltip label={t('torrents.toggle_drawer')}>
-          <Button variant="ghost" size="icon" className="mb-3" onClick={() => setDrawerOpen((o) => !o)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mb-3 min-[960px]:hidden"
+            onClick={() => setDrawerOpen((o) => !o)}
+          >
             {drawerOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
           </Button>
         </SimpleTooltip>

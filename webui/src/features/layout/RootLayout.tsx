@@ -19,9 +19,9 @@ export function RootLayout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col min-[960px]:flex-row">
       <Header />
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-w-0 flex-1 flex-col">
         <Outlet />
       </main>
     </div>

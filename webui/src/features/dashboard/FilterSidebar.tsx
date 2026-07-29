@@ -18,11 +18,11 @@ export function FilterSidebar({
   const { t } = useTranslation()
   const isDesktop = useIsDesktop()
 
-  if (!open) return null
-
   if (isDesktop) {
     return <div className="w-64 shrink-0 space-y-1 border-r border-border p-3">{children}</div>
   }
+
+  if (!open) return null
 
   return (
     <div className="fixed inset-0 z-50 flex">
