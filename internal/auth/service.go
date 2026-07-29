@@ -345,7 +345,7 @@ func (s *service) clearCookie(ctx context.Context) {
 }
 
 func normalizeUsername(username string) (string, error) {
-	normalized := strings.ToLower(strings.TrimSpace(username))
+	normalized := strings.TrimSpace(username)
 	if normalized == "" || utf8.RuneCountInString(normalized) > 64 {
 		return "", fmt.Errorf("%w: username must be between 1 and 64 characters", ErrInvalidInput)
 	}
