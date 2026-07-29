@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/archive"
+	"github.com/bitmagnet-io/bitmagnet/internal/auth"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/httpserver"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
@@ -26,9 +27,10 @@ const clientClosedRequest = 499
 
 type Params struct {
 	fx.In
-	Dao     lazy.Lazy[*dao.Query]
-	Service *mediastream.Service
-	Logger  *zap.SugaredLogger
+	AuthService auth.Service
+	Dao         lazy.Lazy[*dao.Query]
+	Service     *mediastream.Service
+	Logger      *zap.SugaredLogger
 }
 
 type Result struct {
@@ -39,6 +41,7 @@ type Result struct {
 func New(p Params) Result {
 	return Result{
 		Option: &builder{
+			auth:    p.AuthService,
 			dao:     p.Dao,
 			service: p.Service,
 			logger:  p.Logger.Named("mediastream"),
@@ -47,6 +50,7 @@ func New(p Params) Result {
 }
 
 type builder struct {
+	auth    auth.Service
 	dao     lazy.Lazy[*dao.Query]
 	service *mediastream.Service
 	logger  *zap.SugaredLogger
@@ -64,6 +68,10 @@ func (b *builder) Apply(e *gin.Engine) error {
 }
 
 func (b *builder) handleStream(ctx *gin.Context) {
+	if !b.requireAuth(ctx) {
+		return
+	}
+
 	index, t, ok := b.loadTorrentFile(ctx)
 	if !ok {
 		return
@@ -81,6 +89,10 @@ func (b *builder) handleStream(ctx *gin.Context) {
 }
 
 func (b *builder) handleArchiveEntryStream(ctx *gin.Context) {
+	if !b.requireAuth(ctx) {
+		return
+	}
+
 	index, t, ok := b.loadTorrentFile(ctx)
 	if !ok {
 		return
@@ -102,6 +114,20 @@ func (b *builder) handleArchiveEntryStream(ctx *gin.Context) {
 	defer stream.Close()
 
 	http.ServeContent(ctx.Writer, ctx.Request, stream.Name, time.Time{}, stream.Reader)
+}
+
+func (b *builder) requireAuth(ctx *gin.Context) bool {
+	user, err := b.auth.CurrentUser(ctx.Request.Context())
+	if err != nil {
+		b.logger.Errorw("error checking authentication", "error", err)
+		ctx.Status(http.StatusInternalServerError)
+		return false
+	}
+	if user == nil {
+		ctx.Status(http.StatusUnauthorized)
+		return false
+	}
+	return true
 }
 
 // loadTorrentFile parses and validates the :infoHash/:index route params shared by both

@@ -1,13 +1,36 @@
+import { useState } from 'react'
 import { NavLink, Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { Files, LineChart, ListChecks, Magnet, Plug, Workflow, Wrench, type LucideIcon } from 'lucide-react'
+import {
+  Files,
+  KeyRound,
+  LineChart,
+  ListChecks,
+  LogOut,
+  Magnet,
+  Plug,
+  UserRound,
+  Workflow,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
+import { Button } from '@/components/ui/button'
 import { SimpleTooltip } from '@/components/ui/tooltip'
 import { useIsDesktop } from '@/lib/hooks/useMediaQuery'
 import { HealthWidget } from '@/features/health/HealthWidget'
 import { DatabaseStatsWidget } from '@/features/dashboard/DatabaseStatsWidget'
 import { ThemeToggle } from './ThemeToggle'
 import { LanguageMenu } from './LanguageMenu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useAuth } from '@/features/auth/useAuth'
+import { CredentialsDialog } from '@/features/auth/CredentialsDialog'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -34,6 +57,10 @@ const navItems: NavItem[] = [
 export function Header() {
   const { t } = useTranslation()
   const isDesktop = useIsDesktop()
+  const { status, logout } = useAuth()
+  const [credentialsOpen, setCredentialsOpen] = useState(false)
+
+  const username = status?.user?.username ?? ''
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border bg-bg px-3">
@@ -63,7 +90,32 @@ export function Header() {
         <HealthWidget />
         <ThemeToggle />
         <LanguageMenu />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size={isDesktop ? 'sm' : 'icon'} aria-label={t('auth.account')}>
+              <UserRound className="size-5" />
+              {isDesktop && username}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onSelect={() => setCredentialsOpen(true)}>
+              <KeyRound className="size-4" />
+              {t('auth.change_credentials')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => void logout()}>
+              <LogOut className="size-4" />
+              {t('auth.sign_out')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+      <CredentialsDialog
+        key={username}
+        open={credentialsOpen}
+        onOpenChange={setCredentialsOpen}
+        currentUsername={username}
+      />
     </header>
   )
 }

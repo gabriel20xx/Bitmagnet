@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/bitmagnet-io/bitmagnet/internal/auth"
 	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/httpserver"
 	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
@@ -17,8 +18,9 @@ import (
 
 type Params struct {
 	fx.In
-	Dao    lazy.Lazy[*dao.Query]
-	Logger *zap.SugaredLogger
+	AuthService auth.Service
+	Dao         lazy.Lazy[*dao.Query]
+	Logger      *zap.SugaredLogger
 }
 
 type Result struct {
@@ -29,6 +31,7 @@ type Result struct {
 func New(p Params) Result {
 	return Result{
 		Option: &builder{
+			auth:   p.AuthService,
 			dao:    p.Dao,
 			logger: p.Logger.Named("torrentfile"),
 		},
@@ -36,6 +39,7 @@ func New(p Params) Result {
 }
 
 type builder struct {
+	auth   auth.Service
 	dao    lazy.Lazy[*dao.Query]
 	logger *zap.SugaredLogger
 }
@@ -51,6 +55,10 @@ func (b *builder) Apply(e *gin.Engine) error {
 }
 
 func (b *builder) handleDownload(ctx *gin.Context) {
+	if !b.requireAuth(ctx) {
+		return
+	}
+
 	infoHash, parseErr := protocol.ParseID(ctx.Param("infoHash"))
 	if parseErr != nil {
 		ctx.String(http.StatusBadRequest, "invalid info hash")
@@ -92,4 +100,18 @@ func (b *builder) handleDownload(ctx *gin.Context) {
 
 	ctx.Header("Content-Disposition", `attachment; filename="`+infoHash.String()+`.torrent"`)
 	ctx.Data(http.StatusOK, "application/x-bittorrent", fileBytes)
+}
+
+func (b *builder) requireAuth(ctx *gin.Context) bool {
+	user, err := b.auth.CurrentUser(ctx.Request.Context())
+	if err != nil {
+		b.logger.Errorw("error checking authentication", "error", err)
+		ctx.Status(http.StatusInternalServerError)
+		return false
+	}
+	if user == nil {
+		ctx.Status(http.StatusUnauthorized)
+		return false
+	}
+	return true
 }

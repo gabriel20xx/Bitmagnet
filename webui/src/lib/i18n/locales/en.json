@@ -26,6 +26,24 @@
       "xxx": "Porn"
     }
   },
+  "auth": {
+    "account": "Account",
+    "change_credentials": "Change credentials",
+    "confirm_password": "Confirm password",
+    "create_account": "Create account",
+    "current_password": "Current password",
+    "leave_blank_to_keep": "Leave blank to keep current password",
+    "login_description": "Sign in to continue to your Bitmagnet instance.",
+    "new_password": "New password",
+    "password": "Password",
+    "passwords_do_not_match": "Passwords do not match",
+    "request_failed": "The request failed. Try again.",
+    "setup_description": "Create the local administrator account to get started.",
+    "sign_in": "Sign in",
+    "sign_out": "Sign out",
+    "username": "Username",
+    "working": "Working…"
+  },
   "dashboard": {
     "database": {
       "entries": "Torrents indexed",

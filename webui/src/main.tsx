@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/toaster'
 import { apolloClient } from '@/lib/graphql/client'
 import { ThemeProvider } from '@/lib/theme/ThemeProvider'
+import { AuthProvider } from '@/features/auth/AuthProvider'
 import '@/lib/i18n'
 import './index.css'
 import { Router } from './Router'
@@ -12,12 +13,14 @@ import { Router } from './Router'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ApolloProvider client={apolloClient}>
-      <ThemeProvider>
-        <TooltipProvider delayDuration={300}>
-          <Router />
-          <Toaster />
-        </TooltipProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <TooltipProvider delayDuration={300}>
+            <Router />
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </ApolloProvider>
   </StrictMode>,
 )

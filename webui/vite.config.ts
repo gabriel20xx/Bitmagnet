@@ -51,6 +51,10 @@ export default defineConfig({
   server: {
     host: 'localhost',
     port: 3334,
+    proxy: {
+      '/graphql': 'http://localhost:3333',
+      '/torrents': 'http://localhost:3333',
+    },
   },
   test: {
     environment: 'jsdom',

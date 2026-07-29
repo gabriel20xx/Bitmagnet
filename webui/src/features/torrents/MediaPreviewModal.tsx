@@ -17,7 +17,7 @@ function useTextPreview(url: string, onError: () => void): TextPreviewState | nu
   useEffect(() => {
     let cancelled = false
 
-    fetch(url, { headers: { Range: `bytes=0-${TEXT_PREVIEW_BYTE_LIMIT - 1}` } })
+    fetch(url, { credentials: 'include', headers: { Range: `bytes=0-${TEXT_PREVIEW_BYTE_LIMIT - 1}` } })
       .then(async (res) => {
         if (!res.ok) throw new Error('failed to load text preview')
 
@@ -76,27 +76,37 @@ function messageKeyForStatus(status: number): string {
 // preflight lets us surface that distinction instead of always showing a generic "couldn't
 // be played".
 function useStreamAvailability(url: string, retryKey: number): Availability {
-  const [state, setState] = useState<Availability>({ status: 'checking' })
+  const requestKey = `${url}:${retryKey}`
+  const [checked, setChecked] = useState<{ key: string; availability: Availability } | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    setState({ status: 'checking' })
 
-    fetch(url, { headers: { Range: 'bytes=0-0' } })
+    fetch(url, { credentials: 'include', headers: { Range: 'bytes=0-0' } })
       .then((res) => {
         if (cancelled) return
-        setState(res.ok ? { status: 'ready' } : { status: 'unavailable', messageKey: messageKeyForStatus(res.status) })
+        setChecked({
+          key: requestKey,
+          availability: res.ok
+            ? { status: 'ready' }
+            : { status: 'unavailable', messageKey: messageKeyForStatus(res.status) },
+        })
       })
       .catch(() => {
-        if (!cancelled) setState({ status: 'unavailable', messageKey: 'torrents.preview_failed' })
+        if (!cancelled) {
+          setChecked({
+            key: requestKey,
+            availability: { status: 'unavailable', messageKey: 'torrents.preview_failed' },
+          })
+        }
       })
 
     return () => {
       cancelled = true
     }
-  }, [url, retryKey])
+  }, [url, requestKey])
 
-  return state
+  return checked?.key === requestKey ? checked.availability : { status: 'checking' }
 }
 
 function PreviewLoading() {

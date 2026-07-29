@@ -3,7 +3,7 @@ import { HttpLink } from '@apollo/client/link/http'
 import { resolveGraphqlEndpoint } from './endpoint'
 
 export const apolloClient = new ApolloClient({
-  link: new HttpLink({ uri: resolveGraphqlEndpoint() }),
+  link: new HttpLink({ uri: resolveGraphqlEndpoint(), credentials: 'include' }),
   cache: new InMemoryCache({
     typePolicies: {
       Query: {

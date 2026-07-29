@@ -1,6 +1,6 @@
 function resolveApiOrigin(): string {
   if (import.meta.env.DEV) {
-    return 'http://localhost:3333'
+    return window.location.origin
   }
 
   return `${window.location.protocol}//${window.location.hostname}:${window.location.port}`

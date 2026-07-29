@@ -9,6 +9,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/bitmagnet-io/bitmagnet/internal/auth"
 	"github.com/bitmagnet-io/bitmagnet/internal/httpserver/ginzap"
 	"github.com/bitmagnet-io/bitmagnet/internal/worker"
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,10 @@ func New(p Params) Result {
 					gin.SetMode(p.Config.GinMode)
 					g := gin.New()
 					g.Use(ginzap.Ginzap(p.Logger.Named("gin"), time.RFC3339, true), gin.Recovery())
+					g.Use(func(c *gin.Context) {
+						c.Request = c.Request.WithContext(auth.WithHTTPContext(c.Request.Context(), c.Request, c.Writer))
+						c.Next()
+					})
 					options, optionsErr := resolveOptions(p.Config.Options, p.Options)
 					if optionsErr != nil {
 						return optionsErr
